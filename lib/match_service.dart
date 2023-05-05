@@ -32,7 +32,7 @@ class MatchService{
     List<dynamic> data = [];
     late StreamSubscription sub;
 
-    var collectionReference = _firestore.collection('users');
+    var collectionReference = _firestore.collection('users').where('genderPref', isEqualTo: 'male');
     var geoRef = geo.collection(collectionRef: collectionReference);
 
     String field = 'location';
@@ -41,13 +41,9 @@ class MatchService{
       (center: myLocation, radius: radius, field: field);
     sub = stream.listen((event) {
       event.forEach((element) {
-        data.add(element.data());
-        print(data);
+          print(element.data());
       });
       sub.cancel();
     });
   }
 }
-// Init firestore and geoFlutterFire
-
-
