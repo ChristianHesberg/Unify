@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:unify/Widgets/user_text.dart';
 
@@ -34,6 +35,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             }
 
           }, child: Text(nameController.text)),
+          ElevatedButton(onPressed: () {
+            FirebaseAuth.instance.signOut();
+          }, child: Text("logout"), style: ElevatedButton.styleFrom(primary: Colors.red),)
+
         ],
       ),
     );

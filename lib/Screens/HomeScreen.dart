@@ -21,10 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
           "${user?.email}",
           style: TextStyle(fontSize: 40),
         ),
-        ElevatedButton(onPressed: () {
-          FirebaseAuth.instance.signOut();
-        }, child: Text("logout"))
-      ]),
+              ]),
     );
   }
 }
