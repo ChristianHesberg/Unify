@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:unify/Screens/RegisterScreen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -28,14 +29,21 @@ class _LoginScreenState extends State<LoginScreen> {
               controller: _password,
             ),
             _buildLoginBtn(),
-            ElevatedButton(onPressed: () {}, child: Text("Register"))
+            _buildRegisterBtn()
           ],
         ),
       ),
     );
   }
 
-
+  Widget _buildRegisterBtn() {
+    return ElevatedButton(
+        onPressed: () {
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const RegisterScreen()));
+        },
+        child: Text("Register"));
+  }
 
   Widget _buildLoginBtn() {
     return ElevatedButton(
@@ -43,7 +51,6 @@ class _LoginScreenState extends State<LoginScreen> {
         final email = _email.value.text;
         final password = _password.value.text;
         _auth.signInWithEmailAndPassword(email: email, password: password);
-        print("Login success");
       },
       child: Text("Login"),
     );
