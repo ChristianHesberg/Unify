@@ -15,17 +15,17 @@ app.get('/matches/userAge/:userAge/maxAge/:maxAge/minAge/:minAge/matchGender/:ma
     const getResult =
         await admin.firestore().collection('users')
         .where(req.params.matchGender, "==", true)
-        .where('maxAgePreference', ">=", req.params.userAge)
-        //.where('minAgePreference', '<=', req.params.userAge)
-        //.where('age', '<=', req.params.maxAge)
-        //.where('age', '>=', req.params.minAge)
-        //.where('gender', 'in', genderPreferences)
+        .where('maxAgePreference', ">=", Number(req.params.userAge))
+        .where('minAgePreference', '<=', Number(req.params.userAge))
+        .where('age', '<=', Number(req.params.maxAge))
+        .where('age', '>=', Number(req.params.minAge))
+        .where('gender', 'in', genderPreferences)
     .get();
     getResult.forEach(doc =>{
         results.push(doc.data());
     })
     res.send(results);
-    //geofire.geohashQueryBounds()
+    geofire.geohashQueryBounds()
 });
 
 exports.api = functions.https.onRequest(app);
