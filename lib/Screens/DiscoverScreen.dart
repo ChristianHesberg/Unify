@@ -42,10 +42,11 @@ class DiscoverScreen extends StatelessWidget {
         ])
   ];
 
+  DiscoverScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Unify"), backgroundColor: Colors.black),
       body: PageView.builder(
           controller: controller,
           scrollDirection: Axis.horizontal,

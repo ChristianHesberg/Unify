@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:unify/Screens/ContactScreen.dart';
+import 'package:unify/Screens/DiscoverScreen.dart';
+
+import 'SettingsScreen.dart';
 
 class NavigatorScreen extends StatefulWidget {
   const NavigatorScreen({Key? key}) : super(key: key);
@@ -8,18 +12,52 @@ class NavigatorScreen extends StatefulWidget {
 }
 
 class _NavigatorScreenState extends State<NavigatorScreen> {
+  int _selectedIndex = 0;
+
+
+  _showWidget(int pos) {
+    switch (pos) {
+      case 0:
+        return new DiscoverScreen();
+      case 1:
+        return new ContactScreen();
+      case 2:
+        return new SettingsScreen();
+
+      default:
+        return new Text("Error");
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("helloworld"),),
-  
-      bottomNavigationBar: BottomNavigationBar(items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(icon: Icon(Icons.ice_skating)),
+      appBar: AppBar(title: const Text("Unify"), backgroundColor: Colors.black),
+      body: _showWidget(_selectedIndex),
+      bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.blue,
+          onTap: _onItemTapped,
+          items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+            label: "Discover",
+            icon: Icon(Icons.people
+        )),
 
-        BottomNavigationBarItem(icon: Icon(Icons.add)),
+        BottomNavigationBarItem(
+            label: "Chat",
+            icon: Icon(Icons.chat)),
 
-        BottomNavigationBarItem(icon: Icon(Icons.access_alarm))
+        BottomNavigationBarItem(
+            label: "profile",
+            icon: Icon(Icons.settings)),
+
       ]),
     );
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 }
