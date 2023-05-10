@@ -1,53 +1,68 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 admin.initializeApp({projectId: 'unify-ef8e0'});
-const geoFirestore = require('geofirestore');
+const geofire = require('geofire-common');
 
 const app = require('express')();
 const cors = require('cors');
 app.use(cors());
 
 
-app.get('/matches/userAge/:userAge/maxAge/:maxAge/minAge/:minAge/matchGender/:matchGender/genderPrefs/:genderPrefs', async (req, res) =>{
+app.get('/matches' +
+    '/userAge/:userAge' +
+    '/maxAge/:maxAge' +
+    '/minAge/:minAge' +
+    '/matchGender/:matchGender' +
+    '/genderPrefs/:genderPrefs' +
+    '/uid/:uid' +
+    '/lat/:lat' +
+    '/lng/:lng' +
+    '/radius/:radius', async (req, res) =>{
+
+    const lat = Number(req.params.lat);
+    const lng = Number(req.params.lng);
+    const center = [lat, lng];
+    const radiusInM = Number(req.params.radius) * 1000;
 
     const genderPreferences = req.params.genderPrefs.split("-");
-    let results = [];
-    /*const getResult =
-        admin.firestore().collection('users')
-        .where(req.params.matchGender, "==", true)
-        .where('maxAgePreference', ">=", Number(req.params.userAge))
-        .where('minAgePreference', '<=', Number(req.params.userAge))
-        .where('age', '<=', Number(req.params.maxAge))
-        .where('age', '>=', Number(req.params.minAge))
-        .where('gender', 'in', genderPreferences);
-    //.get();
-    //getResult.forEach(doc =>{
-    //    results.push(doc.data());
-    //});
 
-     */
-    const lat = 37.3882733;
-    const long = -122.0778017;
-    const center = new admin.firestore.GeoPoint(lat,long);
+    const bounds = geofire.geohashQueryBounds(center, radiusInM);
+    const promises = [];
+    for (const b of bounds) {
+        const getResult =
+            admin.firestore().collection('users')
+                .where(req.params.matchGender, "==", true)
+                .where('maxAgePreference', ">=", Number(req.params.userAge))
+                .where('minAgePreference', '<=', Number(req.params.userAge))
+                .where('age', '<=', Number(req.params.maxAge))
+                .where('age', '>=', Number(req.params.minAge))
+                .where('gender', 'in', genderPreferences)
+                .orderBy('geohash')
+                .startAt(b[0])
+                .endAt(b[1]);
 
-    const firestore = admin.firestore();
-    const Geofirestore = geoFirestore.initializeApp(firestore);
-    const geocollection = Geofirestore.collection('users')
-        .where(req.params.matchGender, "==", true)
-        .where('maxAgePreference', ">=", Number(req.params.userAge))
-        .where('minAgePreference', '<=', Number(req.params.userAge))
-        .where('age', '<=', Number(req.params.maxAge))
-        .where('age', '>=', Number(req.params.minAge))
-        .where('gender', 'in', genderPreferences);
-    const queryCollection = geocollection.near({
-        center: center,
-        radius : 50,
-    });
+        promises.push(getResult.get());
+    }
 
+    Promise.all(promises).then((snapshots) => {
+        const matchingDocs = [];
 
-    const usersNearby = await queryCollection.get();
-    usersNearby.forEach(doc => results.push(doc.data()));
-    res.send(results);
+        for (const snap of snapshots) {
+            for (const doc of snap.docs) {
+                const lat = doc.get('lat');
+                const lng = doc.get('lng');
+
+                const distanceInKm = geofire.distanceBetween([Number(lat), Number(lng)], center);
+                const distanceInM = distanceInKm * 1000;
+                if(doc.id!==req.params.uid){
+                    if (distanceInM <= radiusInM) {
+                        matchingDocs.push(doc.data());
+                    }
+                }
+            }
+        }
+        res.send(matchingDocs);
+    })
 });
 
 exports.api = functions.https.onRequest(app);
