@@ -84,9 +84,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             _profilePicture(),
             TextField(
               decoration: const InputDecoration(
-                label: Text("Name"),
-                hintText: "Your name"
-              ),
+                  label: Text("Name"), hintText: "Your name"),
               controller: _name,
             ),
             _createDateBtn(),
@@ -99,19 +97,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Text('Upload Photo'),
             ),
             images.isNotEmpty
-                ? Expanded(
-              child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3),
-                  itemBuilder: (context, index) =>
-                      Image(image: XFileImage(images[index]))),
-            )
+                ? SizedBox(
+              width: MediaQuery.of(context).size.width,
+                  height: 500,
+                  //TODO FIX MIG
+                  child: GridView.builder(
+                    itemCount: images.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3),
+                    itemBuilder: (context, index) => Image(
+                      height: 50,
+                      width: 50,
+                      image: XFileImage(images[index]),
+                    ),
+                  ),
+                )
                 : Container(),
             const TextField(
               maxLines: null,
               keyboardType: TextInputType.multiline,
-              decoration: InputDecoration(label: Text("About you"),
-              hintText: "Tell others a little about you"),
+              decoration: InputDecoration(
+                  label: Text("About you"),
+                  hintText: "Tell others a little about you"),
             )
           ],
         ),
@@ -124,7 +131,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future getManyPhotos() async {
     var images = await _image_picker.pickMultiImage();
     setState(() {
-      this.images = images;
+      this.images.addAll(images);
     });
   }
 
@@ -141,13 +148,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             title: Text('Please choose media to select'),
             content: Container(
-              height: MediaQuery
-                  .of(context)
-                  .size
-                  .height / 6,
+              height: MediaQuery.of(context).size.height / 6,
               child: Column(
                 children: [
                   ElevatedButton(
@@ -183,30 +187,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
         });
   }
 
-  _buildUserPreferences() {
-    return Text("user pref");
-  }
-
   _profilePicture() {
     return image == null
         ? Center(
-      child: ElevatedButton(
-          onPressed: () {
-            imageAlert();
-          },
-          child: Text("Profile Image")),
-    )
+            child: ElevatedButton(
+                onPressed: () {
+                  imageAlert();
+                },
+                child: Text("Profile Image")),
+          )
         : GestureDetector(
-      onTap: () {
-        imageAlert();
-      },
-      child: Center(
-        child: CircleAvatar(
-          radius: 60,
-          backgroundImage: XFileImage(image!),
-        ),
-      ),
-    );
+            onTap: () {
+              imageAlert();
+            },
+            child: Center(
+              child: CircleAvatar(
+                radius: 60,
+                backgroundImage: XFileImage(image!),
+              ),
+            ),
+          );
   }
 
   _createDateBtn() {
@@ -218,20 +218,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
             onPressed: () {
               final today = DateTime.now();
               final minusEightTeen =
-              DateTime(today.year - 18, today.month, today.day);
+                  DateTime(today.year - 18, today.month, today.day);
               showDatePicker(
-                  context: context,
-                  initialDate: minusEightTeen,
-                  firstDate: DateTime(1900),
-                  lastDate: minusEightTeen)
-                  .then((value) =>
-                  setState(() {
-                    birthDate = value!;
-                  }));
+                      context: context,
+                      initialDate: minusEightTeen,
+                      firstDate: DateTime(1900),
+                      lastDate: minusEightTeen)
+                  .then((value) => setState(() {
+                        birthDate = value!;
+                      }));
             },
             child: const Text("Select birthday")),
         Text("${formatter.format(birthDate)}")
       ],
     );
+  }
+
+  _buildUserPreferences() {
+    return Text("user pref");
   }
 }
