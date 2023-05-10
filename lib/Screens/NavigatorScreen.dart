@@ -48,7 +48,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
             icon: Icon(Icons.chat)),
 
         BottomNavigationBarItem(
-            label: "profile",
+            label: "Settings",
             icon: Icon(Icons.settings)),
 
       ]),

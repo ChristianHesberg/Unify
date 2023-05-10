@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:settings_ui/settings_ui.dart';
+import 'package:unify/Screens/AccountScreen.dart';
 import 'package:unify/Widgets/user_text.dart';
 
 import '../Widgets/user_text_field.dart';
@@ -12,35 +14,35 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool canEdit = true;
-  String name = "";
-  final _formKey = GlobalKey<FormState>();
-  TextEditingController nameController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(12.0),
-      child: Column(
-        children: [
-          Form(
-            key: _formKey,
-              child: Column(children: [
-                UserTextField(controller: nameController,label: "name",)
-
-              ])),
-
-          ElevatedButton(onPressed: () {
-            if(_formKey.currentState!.validate()){
-              setState(() {});
-            }
-
-          }, child: Text(nameController.text)),
-          ElevatedButton(onPressed: () {
+    return SettingsList(sections: [
+      SettingsSection(title: const Text("Account"), tiles: <SettingsTile>[
+        SettingsTile.navigation(
+          leading: const Icon(Icons.account_circle),
+          title: const Text("Account info"),
+          trailing: const Icon(Icons.arrow_forward_ios),
+          onPressed: (context) {Navigator.of(context).push(MaterialPageRoute(builder: (context) => AccountScreen(),));},
+        ),
+        SettingsTile.navigation(
+          leading: const Icon(Icons.supervisor_account_rounded),
+          title: const Text("Search preferences"),
+          trailing: const Icon(Icons.arrow_forward_ios),
+          onPressed: (context) {},
+        ),
+      ]),
+      SettingsSection(title: const Text("Log out"), tiles: <SettingsTile>[
+        SettingsTile.navigation(
+          leading: const Icon(Icons.logout),
+          title: const Text("log out"),
+          onPressed: (context) {
             FirebaseAuth.instance.signOut();
-          }, child: Text("logout"), style: ElevatedButton.styleFrom(primary: Colors.red),)
-
-        ],
-      ),
-    );
+          },
+        ),
+      ])
+    ]);
   }
+
+
 }
