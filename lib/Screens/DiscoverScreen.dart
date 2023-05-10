@@ -65,12 +65,15 @@ class DiscoverScreen extends StatelessWidget {
                     const ContractUserBtn(),
                   ],
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: UserText(
-                      text: peopleList[position].desc,
-                      size: 20,
-                      color: Colors.black45),
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: UserText(
+                        text: peopleList[position].desc,
+                        size: 20,
+                        color: Colors.black45),
+                  ),
                 )
               ],
             );
