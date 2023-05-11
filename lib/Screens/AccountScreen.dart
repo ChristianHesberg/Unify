@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:unify/Widgets/genderDropDown.dart';
 import 'package:unify/Widgets/user_text.dart';
 
 import '../Widgets/user_text_field.dart';
@@ -11,6 +12,8 @@ class AccountScreen extends StatefulWidget {
 }
 
 class _AccountScreenState extends State<AccountScreen> {
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,10 +25,11 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  bool canEdit = true;
+  bool canEdit = false;
   String name = "";
   final _formKey = GlobalKey<FormState>();
   TextEditingController nameController = TextEditingController();
+  TextEditingController descController = TextEditingController();
 
   Widget _accountScreen() {
     return SingleChildScrollView(
@@ -49,43 +53,84 @@ class _AccountScreenState extends State<AccountScreen> {
                   ),
                 ),
                 Positioned(
-                  bottom: 25,
+                    bottom: 25,
                     right: 10,
                     child: ElevatedButton(
                       style: ButtonStyle(
                         shape:
-                        MaterialStateProperty.all<RoundedRectangleBorder>(
+                            MaterialStateProperty.all<RoundedRectangleBorder>(
                           RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(300.0),
                           ),
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        canEdit = true;
+                        setState(() {
+                        });
+                      },
                       child: const Icon(Icons.edit),
                     )),
+                const Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Text("Ole"),
+                )
               ],
             ),
           ),
-          Form(
-              key: _formKey,
-              child: Padding(
-                padding: const EdgeInsets.all(30.0),
-                child: Column(children: [
-                  UserTextField(
-                    controller: nameController,
-                    label: "name",
-                  )
-                ]),
-              )),
-          ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  setState(() {});
-                }
-              },
-              child: Text(nameController.text)),
+        _userInfoForm(),
+          _submitBtn(),
         ],
       ),
     );
   }
+
+  Widget _userInfoForm() {
+    return Form(
+            key: _formKey,
+            child: Padding(
+              padding: const EdgeInsets.all(30.0),
+              child: Column(children: [
+                UserTextField(
+                  controller: nameController..text = "sofie",
+                  label: "name",
+                  enabled: canEdit,
+                ),
+                UserTextField(
+                  controller: descController..text = "It takes a great deal of bravery to stand up to our enemies, but just as much to stand up to our friends.",
+                  label: "desc",
+                  enabled: canEdit,
+                ),
+                _genderDropDown(),
+
+              ]),
+            ));
+  }
+
+  Widget _genderDropDown() {
+    return GenderDropDown(startIndex: 1,canChange: !canEdit,);
+  }
+
+  Widget _submitBtn() {
+    if(canEdit){
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+              ElevatedButton(
+              onPressed: () {},
+              child: const Text("Submit")),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+              onPressed: () {
+                canEdit = false;
+                setState(() {
+                });
+              },
+              child: const Text("Cancel")),
+        ],
+      );
+    }else{
+      return Container();
+    }
+    }
 }

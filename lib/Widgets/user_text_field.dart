@@ -10,8 +10,6 @@ class UserTextField extends StatelessWidget {
    UserTextField({super.key, this.enabled, this.initialText,this.label, required this.controller});
 
 
-
-
   @override
   Widget build(BuildContext context) {
     return TextFormField(
