@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:unify/Widgets/DatePicker.dart';
+import 'package:unify/Widgets/DistanceSlider.dart';
 import 'package:unify/Widgets/GenderCheckBoxes.dart';
 import 'package:unify/Widgets/ImageScroll.dart';
 import 'package:unify/Widgets/genderDropDown.dart';
@@ -320,17 +321,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
     genderMap = values;
   }
 
+  double distance = 1;
+
+  _handleDistanceSlider(double val) {
+    distance = val;
+  }
+
   _buildUserPreferences() {
     return Column(
       children: [
-        Text("Who are you looking to meet?"),
-         GenderCheckBoxes(
+        const Text("Who are you looking to meet?"),
+        GenderCheckBoxes(
           men: true,
           women: true,
           other: true,
           onClick: _handleGenderCheckBoxes,
         ),
-        _buildAgeSlider(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+          child: Column(
+            children: [
+              _buildAgeSlider(),
+              DistanceSlider(onSlide: _handleDistanceSlider),
+            ],
+          ),
+        ),
         ElevatedButton(
             onPressed: () {
               _previousPage();
@@ -344,11 +359,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Text("Done!"))
         //Text("data")
       ],
-      //TODO ADD RANGE SLIDER 1- 100
     );
   }
 
-  var rangeValues = SfRangeValues(18, 75);
+  var rangeValues = const SfRangeValues(18, 75);
 
   _handleOnSlide(SfRangeValues values) {
     rangeValues = values;
@@ -356,11 +370,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   _buildAgeSlider() {
-    return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 30),
-        child: AgeSlider(
-          ageRangeValues: rangeValues,
-          onSlide: _handleOnSlide,
-        ));
+    return AgeSlider(
+      ageRangeValues: rangeValues,
+      onSlide: _handleOnSlide,
+    );
   }
 }
