@@ -108,7 +108,7 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Widget _genderDropDown() {
-    return GenderDropDown(startIndex: 1,canChange: !canEdit,);
+    return Placeholder();//GenderDropDown(startIndex: 1,canChange: !canEdit,);
   }
 
   Widget _submitBtn() {

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 class GenderDropDown extends StatefulWidget {
-  const GenderDropDown({Key? key, this.startIndex, this.canChange}) : super(key: key);
+  GenderDropDown({Key? key, required this.onSelect,this.startIndex, this.canChange}) : super(key: key);
    final int? startIndex;
    final bool? canChange;
+   final Function(String) onSelect;
   @override
   State<GenderDropDown> createState() => _GenderDropDownState();
 }
@@ -13,6 +14,13 @@ class _GenderDropDownState extends State<GenderDropDown> {
 
 
   late String dropdownValue = optionMap.keys.toList()[widget.startIndex ?? 0];
+
+
+  @override
+  void initState() {
+    super.initState();
+    widget.onSelect(optionMap.keys.toList()[0]);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +39,8 @@ class _GenderDropDownState extends State<GenderDropDown> {
           onChanged: (String? value) {
             // This is called when the user selects an item.
             setState(() {
-              dropdownValue = value!;
+              widget.onSelect(value!);
+              dropdownValue = value;
             });
           }),
     );

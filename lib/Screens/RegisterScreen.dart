@@ -6,8 +6,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
+import 'package:unify/Widgets/DatePicker.dart';
+import 'package:unify/Widgets/GenderCheckBoxes.dart';
 import 'package:unify/Widgets/ImageScroll.dart';
 import 'package:unify/Widgets/genderDropDown.dart';
+
+import '../Widgets/AgeSlider.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -122,9 +126,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   final _name = TextEditingController();
   final _image_picker = ImagePicker();
-  DateTime birthDate = DateTime(1900, 01, 01);
   XFile? profilePicture;
   final _userForm = GlobalKey<FormState>();
+
+  String genderValue = "";
+
+  void _handleGenderSelect(String value) {
+    genderValue = value;
+  }
+
+  DateTime? birthDate;
+
+  void _handleDateOutput(DateTime date) {
+    birthDate = date;
+  }
 
   _buildUserInfo() {
     return Padding(
@@ -146,12 +161,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   return null;
                 },
               ),
-              _createDateBtn(),
+              DatePicker(
+                  onClick: _handleDateOutput, birthDate: DateTime(2001, 9, 11)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: const [
-                  Text("Your gender"),
-                  GenderDropDown(),
+                children: [
+                  const Text("Your gender"),
+                  GenderDropDown(onSelect: _handleGenderSelect),
                 ],
               ),
               const Text("More pictures"),
@@ -188,8 +204,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               content: Text(
                                   "Pick a profile picture and some cool pictures of yourself"));
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                        }
-                        if (_userForm.currentState!.validate()) {
+                        } else if (birthDate == null) {
+                          const s = SnackBar(content: Text("pick a birthday"));
+                          ScaffoldMessenger.of(context).showSnackBar(s);
+                        } else if (_userForm.currentState!.validate()) {
                           // _nextPage();
                         }
                         //TODO REMOVE THIS IS FOR TESTING
@@ -295,38 +313,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
           );
   }
 
-  _createDateBtn() {
-    final DateFormat formatter = DateFormat('dd-MM-yyyy');
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        ElevatedButton(
-            onPressed: () {
-              final today = DateTime.now();
-              final minusEightTeen =
-                  DateTime(today.year - 18, today.month, today.day);
-              showDatePicker(
-                      context: context,
-                      initialDate: minusEightTeen,
-                      firstDate: DateTime(1900),
-                      lastDate: minusEightTeen)
-                  .then((value) => setState(() {
-                        birthDate = value!;
-                      }));
-            },
-            child: const Text("Select birthday")),
-        Text("${formatter.format(birthDate)}")
-      ],
-    );
-  }
+  Map<String, bool> genderMap = {};
 
-  var _ageRangeValues = const SfRangeValues(18, 30);
+  _handleGenderCheckBoxes(Map<String, bool> values) {
+    //todo validate
+    genderMap = values;
+  }
 
   _buildUserPreferences() {
     return Column(
       children: [
         Text("Who are you looking to meet?"),
-        _buildCheckBoxes(),
+         GenderCheckBoxes(
+          men: true,
+          women: true,
+          other: true,
+          onClick: _handleGenderCheckBoxes,
+        ),
         _buildAgeSlider(),
         ElevatedButton(
             onPressed: () {
@@ -341,50 +344,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Text("Done!"))
         //Text("data")
       ],
+      //TODO ADD RANGE SLIDER 1- 100
     );
+  }
+
+  var rangeValues = SfRangeValues(18, 75);
+
+  _handleOnSlide(SfRangeValues values) {
+    rangeValues = values;
+    //husk at round
   }
 
   _buildAgeSlider() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 30),
-      child: Column(children: [
-        SfRangeSlider(
-            max: 100,
-            min: 18,
-            showLabels: true,
-            interval: 82,
-            values: _ageRangeValues,
-            onChanged: (values) {
-              setState(() {
-                _ageRangeValues = values;
-              });
-            }),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Text("Min: ${_ageRangeValues.start.round()}"),
-            Text("Min: ${_ageRangeValues.end.round()}")
-          ],
-        ),
-      ]),
-    );
-  }
-
-  final checkboxValues = {"Other": false, "Men": false, "Women": false};
-  _buildCheckBoxes() {
-    return ListView(
-      shrinkWrap: true,
-      children: checkboxValues.keys.map((String key) {
-        return CheckboxListTile(
-          title: Text(key),
-          value: checkboxValues[key],
-          onChanged: (value) {
-            setState(() {
-              checkboxValues[key] = value!;
-            });
-          },
-        );
-      }).toList(),
-    );
+        padding: EdgeInsets.symmetric(horizontal: 30),
+        child: AgeSlider(
+          ageRangeValues: rangeValues,
+          onSlide: _handleOnSlide,
+        ));
   }
 }
