@@ -1,12 +1,12 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+
 admin.initializeApp({projectId: 'unify-ef8e0'});
 const geofire = require('geofire-common');
 
 const app = require('express')();
 const cors = require('cors');
 app.use(cors());
-
 
 app.get('/matches' +
     '/userAge/:userAge' +
@@ -17,12 +17,14 @@ app.get('/matches' +
     '/uid/:uid' +
     '/lat/:lat' +
     '/lng/:lng' +
-    '/radius/:radius', async (req, res) =>{
+    '/radius/:radius' +
+    '/lastDoc/:lastDoc' , async (req, res) =>{
 
     const lat = Number(req.params.lat);
     const lng = Number(req.params.lng);
     const center = [lat, lng];
     const radiusInM = Number(req.params.radius) * 1000;
+    const limit = 1;
 
     const genderPreferences = req.params.genderPrefs.split("-");
 
@@ -46,6 +48,7 @@ app.get('/matches' +
 
     Promise.all(promises).then((snapshots) => {
         const matchingDocs = [];
+        const filteredDocs = [];
 
         for (const snap of snapshots) {
             for (const doc of snap.docs) {
@@ -56,12 +59,27 @@ app.get('/matches' +
                 const distanceInM = distanceInKm * 1000;
                 if(doc.id!==req.params.uid){
                     if (distanceInM <= radiusInM) {
-                        matchingDocs.push(doc.data());
+                        matchingDocs.push({
+                            id: doc.id,
+                            data: doc.data()
+                        });
                     }
                 }
             }
         }
-        res.send(matchingDocs);
+        var index;
+        for(let i=0; i < matchingDocs.length; i++){
+            if(matchingDocs[i].id === req.params.lastDoc){
+                index = i;
+                break;
+            }
+        }
+        for(let i = 0; i < limit; i++){
+            if(matchingDocs[index + 1 + i] !== undefined){
+                filteredDocs.push(matchingDocs[index + 1 + i]);
+            }
+        }
+        res.send(filteredDocs);
     })
 });
 
