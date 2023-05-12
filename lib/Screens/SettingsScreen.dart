@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:unify/FireService.dart';
 import 'package:unify/Screens/AccountScreen.dart';
 import 'package:unify/Widgets/user_text.dart';
 
@@ -17,6 +19,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+     var auth = Provider.of<FireService>(context);
     return SettingsList(sections: [
       SettingsSection(title: const Text("Account"), tiles: <SettingsTile>[
         SettingsTile.navigation(
@@ -37,7 +40,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           leading: const Icon(Icons.logout),
           title: const Text("log out"),
           onPressed: (context) {
-            FirebaseAuth.instance.signOut();
+           auth.signOut(context);
           },
         ),
       ])

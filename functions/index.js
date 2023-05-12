@@ -7,6 +7,22 @@ const geofire = require('geofire-common');
 const app = require('express')();
 const cors = require('cors');
 app.use(cors());
+app.get('/lmao', (req, res) => {
+    return res.json({mykey: "asdddd"})
+})
+
+exports.authOnAccountCreate = functions.auth
+    .user()
+    .onCreate((user, context) => {
+        admin.firestore().collection("users").doc(user.uid)
+            .set({
+                name: user.displayName,
+                isSetup: false
+            })
+
+    })
+
+
 
 app.get('/matches' +
     '/userAge/:userAge' +
@@ -18,7 +34,7 @@ app.get('/matches' +
     '/lat/:lat' +
     '/lng/:lng' +
     '/radius/:radius' +
-    '/lastDoc/:lastDoc' , async (req, res) =>{
+    '/lastDoc/:lastDoc', async (req, res) => {
 
     const lat = Number(req.params.lat);
     const lng = Number(req.params.lng);
@@ -57,7 +73,7 @@ app.get('/matches' +
 
                 const distanceInKm = geofire.distanceBetween([Number(lat), Number(lng)], center);
                 const distanceInM = distanceInKm * 1000;
-                if(doc.id!==req.params.uid){
+                if (doc.id !== req.params.uid) {
                     if (distanceInM <= radiusInM) {
                         matchingDocs.push({
                             id: doc.id,
@@ -68,21 +84,21 @@ app.get('/matches' +
             }
         }
         var index = 0;
-        if(req.params.lastDoc!== ':lastDoc'){
-            for(let i=0; i < matchingDocs.length; i++){
-                if(matchingDocs[i].id === req.params.lastDoc){
+        if (req.params.lastDoc !== ':lastDoc') {
+            for (let i = 0; i < matchingDocs.length; i++) {
+                if (matchingDocs[i].id === req.params.lastDoc) {
                     index = i;
                     break;
                 }
             }
         }
-        for(let i = 0; i <= limit; i++){
-            if(matchingDocs[index + i] === undefined){
-               break;
+        for (let i = 0; i <= limit; i++) {
+            if (matchingDocs[index + i] === undefined) {
+                break;
             }
             filteredDocs.push(matchingDocs[index + i]);
         }
-        if(req.params.lastDoc!==':lastDoc'){
+        if (req.params.lastDoc !== ':lastDoc') {
             filteredDocs = filteredDocs.slice(1);
         }
         res.send(filteredDocs);

@@ -1,6 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:unify/Screens/RegisterScreen.dart';
+import 'package:provider/provider.dart';
+import 'package:unify/Screens/registration/RegisterScreen.dart';
+
+import '../FireService.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -17,6 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final _fireService = Provider.of<FireService>(context);
     return Scaffold(
       appBar: AppBar(title: const Text("Unify")),
       body: Padding(
@@ -28,8 +33,8 @@ class _LoginScreenState extends State<LoginScreen> {
             TextField(
               controller: _password,
             ),
-            _buildLoginBtn(),
-            _buildRegisterBtn()
+            _buildLoginBtn(_fireService),
+            _buildRegisterBtn(),
           ],
         ),
       ),
@@ -45,12 +50,12 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Text("Register"));
   }
 
-  Widget _buildLoginBtn() {
+  Widget _buildLoginBtn(FireService fireService) {
     return ElevatedButton(
       onPressed: () async {
         final email = _email.value.text;
         final password = _password.value.text;
-        _auth.signInWithEmailAndPassword(email: email, password: password);
+        fireService.signIn(email,password);
       },
       child: Text("Login"),
     );

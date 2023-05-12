@@ -1,27 +1,23 @@
 import 'package:cross_file_image/cross_file_image.dart';
-import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
-import 'package:unify/Widgets/DatePicker.dart';
-import 'package:unify/Widgets/DistanceSlider.dart';
-import 'package:unify/Widgets/GenderCheckBoxes.dart';
-import 'package:unify/Widgets/ImageScroll.dart';
-import 'package:unify/Widgets/genderDropDown.dart';
 
-import '../Widgets/AgeSlider.dart';
+import '../../Widgets/AgeSlider.dart';
+import '../../Widgets/DatePicker.dart';
+import '../../Widgets/DistanceSlider.dart';
+import '../../Widgets/GenderCheckBoxes.dart';
+import '../../Widgets/ImageScroll.dart';
+import '../../Widgets/genderDropDown.dart';
 
-class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({Key? key}) : super(key: key);
+class AccountSetupScreen extends StatefulWidget {
+  const AccountSetupScreen({Key? key}) : super(key: key);
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  State<AccountSetupScreen> createState() => _AccountSetupScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _AccountSetupScreenState extends State<AccountSetupScreen> {
   late final _pageController;
   late final pages;
   int currentPage = 0;
@@ -30,8 +26,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: currentPage);
-    pages = [_buildLoginDetails(), _buildUserInfo(), _buildUserPreferences()];
+    pages = [_buildUserInfo(), _buildUserPreferences()];
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -41,72 +39,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         physics: const NeverScrollableScrollPhysics(),
         controller: _pageController,
         children: [
-          _buildLoginDetails(),
           _buildUserInfo(),
           _buildUserPreferences()
         ],
-      ),
-    );
-  }
-
-  final _email = TextEditingController();
-  final _password = TextEditingController();
-  final _passwordAgain = TextEditingController();
-  final _loginForm = GlobalKey<FormState>();
-
-  _buildLoginDetails() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(30, 40, 30, 0),
-        child: Form(
-          key: _loginForm,
-          child: Column(
-            children: [
-              const Text("Create your login!"),
-              TextFormField(
-                keyboardType: TextInputType.emailAddress,
-                controller: _email,
-                validator: (value) {
-                  if (value == null || !EmailValidator.validate(value)) {
-                    return 'Enter a valid email';
-                  }
-                  return null;
-                },
-                decoration: const InputDecoration(
-                    labelText: "Email", hintText: "Example@Email.com"),
-              ),
-              const Padding(padding: EdgeInsets.only(top: 30)),
-              TextFormField(
-                controller: _password,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: "Password"),
-              ),
-              TextFormField(
-                controller: _passwordAgain,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: "Repeat password"),
-                validator: (value) {
-                  if (value == null ||
-                      _password.text != _passwordAgain.text ||
-                      _passwordAgain.text.length < 6) {
-                    return 'Your password must match and be 6 characters long';
-                  }
-                  return null;
-                },
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  if (_loginForm.currentState!.validate()) {
-                    //_nextPage();
-                  } else {}
-                  //TODO REMOVE ME! PLACEHOLDER FOR TESTING
-                  _nextPage();
-                },
-                child: const Text("Next"),
-              )
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -125,7 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() {});
   }
 
-  final _name = TextEditingController();
+
   final _image_picker = ImagePicker();
   XFile? profilePicture;
   final _userForm = GlobalKey<FormState>();
@@ -151,17 +86,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Column(
             children: [
               _profilePicture(),
-              TextFormField(
-                decoration: const InputDecoration(
-                    label: Text("Name"), hintText: "Your name"),
-                controller: _name,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Input your name";
-                  }
-                  return null;
-                },
-              ),
               DatePicker(
                   onClick: _handleDateOutput, birthDate: DateTime(2001, 9, 11)),
               Row(
@@ -246,7 +170,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             title: Text('Please choose media to select'),
             content: Container(
               height: MediaQuery.of(context).size.height / 6,
@@ -288,30 +212,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
   _profilePicture() {
     return profilePicture == null
         ? Center(
-            child: RawMaterialButton(
-              onPressed: () {
-                imageAlert();
-              },
-              fillColor: Colors.white,
-              padding: const EdgeInsets.all(20.0),
-              shape: const CircleBorder(),
-              child: const Icon(
-                Icons.person,
-                size: 35.0,
-              ),
-            ),
-          )
+      child: RawMaterialButton(
+        onPressed: () {
+          imageAlert();
+        },
+        fillColor: Colors.white,
+        padding: const EdgeInsets.all(20.0),
+        shape: const CircleBorder(),
+        child: const Icon(
+          Icons.person,
+          size: 35.0,
+        ),
+      ),
+    )
         : GestureDetector(
-            onTap: () {
-              imageAlert();
-            },
-            child: Center(
-              child: CircleAvatar(
-                radius: 60,
-                backgroundImage: XFileImage(profilePicture!),
-              ),
-            ),
-          );
+      onTap: () {
+        imageAlert();
+      },
+      child: Center(
+        child: CircleAvatar(
+          radius: 60,
+          backgroundImage: XFileImage(profilePicture!),
+        ),
+      ),
+    );
   }
 
   Map<String, bool> genderMap = {};

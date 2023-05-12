@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:unify/Screens/ContactScreen.dart';
 import 'package:unify/Screens/DiscoverScreen.dart';
+import 'package:unify/UserState.dart';
 
 import 'SettingsScreen.dart';
 
@@ -14,6 +16,16 @@ class NavigatorScreen extends StatefulWidget {
 class _NavigatorScreenState extends State<NavigatorScreen> {
   int _selectedIndex = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    UserState.updateCurrentUser(FirebaseAuth.instance.currentUser!.uid);
+
+    //get user info
+    // check if account is set up ->
+    //if not -> setup screen
+    //else find matches -> nav screen
+  }
 
   _showWidget(int pos) {
     switch (pos) {
@@ -28,6 +40,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
         return new Text("Error");
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,20 +51,12 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
           selectedItemColor: Colors.blue,
           onTap: _onItemTapped,
           items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-            label: "Discover",
-            icon: Icon(Icons.people
-        )),
-
-        BottomNavigationBarItem(
-            label: "Chat",
-            icon: Icon(Icons.chat)),
-
-        BottomNavigationBarItem(
-            label: "Settings",
-            icon: Icon(Icons.settings)),
-
-      ]),
+            BottomNavigationBarItem(
+                label: "Discover", icon: Icon(Icons.people)),
+            BottomNavigationBarItem(label: "Chat", icon: Icon(Icons.chat)),
+            BottomNavigationBarItem(
+                label: "Settings", icon: Icon(Icons.settings)),
+          ]),
     );
   }
 
