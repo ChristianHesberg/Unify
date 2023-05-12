@@ -22,8 +22,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     MatchService service = MatchService();
-    service.writeLocation();
-    service.getUsersWithinRadius();
+    //service.writeLocation();
+    //service.getUsersWithinRadius();
     return MultiProvider(
         providers: [
           StreamProvider(
