@@ -10,7 +10,7 @@ class ContactScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: ListView.builder(
-        itemCount: 10,
+        itemCount: 10, //TODO update to use firebase list of channels
         itemBuilder: (context, index) {
           return ListTile(
             shape: const RoundedRectangleBorder(

@@ -9,6 +9,7 @@ class DiscoverScreen extends StatelessWidget {
   PageController controller = PageController();
   PageController imgController = PageController();
 
+  //TODO get people from firebase
   final peopleList = [
     user(
         "Jens",

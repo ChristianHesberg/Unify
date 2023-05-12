@@ -137,7 +137,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   DateTime? birthDate;
-
   void _handleDateOutput(DateTime date) {
     birthDate = date;
   }
@@ -322,7 +321,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   double distance = 1;
-
   _handleDistanceSlider(double val) {
     distance = val;
   }
