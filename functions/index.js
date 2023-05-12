@@ -24,7 +24,7 @@ app.get('/matches' +
     const lng = Number(req.params.lng);
     const center = [lat, lng];
     const radiusInM = Number(req.params.radius) * 1000;
-    const limit = 1;
+    const limit = 10;
 
     const genderPreferences = req.params.genderPrefs.split("-");
 
@@ -48,7 +48,7 @@ app.get('/matches' +
 
     Promise.all(promises).then((snapshots) => {
         const matchingDocs = [];
-        const filteredDocs = [];
+        let filteredDocs = [];
 
         for (const snap of snapshots) {
             for (const doc of snap.docs) {
@@ -67,17 +67,23 @@ app.get('/matches' +
                 }
             }
         }
-        var index;
-        for(let i=0; i < matchingDocs.length; i++){
-            if(matchingDocs[i].id === req.params.lastDoc){
-                index = i;
-                break;
+        var index = 0;
+        if(req.params.lastDoc!== ':lastDoc'){
+            for(let i=0; i < matchingDocs.length; i++){
+                if(matchingDocs[i].id === req.params.lastDoc){
+                    index = i;
+                    break;
+                }
             }
         }
-        for(let i = 0; i < limit; i++){
-            if(matchingDocs[index + 1 + i] !== undefined){
-                filteredDocs.push(matchingDocs[index + 1 + i]);
+        for(let i = 0; i <= limit; i++){
+            if(matchingDocs[index + i] === undefined){
+               break;
             }
+            filteredDocs.push(matchingDocs[index + i]);
+        }
+        if(req.params.lastDoc!==':lastDoc'){
+            filteredDocs = filteredDocs.slice(1);
         }
         res.send(filteredDocs);
     })
