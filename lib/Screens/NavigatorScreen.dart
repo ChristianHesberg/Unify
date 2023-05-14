@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:unify/FireService.dart';
 import 'package:unify/Screens/ContactScreen.dart';
 import 'package:unify/Screens/DiscoverScreen.dart';
-import 'package:unify/UserState.dart';
+import 'package:unify/Screens/registration/AccountSetupScreen.dart';
 
 import 'SettingsScreen.dart';
 
@@ -19,8 +21,6 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   @override
   void initState() {
     super.initState();
-    UserState.updateCurrentUser(FirebaseAuth.instance.currentUser!.uid);
-
     //get user info
     // check if account is set up ->
     //if not -> setup screen
@@ -43,21 +43,30 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Unify"), backgroundColor: Colors.black),
-      body: _showWidget(_selectedIndex),
-      bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          selectedItemColor: Colors.blue,
-          onTap: _onItemTapped,
-          items: const <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-                label: "Discover", icon: Icon(Icons.people)),
-            BottomNavigationBarItem(label: "Chat", icon: Icon(Icons.chat)),
-            BottomNavigationBarItem(
-                label: "Settings", icon: Icon(Icons.settings)),
-          ]),
-    );
+    var fireService = Provider.of<FireService>(context);
+    fireService.checkStatus(FirebaseAuth.instance.currentUser!.uid);
+
+    if (!fireService.isSetup) {
+      return const AccountSetupScreen();
+    } else {
+      print("isSetup: ${fireService.isSetup}");
+      return Scaffold(
+        appBar:
+            AppBar(title: const Text("Unify"), backgroundColor: Colors.black),
+        body: _showWidget(_selectedIndex),
+        bottomNavigationBar: BottomNavigationBar(
+            currentIndex: _selectedIndex,
+            selectedItemColor: Colors.blue,
+            onTap: _onItemTapped,
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                  label: "Discover", icon: Icon(Icons.people)),
+              BottomNavigationBarItem(label: "Chat", icon: Icon(Icons.chat)),
+              BottomNavigationBarItem(
+                  label: "Settings", icon: Icon(Icons.settings)),
+            ]),
+      );
+    }
   }
 
   void _onItemTapped(int index) {

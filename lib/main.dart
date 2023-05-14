@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:unify/FireService.dart';
-import 'package:unify/Screens/Unify.dart';
 
 import 'Screens/NavigatorScreen.dart';
 import 'package:provider/provider.dart';
@@ -11,8 +10,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:unify/firebase_options.dart';
 import 'package:unify/match_service.dart';
-
-import 'UserState.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,16 +34,15 @@ class MyApp extends StatelessWidget {
             initialData: null,
           ),
           Provider<FireService>(create: (context) => FireService()),
-          Provider<UserState>(create: (context) => UserState())
         ],
         builder: (context, child) {
-
+          var user = Provider.of<User?>(context);
           return MaterialApp(
             title: 'Just friends',
             theme: ThemeData(
               primarySwatch: Colors.blue,
             ),
-            home: UnifyScreen(),
+            home: user == null ? LoginScreen() : NavigatorScreen(),
           );
         });
   }

@@ -22,6 +22,13 @@ exports.authOnAccountCreate = functions.auth
 
     })
 
+//http://127.0.0.1:5001/unify-ef8e0/us-central1/api/lmao
+app.post("/accountSetup", async (req, res) => {
+    const uId = req.params.uId;
+    const data = req.data;
+    const writeResult = await admin.firestore.collection('users').document(uId).set(data);
+    return res.statusCode;
+})
 
 
 app.get('/matches' +

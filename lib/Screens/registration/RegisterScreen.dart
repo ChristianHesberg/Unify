@@ -1,22 +1,14 @@
 import 'dart:math';
 
-import 'package:cross_file_image/cross_file_image.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
+
 import 'package:unify/FireService.dart';
 import 'package:unify/Screens/NavigatorScreen.dart';
-import 'package:unify/Screens/Unify.dart';
-import 'package:unify/Widgets/DatePicker.dart';
-import 'package:unify/Widgets/DistanceSlider.dart';
-import 'package:unify/Widgets/GenderCheckBoxes.dart';
-import 'package:unify/Widgets/ImageScroll.dart';
-import 'package:unify/Widgets/genderDropDown.dart';
 
 import '../../Widgets/AgeSlider.dart';
 
@@ -41,7 +33,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     var fireService = Provider.of<FireService>(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Register a new account")),
+      appBar: AppBar(
+        title: const Text("Register a new account"),
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.fromLTRB(30, 40, 30, 0),
@@ -94,14 +88,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                 ),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_loginForm.currentState!.validate()) {
-                      fireService.createAccount(
+                      await fireService.createAccount(
                           _name.text, _email.text, _password.text);
 
-                      fireService.signIn(_email.text, _password.text);
+                      await fireService.signIn(_email.text, _password.text);
 
                       setState(() {
+                        Navigator.of(context).pop();
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
                             builder: (context) => const NavigatorScreen(),

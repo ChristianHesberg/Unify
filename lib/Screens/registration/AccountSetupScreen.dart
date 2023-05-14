@@ -1,7 +1,10 @@
 import 'package:cross_file_image/cross_file_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
+import 'package:unify/FireService.dart';
+import 'package:unify/Screens/NavigatorScreen.dart';
 
 import '../../Widgets/AgeSlider.dart';
 import '../../Widgets/DatePicker.dart';
@@ -19,53 +22,41 @@ class AccountSetupScreen extends StatefulWidget {
 
 class _AccountSetupScreenState extends State<AccountSetupScreen> {
   late final _pageController;
-  late final pages;
   int currentPage = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController(initialPage: currentPage);
-    pages = [_buildUserInfo(), _buildUserPreferences()];
-  }
-
-
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Register a new account")),
-      body: PageView(
-        physics: const NeverScrollableScrollPhysics(),
-        controller: _pageController,
-        children: [
-          _buildUserInfo(),
-          _buildUserPreferences()
-        ],
-      ),
-    );
-  }
-
-  _nextPage() {
-    if (!_pageController.hasClients) return;
-    currentPage++;
-    _pageController.jumpToPage(currentPage);
-    setState(() {});
-  }
-
-  _previousPage() {
-    if (!_pageController.hasClients) return;
-    currentPage--;
-    _pageController.jumpToPage(currentPage);
-    setState(() {});
-  }
-
-
+  double distance = 1;
+  var rangeValues = const SfRangeValues(18, 75);
   final _image_picker = ImagePicker();
   XFile? profilePicture;
   final _userForm = GlobalKey<FormState>();
 
   String genderValue = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: currentPage);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var fireService = Provider.of<FireService>(context);
+    return Scaffold(
+      appBar:
+          AppBar(title: const Text("Set up your account details!"), actions: [
+        IconButton(
+          onPressed: () {
+            fireService.signOut(context);
+          },
+          icon: const Icon(Icons.exit_to_app),
+        )
+      ]),
+      body: PageView(
+        physics: const NeverScrollableScrollPhysics(),
+        controller: _pageController,
+        children: [_buildUserInfo(), _buildUserPreferences(fireService)],
+      ),
+    );
+  }
 
   void _handleGenderSelect(String value) {
     genderValue = value;
@@ -116,36 +107,76 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                   return null;
                 },
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                      onPressed: () => _previousPage(),
-                      child: const Text("Back")),
-                  ElevatedButton(
-                      onPressed: () {
-                        if (profilePicture == null || images.isEmpty) {
-                          const snackBar = SnackBar(
-                              content: Text(
-                                  "Pick a profile picture and some cool pictures of yourself"));
-                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                        } else if (birthDate == null) {
-                          const s = SnackBar(content: Text("pick a birthday"));
-                          ScaffoldMessenger.of(context).showSnackBar(s);
-                        } else if (_userForm.currentState!.validate()) {
-                          // _nextPage();
-                        }
-                        //TODO REMOVE THIS IS FOR TESTING
-                        _nextPage();
-                      },
-                      child: const Text("Next")),
-                ],
-              )
+              ElevatedButton(
+                  onPressed: () {
+                    if (profilePicture == null || images.isEmpty) {
+                      const snackBar = SnackBar(
+                          content: Text(
+                              "Pick a profile picture and some cool pictures of yourself"));
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    } else if (birthDate == null) {
+                      const s = SnackBar(content: Text("pick a birthday"));
+                      ScaffoldMessenger.of(context).showSnackBar(s);
+                    } else if (_userForm.currentState!.validate()) {
+                      // _nextPage();
+                    }
+                    //TODO REMOVE THIS IS FOR TESTING
+                    _nextPage();
+                  },
+                  child: const Text("Next")),
             ],
           ),
         ),
       ),
     );
+  }
+
+  _buildUserPreferences(FireService fireService) {
+    return Column(
+      children: [
+        const Text("Who are you looking to meet?"),
+        GenderCheckBoxes(
+          men: true,
+          women: true,
+          other: true,
+          onClick: _handleGenderCheckBoxes,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+          child: Column(
+            children: [
+              _buildAgeSlider(),
+              DistanceSlider(onSlide: _handleDistanceSlider),
+            ],
+          ),
+        ),
+        ElevatedButton(
+            onPressed: () {
+              _previousPage();
+            },
+            child: Text("back")),
+        ElevatedButton(
+            onPressed: () async {
+              //TODO SUBMIT
+              await fireService.updateAccount();
+
+              setState(() {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NavigatorScreen(),
+                  ),
+                );
+              });
+              //if email taken => tilbage til page 1 ommer
+            },
+            child: Text("Done!"))
+        //Text("data")
+      ],
+    );
+  }
+  _buildDoneBtn(){
+
   }
 
   List<XFile> images = [];
@@ -170,7 +201,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             title: Text('Please choose media to select'),
             content: Container(
               height: MediaQuery.of(context).size.height / 6,
@@ -212,30 +243,30 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
   _profilePicture() {
     return profilePicture == null
         ? Center(
-      child: RawMaterialButton(
-        onPressed: () {
-          imageAlert();
-        },
-        fillColor: Colors.white,
-        padding: const EdgeInsets.all(20.0),
-        shape: const CircleBorder(),
-        child: const Icon(
-          Icons.person,
-          size: 35.0,
-        ),
-      ),
-    )
+            child: RawMaterialButton(
+              onPressed: () {
+                imageAlert();
+              },
+              fillColor: Colors.white,
+              padding: const EdgeInsets.all(20.0),
+              shape: const CircleBorder(),
+              child: const Icon(
+                Icons.person,
+                size: 35.0,
+              ),
+            ),
+          )
         : GestureDetector(
-      onTap: () {
-        imageAlert();
-      },
-      child: Center(
-        child: CircleAvatar(
-          radius: 60,
-          backgroundImage: XFileImage(profilePicture!),
-        ),
-      ),
-    );
+            onTap: () {
+              imageAlert();
+            },
+            child: Center(
+              child: CircleAvatar(
+                radius: 60,
+                backgroundImage: XFileImage(profilePicture!),
+              ),
+            ),
+          );
   }
 
   Map<String, bool> genderMap = {};
@@ -245,48 +276,9 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
     genderMap = values;
   }
 
-  double distance = 1;
-
   _handleDistanceSlider(double val) {
     distance = val;
   }
-
-  _buildUserPreferences() {
-    return Column(
-      children: [
-        const Text("Who are you looking to meet?"),
-        GenderCheckBoxes(
-          men: true,
-          women: true,
-          other: true,
-          onClick: _handleGenderCheckBoxes,
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Column(
-            children: [
-              _buildAgeSlider(),
-              DistanceSlider(onSlide: _handleDistanceSlider),
-            ],
-          ),
-        ),
-        ElevatedButton(
-            onPressed: () {
-              _previousPage();
-            },
-            child: Text("back")),
-        ElevatedButton(
-            onPressed: () {
-              //TODO SUBMIT
-              //if email taken => tilbage til page 1 ommer
-            },
-            child: Text("Done!"))
-        //Text("data")
-      ],
-    );
-  }
-
-  var rangeValues = const SfRangeValues(18, 75);
 
   _handleOnSlide(SfRangeValues values) {
     rangeValues = values;
@@ -298,5 +290,19 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
       ageRangeValues: rangeValues,
       onSlide: _handleOnSlide,
     );
+  }
+
+  _nextPage() {
+    if (!_pageController.hasClients) return;
+    currentPage++;
+    _pageController.jumpToPage(currentPage);
+    setState(() {});
+  }
+
+  _previousPage() {
+    if (!_pageController.hasClients) return;
+    currentPage--;
+    _pageController.jumpToPage(currentPage);
+    setState(() {});
   }
 }

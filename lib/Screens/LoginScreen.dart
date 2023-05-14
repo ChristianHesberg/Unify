@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:unify/Screens/NavigatorScreen.dart';
 import 'package:unify/Screens/registration/RegisterScreen.dart';
 
 import '../FireService.dart';
@@ -44,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildRegisterBtn() {
     return ElevatedButton(
         onPressed: () {
-          Navigator.of(context).pushReplacement(
+          Navigator.of(context).push(
               MaterialPageRoute(builder: (context) => const RegisterScreen()));
         },
         child: Text("Register"));
@@ -55,7 +56,12 @@ class _LoginScreenState extends State<LoginScreen> {
       onPressed: () async {
         final email = _email.value.text;
         final password = _password.value.text;
-        fireService.signIn(email,password);
+        await fireService.signIn(email,password);
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const NavigatorScreen(),
+          ),
+        );
       },
       child: Text("Login"),
     );
