@@ -36,24 +36,27 @@ class FireService {
     );
   }
 
+  testGet() async {
+    var client = http.Client();
+    var a = await client
+        .get(Uri.parse("https://jsonplaceholder.typicode.com/albums"));
+    print(a.body);
+  }
+
   updateAccount() async {
     var uId = _auth.currentUser!.uid;
+    print("CURRENT USER: $uId");
     //await _fireStore.collection("users").doc(uId).set({"isSetup": true});
     var httpClint = http.Client();
     var testData = {"aaa": "asdasd"};
     try {
-      return httpClint.post(
-        Uri.parse(
-            "http://127.0.0.1:5001/unify-ef8e0/us-central1/api/accountSetup"),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8'
-        },
-        body: jsonEncode(
-          <String, String>{"testfied": "testdata"},
-        ),
-      );
+      var a = await http.post(
+          Uri.http(
+              "127.0.0.1:5001", "/unify-ef8e0/us-central1/api/accountSetup"),
+          body: {"testfield": "lmao"});
+      print("AAAAAAA: $a");
     } catch (e) {
-      print(e);
+      print("Error: ${e}");
     }
   }
 
@@ -61,6 +64,7 @@ class FireService {
   var isSetup = false;
 
   checkStatus(String uId) async {
+    print("---------UID: $uId");
     var userDoc = await _firestore.collection("users").doc(uId).get();
     var doc = userDoc.data();
     isSetup = doc!["isSetup"];

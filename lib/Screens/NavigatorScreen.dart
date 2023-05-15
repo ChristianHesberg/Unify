@@ -35,16 +35,19 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
         return new ContactScreen();
       case 2:
         return new SettingsScreen();
-
       default:
         return new Text("Error");
     }
   }
 
+  checkIsSetup(FireService fireService) async {
+    await fireService.checkStatus(FirebaseAuth.instance.currentUser!.uid);
+  }
+
   @override
   Widget build(BuildContext context) {
     var fireService = Provider.of<FireService>(context);
-    fireService.checkStatus(FirebaseAuth.instance.currentUser!.uid);
+    checkIsSetup(fireService);
 
     if (!fireService.isSetup) {
       return const AccountSetupScreen();

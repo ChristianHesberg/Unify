@@ -159,7 +159,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
             onPressed: () async {
               //TODO SUBMIT
               await fireService.updateAccount();
-
+              //await fireService.testGet();
               setState(() {
                 Navigator.pushReplacement(
                   context,
