@@ -1,15 +1,30 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-
 admin.initializeApp({projectId: 'unify-ef8e0'});
 const geofire = require('geofire-common');
+
 
 const app = require('express')();
 const cors = require('cors');
 app.use(cors());
+app.use(function (req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '127.0.0.1:5001');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    next();
+    }
+);
 app.get('/lmao', (req, res) => {
     return res.json({mykey: "asdddd"})
 })
+
+exports.lmao2 = (req, res) => {
+    const myMap = {"fuck": "ass"};
+
+
+    res.status(200).send({data: myMap});
+};
 
 exports.authOnAccountCreate = functions.auth
     .user()
@@ -22,7 +37,7 @@ exports.authOnAccountCreate = functions.auth
 
     })
 
-//http://127.0.0.1:5001/unify-ef8e0/us-central1/api/lmao
+//http://127.0.0.1:5001/unify-ef8e0/us-central1/api/accountSetup
 app.post("/accountSetup", async (req, res) => {
     const uId = req.body.uId;
     const data = req.body;
@@ -31,6 +46,14 @@ app.post("/accountSetup", async (req, res) => {
     return res.statusCode;
 })
 
+app.post("/test", async (req, res) => {
+    const uId = req.body.uId;
+    const data = req.body;
+
+    const writeResult = await admin.firestore.collection('users').get();
+
+    print("Test print: " + writeResult);
+})
 
 app.get('/matches' +
     '/userAge/:userAge' +
@@ -113,5 +136,5 @@ app.get('/matches' +
     })
 });
 
-exports.api = functions.https.onRequest(app);
+exports.api = functions.region("europe-west3").https.onRequest(app);
 

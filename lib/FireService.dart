@@ -36,11 +36,11 @@ class FireService {
     );
   }
 
+
   testGet() async {
-    var client = http.Client();
-    var a = await client
-        .get(Uri.parse("https://jsonplaceholder.typicode.com/albums"));
-    print(a.body);
+    var a = await http.get(Uri.parse(
+        "http://127.0.0.1:5001/unify-ef8e0/us-central1/lmao2"));
+    print("APRINT: ${a}");
   }
 
   updateAccount() async {
@@ -49,15 +49,12 @@ class FireService {
     //await _fireStore.collection("users").doc(uId).set({"isSetup": true});
     var httpClint = http.Client();
     var testData = {"aaa": "asdasd"};
-    try {
+
       var a = await http.post(
-          Uri.http(
-              "127.0.0.1:5001", "/unify-ef8e0/us-central1/api/accountSetup"),
+          Uri.parse("http://127.0.0.1:5001/unify-ef8e0/us-central1/api/accountSetup"),
           body: {"testfield": "lmao"});
       print("AAAAAAA: $a");
-    } catch (e) {
-      print("Error: ${e}");
-    }
+
   }
 
   static final _firestore = FirebaseFirestore.instance;

@@ -158,8 +158,9 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
         ElevatedButton(
             onPressed: () async {
               //TODO SUBMIT
-              await fireService.updateAccount();
-              //await fireService.testGet();
+            //  await fireService.updateAccount();
+              await fireService.testGet();
+
               setState(() {
                 Navigator.pushReplacement(
                   context,
