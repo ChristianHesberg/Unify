@@ -1,10 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:unify/Models/appUser.dart';
 import 'package:unify/Widgets/DatePicker.dart';
 import 'package:unify/Widgets/genderDropDown.dart';
 import 'package:unify/Widgets/user_text.dart';
 
 import '../Widgets/user_text_field.dart';
+import '../user_service.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({Key? key}) : super(key: key);
@@ -14,17 +18,31 @@ class AccountScreen extends StatefulWidget {
 }
 
 class _AccountScreenState extends State<AccountScreen> {
+
+
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<UserService>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Account Info"),
         backgroundColor: Colors.black,
       ),
-      body: _accountScreen(),
+      body: FutureBuilder(
+        future: user.getUser(),
+          builder: (context, snapshot) {
+            if(snapshot.hasData){
+              this.user = snapshot.data!;
+              return _accountScreen();
+            }
+            return Text("Loading");
+          },),
     );
   }
 
+
+  late AppUser user;
   bool canEdit = false;
   String name = "";
   final _formKey = GlobalKey<FormState>();
@@ -45,7 +63,7 @@ class _AccountScreenState extends State<AccountScreen> {
               ],
             ),
           ),
-          _userInfoForm(),
+          _userInfoForm(context),
           _submitBtn(),
         ],
       ),
@@ -108,7 +126,8 @@ class _AccountScreenState extends State<AccountScreen> {
       //TODO update img as user profilepicture
     });
   }
-  Widget _userInfoForm() {
+  Widget _userInfoForm(BuildContext context) {
+
     return Form(
         key: _formKey,
         child: Padding(
@@ -116,7 +135,7 @@ class _AccountScreenState extends State<AccountScreen> {
           child: Column(
               children: [
             UserTextField(
-              controller: nameController..text = "sofie",
+              controller: nameController..text = this.user.name,
               label: "name",
               enabled: canEdit,
             ),

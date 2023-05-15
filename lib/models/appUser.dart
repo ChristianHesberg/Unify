@@ -1,8 +1,8 @@
 import 'package:geoflutterfire2/geoflutterfire2.dart';
-class User{
+class AppUser{
   String id;
   String name;
-  int age;
+  DateTime age;
   late GeoFirePoint location;
   String gender;
   int maxAgePreference;
@@ -10,7 +10,7 @@ class User{
   List<String> genderPreferences;
   double locationPreference;
 
-  User(
+  AppUser(
       this.id,
       this.name,
       this.age,

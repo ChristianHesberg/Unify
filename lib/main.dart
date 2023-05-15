@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:unify/user_service.dart';
 
 import 'Screens/NavigatorScreen.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +14,10 @@ import 'package:unify/match_service.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+  await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+
   runApp(const MyApp());
 }
 
@@ -26,6 +32,7 @@ class MyApp extends StatelessWidget {
     //service.getUsersWithinRadius();
     return MultiProvider(
         providers: [
+          Provider(create: (context) => UserService(),),
           StreamProvider(
             create: (context) => FirebaseAuth.instance.authStateChanges(),
             initialData: null,
