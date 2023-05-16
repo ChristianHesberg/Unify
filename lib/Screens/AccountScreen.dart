@@ -1,8 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:unify/Models/appUser.dart';
+import 'package:unify/Widgets/DatePicker.dart';
 import 'package:unify/Widgets/genderDropDown.dart';
 import 'package:unify/Widgets/user_text.dart';
 
 import '../Widgets/user_text_field.dart';
+import '../user_service.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({Key? key}) : super(key: key);
@@ -21,10 +27,24 @@ class _AccountScreenState extends State<AccountScreen> {
         title: Text("Account Info"),
         backgroundColor: Colors.black,
       ),
-      body: _accountScreen(),
+      body: Consumer<UserService>(
+          builder:(context, value, child) {
+            if(value.user == null){
+              value.getUser();
+              print("test1");
+              return Center(child: CircularProgressIndicator());
+            }else{
+              print("test2");
+              user = value.user!;
+              return _accountScreen();
+            }
+          },
+      ),
     );
   }
 
+
+  late AppUser user;
   bool canEdit = false;
   String name = "";
   final _formKey = GlobalKey<FormState>();
@@ -40,97 +60,146 @@ class _AccountScreenState extends State<AccountScreen> {
             width: 200,
             child: Stack(
               children: [
-                Align(
-                  alignment: Alignment.center,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(100), // Image border
-                    child: SizedBox.fromSize(
-                      size: Size.fromRadius(120), // Image radius
-                      child: Image.network(
-                          'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
-                          fit: BoxFit.cover),
-                    ),
-                  ),
-                ),
-                Positioned(
-                    bottom: 25,
-                    right: 10,
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(300.0),
-                          ),
-                        ),
-                      ),
-                      onPressed: () {
-                        canEdit = true;
-                        setState(() {
-                        });
-                      },
-                      child: const Icon(Icons.edit),
-                    )),
-                const Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Text("Ole"),
-                )
+                _profilePicture(), // profile picture
+                _editBtn(),
               ],
             ),
           ),
-        _userInfoForm(),
+          _userInfoForm(context),
           _submitBtn(),
         ],
       ),
     );
   }
 
-  Widget _userInfoForm() {
-    return Form(
-            key: _formKey,
-            child: Padding(
-              padding: const EdgeInsets.all(30.0),
-              child: Column(children: [
-                UserTextField(
-                  controller: nameController..text = "sofie",
-                  label: "name",
-                  enabled: canEdit,
-                ),
-                UserTextField(
-                  controller: descController..text = "It takes a great deal of bravery to stand up to our enemies, but just as much to stand up to our friends.",
-                  label: "desc",
-                  enabled: canEdit,
-                ),
-                _genderDropDown(),
+  _editBtn() {
+    return Positioned(
+                  bottom: 25,
+                  right: 10,
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                      shape:
+                          MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(300.0),
+                        ),
+                      ),
+                    ),
+                    onPressed: () {
+                      canEdit = true;
+                      setState(() {});
+                    },
+                    child: const Icon(Icons.edit),
+                  ));
+  }
 
-              ]),
-            ));
+  _profilePicture() {
+    return Align(
+                alignment: Alignment.center,
+                child: CircleAvatar(
+                  radius: 120,
+                  child: ClipOval(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        splashColor: Colors.blue.withOpacity(0.3),
+                        highlightColor: Colors.blue.withOpacity(0.5),
+                        onLongPress: () {
+                          if(canEdit){
+                            getImage(ImageSource.gallery);
+                          }
+                        },
+                        child: Ink.image(image: NetworkImage('https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'),
+                            fit: BoxFit.cover,
+                            width: 240,
+                          height: 240,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+  }
+
+  Future getImage(ImageSource media) async {
+    final _image_picker = ImagePicker();
+    var img = await _image_picker.pickImage(source: media);
+    setState(() {
+      //TODO update img as user profilepicture
+    });
+  }
+  Widget _userInfoForm(BuildContext context) {
+
+    return Form(
+        key: _formKey,
+        child: Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: Column(
+              children: [
+            UserTextField(
+              controller: nameController..text = this.user.name,
+              label: "name",
+              enabled: canEdit,
+            ),
+            UserTextField(
+              controller: descController
+                ..text =
+                    "It takes a great deal of bravery to stand up to our enemies, but just as much to stand up to our friends.",
+              label: "desc",
+              enabled: canEdit,
+            ),
+                _datePicker(),
+                _genderDropDown(),
+          ]),
+        ));
+  }
+
+  Widget _datePicker() {
+    return IgnorePointer(
+      ignoring: !canEdit,
+        child: DatePicker(
+      onClick: _handleDateOutput,
+      birthDate: user.age,
+    )); //GenderDropDown(startIndex: 1,canChange: !canEdit,);
+  }
+
+  DateTime? birthDate;
+  void _handleDateOutput(DateTime date) {
+    birthDate = date;
   }
 
   Widget _genderDropDown() {
-    return Placeholder();//GenderDropDown(startIndex: 1,canChange: !canEdit,);
+    return GenderDropDown(
+      onSelect: _handleGenderSelect,
+      canChange: !canEdit,
+      startIndex: 2,
+    ); //GenderDropDown(startIndex: 1,canChange: !canEdit,);
+  }
+
+  String genderValue = "";
+
+  void _handleGenderSelect(String value) {
+    genderValue = value;
   }
 
   Widget _submitBtn() {
-    if(canEdit){
+    if (canEdit) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-              ElevatedButton(
-              onPressed: () {},
-              child: const Text("Submit")),
+          ElevatedButton(onPressed: () {}, child: const Text("Submit")),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+              style:
+                  ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
               onPressed: () {
                 canEdit = false;
-                setState(() {
-                });
+                setState(() {});
               },
               child: const Text("Cancel")),
         ],
       );
-    }else{
+    } else {
       return Container();
     }
-    }
+  }
 }

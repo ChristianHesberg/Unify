@@ -1,13 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:unify/Screens/ContactScreen.dart';
+import 'package:unify/user_service.dart';
 import 'Screens/NavigatorScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:unify/Screens/LoginScreen.dart';
-import 'package:unify/Screens/HomeScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:unify/firebase_options.dart';
-import 'package:unify/match_service.dart';
 
 import 'chat_service.dart';
 
@@ -16,7 +15,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseAuth.instance.useAuthEmulator('10.0.2.2', 9099);
-  runApp(const MyApp());
+  FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+  runApp(ChangeNotifierProvider(create: (context) => UserService(),child: MyApp(),));
 }
 
 class MyApp extends StatelessWidget {
