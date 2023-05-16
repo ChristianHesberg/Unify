@@ -166,7 +166,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
     genderValue;
     birthDate;
     final desc = _description.text;
-
+    //final name = _name
     return ElevatedButton(
         onPressed: () async {
           //TODO SUBMIT
