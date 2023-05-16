@@ -1,26 +1,28 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:unify/FireService.dart';
 import 'package:unify/Screens/TestScreen.dart';
-
-import 'Screens/NavigatorScreen.dart';
 import 'package:provider/provider.dart';
-import 'package:unify/Screens/LoginScreen.dart';
-
+import 'package:unify/user_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:unify/firebase_options.dart';
-import 'package:unify/match_service.dart';
+
+import 'chat_service.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+
   //use emulator
   _connectToFirebaseEmulator();
 
   runApp(const MyApp());
+  FirebaseAuth.instance.useAuthEmulator('10.0.2.2', 9099);
+  FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+  runApp(ChangeNotifierProvider(create: (context) => UserService(),child: MyApp(),));
 }
 
 class MyApp extends StatelessWidget {
@@ -31,6 +33,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
+          Provider(create: (context) => ChatService()),
           StreamProvider(
             create: (context) => FirebaseAuth.instance.authStateChanges(),
             initialData: null,

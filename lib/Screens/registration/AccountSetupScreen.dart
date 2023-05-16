@@ -63,7 +63,6 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
   }
 
   DateTime? birthDate;
-
   void _handleDateOutput(DateTime date) {
     birthDate = date;
   }
@@ -276,6 +275,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
     //todo validate
     genderMap = values;
   }
+
 
   _handleDistanceSlider(double val) {
     distance = val;

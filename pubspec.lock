@@ -217,6 +217,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.5.0"
+  firebase_ui_firestore:
+    dependency: "direct main"
+    description:
+      name: firebase_ui_firestore
+      sha256: "33cc91effc2ee82d3488897da770480a71eea7153421254935d7561fa030b3a7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.5.0"
+  firebase_ui_localizations:
+    dependency: transitive
+    description:
+      name: firebase_ui_localizations
+      sha256: b13be7432af3eed2ff6f2ed1c55a9afc32ffa7376fcada9e16be055fad6415ed
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.5.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -238,6 +254,11 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
+  flutter_localizations:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -348,10 +369,10 @@ packages:
     dependency: transitive
     description:
       name: image_picker_android
-      sha256: "794f910835b51a54fdb5055425266e7391eecaebb0cc6fd3fed2e01a602af51f"
+      sha256: "89ba2aa6904d8180ca44fd5f5014523f02319101904e3e571fbe792e395b77ed"
       url: "https://pub.dev"
     source: hosted
-    version: "0.8.6+13"
+    version: "0.8.6+14"
   image_picker_for_web:
     dependency: transitive
     description:
@@ -380,10 +401,10 @@ packages:
     dependency: "direct main"
     description:
       name: intl
-      sha256: "910f85bce16fb5c6f614e117efa303e85a1731bb0081edf3604a2ae6e9a3cc91"
+      sha256: a3715e3bc90294e971cb7dc063fbf3cd9ee0ebf8604ffeafabd9e6f16abbdbe6
       url: "https://pub.dev"
     source: hosted
-    version: "0.17.0"
+    version: "0.18.0"
   js:
     dependency: transitive
     description:
@@ -646,5 +667,5 @@ packages:
     source: hosted
     version: "1.0.0"
 sdks:
-  dart: ">=2.19.4 <3.0.0"
+  dart: ">=3.0.0-0 <4.0.0"
   flutter: ">=3.3.0"

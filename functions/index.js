@@ -18,7 +18,7 @@ app.use(function (req, res, next) {
 );
 
 app.post('/test', async (req, res) => {
-    const snapshot = await admin.firestore.collection("users").;
+    const snapshot = await admin.firestore.collection("users");
     return snapshot.docs.map(doc => doc.data);
 
 })
@@ -138,6 +138,20 @@ app.get('/matches' +
         res.send(filteredDocs);
     })
 });
+app.post('/message', async (req, res) => {
+    const body = req.body;
+    const postResult = await admin.firestore()
+        .collection('chats')
+        .doc(body.chatId)
+        .collection('messages')
+        .add({
+            content: body.content,
+            sender: body.sender,
+            timestamp: new Date()
+        });
+    return res.json(postResult);
+})
 
-exports.api = functions.region("europe-west3").https.onRequest(app);
+exports.api = functions.https.onRequest(app);
+
 

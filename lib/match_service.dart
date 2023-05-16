@@ -1,28 +1,26 @@
-import 'dart:async';
-
 import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:unify/geolocator_server.dart';
-import 'package:unify/models/user.dart';
+import 'Models/appUser.dart';
 
 class MatchService{
   final geo = GeoFlutterFire();
   final _firestore = FirebaseFirestore.instance;
-  late User user;
+  late AppUser user;
 
 
   MatchService() {
-    user = User(
+    user = AppUser(
         'SdeTTfnQG52HM97YnsKs',
         'crissy',
-        25,
+        DateTime.now(),
         'female',
         23,
         27,
         ['male','female'],
-        50
-    );
+        50,
+        "fefewfew");
     _firestore.useFirestoreEmulator('localhost', 8080);
     //writeLocation();
     //getUsersWithinRadius();
