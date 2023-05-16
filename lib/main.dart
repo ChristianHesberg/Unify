@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:unify/Screens/ContactScreen.dart';
 import 'Screens/NavigatorScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:unify/Screens/LoginScreen.dart';
@@ -8,10 +9,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:unify/firebase_options.dart';
 import 'package:unify/match_service.dart';
 
+import 'chat_service.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseAuth.instance.useAuthEmulator('10.0.2.2', 9099);
   runApp(const MyApp());
 }
 
@@ -23,6 +27,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
+          Provider(create: (context) => ChatService()),
           StreamProvider(
             create: (context) => FirebaseAuth.instance.authStateChanges(),
             initialData: null,

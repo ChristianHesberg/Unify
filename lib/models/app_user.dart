@@ -1,5 +1,5 @@
 import 'package:geoflutterfire2/geoflutterfire2.dart';
-class User{
+class AppUser{
   String id;
   String name;
   int age;
@@ -9,8 +9,9 @@ class User{
   int minAgePreference;
   List<String> genderPreferences;
   double locationPreference;
+  String profilePicture;
 
-  User(
+  AppUser(
       this.id,
       this.name,
       this.age,
@@ -18,5 +19,6 @@ class User{
       this.maxAgePreference,
       this.minAgePreference,
       this.genderPreferences,
-      this.locationPreference);
+      this.locationPreference,
+      this.profilePicture);
 }
