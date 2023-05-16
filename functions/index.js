@@ -17,8 +17,9 @@ app.use(function (req, res, next) {
     }
 );
 
-app.get('/test', (req, res) => {
-    return res.json({mykey: "MyTestValue:)"})
+app.post('/test', async (req, res) => {
+    const snapshot = await admin.firestore.collection("users").;
+    return snapshot.docs.map(doc => doc.data);
 
 })
 

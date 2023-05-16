@@ -41,7 +41,7 @@ class FireService {
     var result = await http.get(
         Uri.parse("http://10.0.2.2:5001/unify-ef8e0/us-central1/api/test"));
 
-    print("RESULT: ${result.}");
+    print("RESULT: ${result.body}");
   }
 
   updateAccount() async {
