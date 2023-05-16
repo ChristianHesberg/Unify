@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:unify/FireService.dart';
+import 'package:unify/Screens/TestScreen.dart';
 
 import 'Screens/NavigatorScreen.dart';
 import 'package:provider/provider.dart';
@@ -38,11 +40,11 @@ class MyApp extends StatelessWidget {
         builder: (context, child) {
           var user = Provider.of<User?>(context);
           return MaterialApp(
-            title: 'Just friends',
-            theme: ThemeData(
-              primarySwatch: Colors.blue,
-            ),
-            home: user == null ? LoginScreen() : NavigatorScreen(),
+              title: 'Just friends',
+              theme: ThemeData(
+                primarySwatch: Colors.blue,
+              ),
+              home: TestScreen(),
           );
         });
   }
@@ -52,5 +54,5 @@ Future _connectToFirebaseEmulator() async {
   FirebaseFirestore.instance
       .useFirestoreEmulator("10.0.2.2", 8080, sslEnabled: false);
   FirebaseAuth.instance.useAuthEmulator("10.0.2.2", 9099);
-
+  //FirebaseFunctions.instance.useFunctionsEmulator("10.0.2.2", 5001);
 }

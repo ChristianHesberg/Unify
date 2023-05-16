@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:unify/Screens/LoginScreen.dart';
@@ -36,11 +37,11 @@ class FireService {
     );
   }
 
-
   testGet() async {
-    var a = await http.get(Uri.parse(
-        "http://127.0.0.1:5001/unify-ef8e0/us-central1/lmao2"));
-    print("APRINT: ${a}");
+    var result = await http.get(
+        Uri.parse("http://10.0.2.2:5001/unify-ef8e0/us-central1/api/test"));
+
+    print("RESULT: ${result.}");
   }
 
   updateAccount() async {
@@ -50,11 +51,11 @@ class FireService {
     var httpClint = http.Client();
     var testData = {"aaa": "asdasd"};
 
-      var a = await http.post(
-          Uri.parse("http://127.0.0.1:5001/unify-ef8e0/us-central1/api/accountSetup"),
-          body: {"testfield": "lmao"});
-      print("AAAAAAA: $a");
-
+    var a = await http.post(
+        Uri.parse(
+            "http://127.0.0.1:5001/unify-ef8e0/us-central1/api/accountSetup"),
+        body: {"testfield": "lmao"});
+    print("AAAAAAA: $a");
   }
 
   static final _firestore = FirebaseFirestore.instance;

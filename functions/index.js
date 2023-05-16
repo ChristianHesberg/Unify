@@ -7,24 +7,26 @@ const geofire = require('geofire-common');
 const app = require('express')();
 const cors = require('cors');
 app.use(cors());
+
 app.use(function (req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', '127.0.0.1:5001');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-    res.setHeader('Access-Control-Allow-Credentials', true);
-    next();
+        res.setHeader('Access-Control-Allow-Origin', '127.0.0.1:5001');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+        res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+        res.setHeader('Access-Control-Allow-Credentials', true);
+        next();
     }
 );
-app.get('/lmao', (req, res) => {
-    return res.json({mykey: "asdddd"})
+
+app.get('/test', (req, res) => {
+    return res.json({mykey: "MyTestValue:)"})
+
 })
 
-exports.lmao2 = (req, res) => {
+exports.lmao2 = functions.https.onCall((req, res) => {
     const myMap = {"fuck": "ass"};
 
-
-    res.status(200).send({data: myMap});
-};
+    res.send(myMap);
+})
 
 exports.authOnAccountCreate = functions.auth
     .user()

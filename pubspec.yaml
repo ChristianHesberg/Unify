@@ -51,6 +51,7 @@ dependencies:
   email_validator: ^2.1.17
   syncfusion_flutter_sliders: ^21.2.4
   http: ^0.13.6
+  cloud_functions: ^4.3.0
 
 dev_dependencies:
   flutter_test:
