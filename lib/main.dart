@@ -18,7 +18,7 @@ Future<void> main() async {
   FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
   await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
 
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider(create: (context) => UserService(),child: MyApp(),));
 }
 
 class MyApp extends StatelessWidget {
@@ -32,7 +32,6 @@ class MyApp extends StatelessWidget {
     //service.getUsersWithinRadius();
     return MultiProvider(
         providers: [
-          Provider(create: (context) => UserService(),),
           StreamProvider(
             create: (context) => FirebaseAuth.instance.authStateChanges(),
             initialData: null,

@@ -9,6 +9,7 @@ class AppUser{
   int minAgePreference;
   List<String> genderPreferences;
   double locationPreference;
+  String description;
 
   AppUser(
       this.id,
@@ -18,5 +19,6 @@ class AppUser{
       this.maxAgePreference,
       this.minAgePreference,
       this.genderPreferences,
-      this.locationPreference);
+      this.locationPreference,
+      this.description);
 }

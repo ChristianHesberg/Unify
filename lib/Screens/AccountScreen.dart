@@ -22,22 +22,24 @@ class _AccountScreenState extends State<AccountScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<UserService>(context);
-
     return Scaffold(
       appBar: AppBar(
         title: Text("Account Info"),
         backgroundColor: Colors.black,
       ),
-      body: FutureBuilder(
-        future: user.getUser(),
-          builder: (context, snapshot) {
-            if(snapshot.hasData){
-              this.user = snapshot.data!;
+      body: Consumer<UserService>(
+          builder:(context, value, child) {
+            if(value.user == null){
+              value.getUser();
+              print("test1");
+              return CircularProgressIndicator();
+            }else{
+              print("test2");
+              this.user = value.user!;
               return _accountScreen();
             }
-            return Text("Loading");
-          },),
+          },
+      ),
     );
   }
 
@@ -157,7 +159,7 @@ class _AccountScreenState extends State<AccountScreen> {
       ignoring: !canEdit,
         child: DatePicker(
       onClick: _handleDateOutput,
-      birthDate: DateTime(2000 - 07 - 22),
+      birthDate: user.age,
     )); //GenderDropDown(startIndex: 1,canChange: !canEdit,);
   }
 
