@@ -1,13 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:unify/FireService.dart';
-import 'package:unify/Screens/TestScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:unify/user_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:unify/firebase_options.dart';
 
+import 'Screens/LoginScreen.dart';
+import 'Screens/NavigatorScreen.dart';
 import 'chat_service.dart';
 
 
@@ -47,15 +48,15 @@ class MyApp extends StatelessWidget {
               theme: ThemeData(
                 primarySwatch: Colors.blue,
               ),
-              home: TestScreen(),
+              home: user == null ? const LoginScreen() : const NavigatorScreen()
           );
         });
   }
 }
 
+
 Future _connectToFirebaseEmulator() async {
   FirebaseFirestore.instance
       .useFirestoreEmulator("10.0.2.2", 8080, sslEnabled: false);
   FirebaseAuth.instance.useAuthEmulator("10.0.2.2", 9099);
-
 }

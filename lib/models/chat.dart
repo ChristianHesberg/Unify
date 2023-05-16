@@ -1,5 +1,3 @@
-import 'package:unify/models/app_user.dart';
-
 class ChatKeys {
   static const name = 'name';
   static const users = 'users';

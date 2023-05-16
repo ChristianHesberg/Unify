@@ -30,6 +30,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
   final _userForm = GlobalKey<FormState>();
 
   String genderValue = "";
+  final _description = TextEditingController();
 
   @override
   void initState() {
@@ -94,6 +95,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
               ),
               ImageScroll(imageList: images),
               TextFormField(
+                controller: _description,
                 maxLines: null,
                 keyboardType: TextInputType.multiline,
                 decoration: const InputDecoration(
@@ -154,29 +156,33 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
               _previousPage();
             },
             child: Text("back")),
-        ElevatedButton(
-            onPressed: () async {
-              //TODO SUBMIT
-            //  await fireService.updateAccount();
-              await fireService.testGet();
-
-              setState(() {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const NavigatorScreen(),
-                  ),
-                );
-              });
-              //if email taken => tilbage til page 1 ommer
-            },
-            child: Text("Done!"))
+        _buildDoneBtn(fireService),
         //Text("data")
       ],
     );
   }
-  _buildDoneBtn(){
 
+  _buildDoneBtn(FireService fireService) {
+    genderValue;
+    birthDate;
+    final desc = _description.text;
+
+    return ElevatedButton(
+        onPressed: () async {
+          //TODO SUBMIT
+          await fireService.updateAccount();
+
+          setState(() {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const NavigatorScreen(),
+              ),
+            );
+          });
+          //if email taken => tilbage til page 1 ommer
+        },
+        child: Text("Done!"));
   }
 
   List<XFile> images = [];

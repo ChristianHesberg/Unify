@@ -41,11 +41,14 @@ exports.authOnAccountCreate = functions.auth
     })
 
 //http://127.0.0.1:5001/unify-ef8e0/us-central1/api/accountSetup
+
 app.post("/accountSetup", async (req, res) => {
     const uId = req.body.uId;
-    const data = req.body;
+    const body = req.body;
 
-    const writeResult = await admin.firestore.collection('users').document(uId).set({data});
+    const result = await admin.firestore.collection('users')
+        .document(uId)
+        .set({data});
     return res.statusCode;
 })
 
@@ -57,7 +60,21 @@ app.post("/test", async (req, res) => {
 
     print("Test print: " + writeResult);
 })
-
+/*
+app.post('/message', async (req, res) => {
+    const body = req.body;
+    const postResult = await admin.firestore()
+        .collection('chats')
+        .doc(body.chatId)
+        .collection('messages')
+        .add({
+            content: body.content,
+            sender: body.sender,
+            timestamp: new Date()
+        });
+    return res.json(postResult);
+})
+*/
 app.get('/matches' +
     '/userAge/:userAge' +
     '/maxAge/:maxAge' +
