@@ -32,10 +32,10 @@ class _AccountScreenState extends State<AccountScreen> {
             if(value.user == null){
               value.getUser();
               print("test1");
-              return CircularProgressIndicator();
+              return Center(child: CircularProgressIndicator());
             }else{
               print("test2");
-              this.user = value.user!;
+              user = value.user!;
               return _accountScreen();
             }
           },

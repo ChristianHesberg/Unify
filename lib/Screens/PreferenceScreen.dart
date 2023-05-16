@@ -26,7 +26,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
           if(value.user == null){
             value.getUser();
             print("test1");
-            return CircularProgressIndicator();
+            return Center(child: CircularProgressIndicator());
           }else{
             print("test2");
             this.user = value.user!;

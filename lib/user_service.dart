@@ -21,7 +21,7 @@ class UserService with ChangeNotifier{
       final userData = documentSnapshot.data();
       if (userData != null && userData is Map<String, dynamic>) {
         final String? name = userData['name'] as String?;
-        final Timestamp birthday = userData['age'] as Timestamp;
+        final Timestamp birthday = userData['birthday'] as Timestamp;
         final String? gender = userData['gender'] as String?;
         final int? maxAge = userData['maxAgePreference'] as int?;
         final int? minAge = userData['minAgePreference'] as int?;
