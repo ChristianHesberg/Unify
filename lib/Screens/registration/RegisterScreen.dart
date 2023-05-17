@@ -20,8 +20,6 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  final _name = TextEditingController(text: "asdasdasd");
-
   final _email =
       TextEditingController(text: "${Random().nextInt(10000)}@gmail.dk");
   final _password = TextEditingController(text: "123456");
@@ -44,17 +42,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               children: [
                 const Text("Create your login!"),
-                TextFormField(
-                  decoration: const InputDecoration(
-                      label: Text("Name"), hintText: "Your name"),
-                  controller: _name,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Input your name";
-                    }
-                    return null;
-                  },
-                ),
                 TextFormField(
                   keyboardType: TextInputType.emailAddress,
                   controller: _email,
@@ -91,7 +78,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onPressed: () async {
                     if (_loginForm.currentState!.validate()) {
                       await fireService.createAccount(
-                          _name.text, _email.text, _password.text);
+                          _email.text, _password.text);
 
                       await fireService.signIn(_email.text, _password.text);
 

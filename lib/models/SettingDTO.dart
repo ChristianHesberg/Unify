@@ -1,33 +1,33 @@
 import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:geolocator/geolocator.dart';
 
-class AppUser {
+class SettingsDTO {
   final String id;
   String name;
   DateTime age;
-  GeoFirePoint? location;
+  GeoFirePoint position;
   String gender;
   int maxAgePreference;
   int minAgePreference;
-  List<String> genderPreferences;
+  bool femalePreference;
+  bool malePreference;
+  bool otherPreference;
   double locationPreference;
   String profilePicture;
   String description;
 
-  AppUser(
+  SettingsDTO(
       {required this.id,
       required this.name,
       required this.age,
-      this.location,
+      required this.position,
       required this.gender,
       required this.maxAgePreference,
       required this.minAgePreference,
-      required this.genderPreferences,
+      required this.femalePreference,
+      required this.malePreference,
+      required this.otherPreference,
       required this.locationPreference,
       required this.profilePicture,
       required this.description});
-
-  @override
-  String toString() {
-    return 'AppUser{id: $id, name: $name, age: $age, location: $location, gender: $gender, maxAgePreference: $maxAgePreference, minAgePreference: $minAgePreference, genderPreferences: $genderPreferences, locationPreference: $locationPreference, profilePicture: $profilePicture, description: $description}';
-  }
 }

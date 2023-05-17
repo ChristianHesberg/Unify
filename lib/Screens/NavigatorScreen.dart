@@ -21,6 +21,8 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   @override
   void initState() {
     super.initState();
+
+    //TODO HOW OMG
     //get user info
     // check if account is set up ->
     //if not -> setup screen
@@ -40,36 +42,24 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
     }
   }
 
-  checkIsSetup(FireService fireService) async {
-    await fireService.checkStatus(FirebaseAuth.instance.currentUser!.uid);
-  }
 
   @override
   Widget build(BuildContext context) {
-    var fireService = Provider.of<FireService>(context);
-    checkIsSetup(fireService);
-
-    if (!fireService.isSetup) {
-      return const AccountSetupScreen();
-    } else {
-      print("isSetup: ${fireService.isSetup}");
-      return Scaffold(
-        appBar:
-            AppBar(title: const Text("Unify"), backgroundColor: Colors.black),
-        body: _showWidget(_selectedIndex),
-        bottomNavigationBar: BottomNavigationBar(
-            currentIndex: _selectedIndex,
-            selectedItemColor: Colors.blue,
-            onTap: _onItemTapped,
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                  label: "Discover", icon: Icon(Icons.people)),
-              BottomNavigationBarItem(label: "Chat", icon: Icon(Icons.chat)),
-              BottomNavigationBarItem(
-                  label: "Settings", icon: Icon(Icons.settings)),
-            ]),
-      );
-    }
+    return Scaffold(
+      appBar: AppBar(title: const Text("Unify"), backgroundColor: Colors.black),
+      body: _showWidget(_selectedIndex),
+      bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.blue,
+          onTap: _onItemTapped,
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+                label: "Discover", icon: Icon(Icons.people)),
+            BottomNavigationBarItem(label: "Chat", icon: Icon(Icons.chat)),
+            BottomNavigationBarItem(
+                label: "Settings", icon: Icon(Icons.settings)),
+          ]),
+    );
   }
 
   void _onItemTapped(int index) {

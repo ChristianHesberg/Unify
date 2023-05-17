@@ -1,10 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cross_file_image/cross_file_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:unify/FireService.dart';
+import 'package:unify/Models/appUser.dart';
+import 'package:unify/Screens/IsSetUpScreen.dart';
 import 'package:unify/Screens/NavigatorScreen.dart';
+import 'package:unify/geolocator_server.dart';
+import 'package:unify/models/SettingDTO.dart';
 
 import '../../Widgets/AgeSlider.dart';
 import '../../Widgets/DatePicker.dart';
@@ -24,16 +32,19 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
   late final _pageController;
   int currentPage = 0;
   double distance = 1;
-  var rangeValues = const SfRangeValues(18, 75);
+  var ageRangeValues = const SfRangeValues(18, 75);
   final _image_picker = ImagePicker();
   XFile? profilePicture;
   final _userForm = GlobalKey<FormState>();
-
+  DateTime birthDate = DateTime(2001, 9, 11); //starting value
   String genderValue = "";
   final _description = TextEditingController();
+  final _name = TextEditingController(text: "asdasdasd");
+  late final Position currentLocation;
+  var _loading = false;
 
   @override
-  void initState() {
+  initState() {
     super.initState();
     _pageController = PageController(initialPage: currentPage);
   }
@@ -51,11 +62,16 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
           icon: const Icon(Icons.exit_to_app),
         )
       ]),
-      body: PageView(
-        physics: const NeverScrollableScrollPhysics(),
-        controller: _pageController,
-        children: [_buildUserInfo(), _buildUserPreferences(fireService)],
-      ),
+      body: _loading == false
+          ? PageView(
+              physics: const NeverScrollableScrollPhysics(),
+              controller: _pageController,
+              children: [
+                _buildUserInfo(),
+                _buildUserPreferences(fireService, context)
+              ],
+            )
+          : const CircularProgressIndicator(),
     );
   }
 
@@ -63,7 +79,6 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
     genderValue = value;
   }
 
-  DateTime? birthDate;
   void _handleDateOutput(DateTime date) {
     birthDate = date;
   }
@@ -77,8 +92,18 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
           child: Column(
             children: [
               _profilePicture(),
-              DatePicker(
-                  onClick: _handleDateOutput, birthDate: DateTime(2001, 9, 11)),
+              TextFormField(
+                decoration: const InputDecoration(
+                    label: Text("Name"), hintText: "Your name"),
+                controller: _name,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Input your name";
+                  }
+                  return null;
+                },
+              ),
+              DatePicker(onClick: _handleDateOutput, birthDate: birthDate),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -132,14 +157,14 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
     );
   }
 
-  _buildUserPreferences(FireService fireService) {
+  _buildUserPreferences(FireService fireService, context) {
     return Column(
       children: [
         const Text("Who are you looking to meet?"),
         GenderCheckBoxes(
-          men: true,
-          women: true,
-          other: true,
+          men: genderMap["Men"]!,
+          women: genderMap["Women"]!,
+          other: genderMap["Other"]!,
           onClick: _handleGenderCheckBoxes,
         ),
         Padding(
@@ -156,21 +181,23 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
               _previousPage();
             },
             child: Text("back")),
-        _buildDoneBtn(fireService),
+        _buildDoneBtn(fireService, context),
         //Text("data")
       ],
     );
   }
 
-  _buildDoneBtn(FireService fireService) {
-    genderValue;
-    birthDate;
-    final desc = _description.text;
-    //final name = _name
+  _buildDoneBtn(FireService fireService, context) {
     return ElevatedButton(
         onPressed: () async {
-          //TODO SUBMIT
-          await fireService.updateAccount();
+          _loading = true;
+          setState(() {});
+          //TODO HOW DO YOU KNOW WHEN CLOUD FUNC IS DONE RUNNING
+          var dto = await _createSettingsDto();
+
+          var response = await fireService.updateAccount(dto);
+          _loading = false;
+          print("@@@@@@@@@@@@@@RESPONSE@@@@@@@@@@@@@: ${response}");
 
           setState(() {
             Navigator.pushReplacement(
@@ -183,6 +210,30 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
           //if email taken => tilbage til page 1 ommer
         },
         child: Text("Done!"));
+  }
+
+  _createSettingsDto() async {
+    var minAge = ageRangeValues.start.round();
+    var maxAge = ageRangeValues.end.round();
+    var pos = await Server.determinePosition();
+    final geo = GeoFlutterFire();
+    var point = geo.point(latitude: pos.latitude, longitude: pos.longitude);
+    //TODO REWORK AWAY FROM APPUSER AS INPUT
+    return SettingsDTO(
+      id: FirebaseAuth.instance.currentUser!.uid,
+      name: _name.text,
+      age: birthDate,
+      position: point,
+      gender: genderValue,
+      maxAgePreference: maxAge,
+      minAgePreference: minAge,
+      locationPreference: distance,
+      profilePicture: profilePicture.toString(),
+      description: _description.text,
+      femalePreference: genderMap["Women"]!,
+      malePreference: genderMap["Men"]!,
+      otherPreference: genderMap["Other"]!,
+    );
   }
 
   List<XFile> images = [];
@@ -208,8 +259,8 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
           return AlertDialog(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            title: Text('Please choose media to select'),
-            content: Container(
+            title: const Text('Please choose media to select'),
+            content: SizedBox(
               height: MediaQuery.of(context).size.height / 6,
               child: Column(
                 children: [
@@ -219,8 +270,8 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                       Navigator.pop(context);
                       getImage(ImageSource.gallery);
                     },
-                    child: Row(
-                      children: const [
+                    child: const Row(
+                      children: [
                         Icon(Icons.image),
                         Text('From Gallery'),
                       ],
@@ -232,7 +283,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                       Navigator.pop(context);
                       getImage(ImageSource.camera);
                     },
-                    child: Row(
+                    child: const Row(
                       children: [
                         Icon(Icons.camera),
                         Text('From Camera'),
@@ -275,26 +326,26 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
           );
   }
 
-  Map<String, bool> genderMap = {};
+  Map<String, bool> genderMap = {"Men": true, "Women": true, "Other": true};
 
   _handleGenderCheckBoxes(Map<String, bool> values) {
     //todo validate
     genderMap = values;
+    print(genderMap);
   }
-
 
   _handleDistanceSlider(double val) {
     distance = val;
   }
 
   _handleOnSlide(SfRangeValues values) {
-    rangeValues = values;
+    ageRangeValues = values;
     //husk at round
   }
 
   _buildAgeSlider() {
     return AgeSlider(
-      ageRangeValues: rangeValues,
+      ageRangeValues: ageRangeValues,
       onSlide: _handleOnSlide,
     );
   }

@@ -4,24 +4,24 @@ import 'package:geolocator/geolocator.dart';
 import 'package:unify/geolocator_server.dart';
 import 'Models/appUser.dart';
 
-class MatchService{
+class MatchService {
   final geo = GeoFlutterFire();
   final _firestore = FirebaseFirestore.instance;
   late AppUser user;
 
-
   MatchService() {
     user = AppUser(
-        'SdeTTfnQG52HM97YnsKs',
-        'crissy',
-        DateTime.now(),
-        'female',
-        23,
-        27,
-        ['male','female'],
-        50,
-        "filler",
-        "fefewfew");
+        id: 'SdeTTfnQG52HM97YnsKs',
+        name: 'crissy',
+        age: DateTime.now(),
+        gender: 'female',
+        minAgePreference: 23,
+        maxAgePreference: 27,
+        genderPreferences: ['male', 'female'],
+        locationPreference: 50,
+        description: "filler",
+        profilePicture: "fefewfew",
+        location: GeoFirePoint(1, 2));
     _firestore.useFirestoreEmulator('localhost', 8080);
     //writeLocation();
     //getUsersWithinRadius();
@@ -29,15 +29,16 @@ class MatchService{
 
   writeLocation() async {
     Position position = await Server.determinePosition();
-    user.location = geo.point(latitude: position.latitude, longitude: position.longitude);
+    user.location =
+        geo.point(latitude: position.latitude, longitude: position.longitude);
 
     _firestore
         .collection('users')
         .doc(user.id)
-        .update({'location': user.location.data});
+        .update({'location': user.location!.data});
   }
-
-  /*getUsersWithinRadius() async{
+/*
+getUsersWithinRadius() async{
     Position position = await Server.determinePosition();
     user.location = geo.point(latitude: position.latitude, longitude: position.longitude);
     List<dynamic> data = [];
@@ -71,7 +72,6 @@ class MatchService{
       case 'other': return 'otherGenderPreference';
     }
   }
-  
-   */
 
+   */
 }

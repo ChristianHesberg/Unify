@@ -8,20 +8,6 @@ const app = require('express')();
 const cors = require('cors');
 app.use(cors());
 
-app.use(function (req, res, next) {
-        res.setHeader('Access-Control-Allow-Origin', '127.0.0.1:5001');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-        res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-        res.setHeader('Access-Control-Allow-Credentials', true);
-        next();
-    }
-);
-
-app.post('/test', async (req, res) => {
-    const snapshot = await admin.firestore.collection("users");
-    return snapshot.docs.map(doc => doc.data);
-
-})
 
 exports.lmao2 = functions.https.onCall((req, res) => {
     const myMap = {"fuck": "ass"};
@@ -34,47 +20,58 @@ exports.authOnAccountCreate = functions.auth
     .onCreate((user, context) => {
         admin.firestore().collection("users").doc(user.uid)
             .set({
-                name: user.displayName,
                 isSetup: false
             })
 
     })
 
-//http://127.0.0.1:5001/unify-ef8e0/us-central1/api/accountSetup
+app.post("/uploadProfilePic", async (req, res) => {
+        const uId = req.body.uId;
+        const image = req.body.image;
+
+        const ref = await admin.storage.ref();
+        const fileRef = ref.child("profilePics/" + uId);
+        const uploadTask = ref.put(image);
+
+        uploadTask.on('state_changed', (snapshot) => {
+                // Handle progress, if needed
+            },
+            (error) => {
+                //handle error
+            }, (_) => {
+                // Upload completed successfully
+                // Retrieve the uploaded image's download URL
+                uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                    admin.firestore().collection("users").doc(uId).set({profilePicture: downloadURL}, {merge: true})
+                });
+            })
+    }
+);
 
 app.post("/accountSetup", async (req, res) => {
     const uId = req.body.uId;
-    const body = req.body;
-
-    const result = await admin.firestore.collection('users')
-        .document(uId)
-        .set({data});
-    return res.statusCode;
-})
-
-app.post("/test", async (req, res) => {
-    const uId = req.body.uId;
     const data = req.body;
 
-    const writeResult = await admin.firestore.collection('users').get();
-
-    print("Test print: " + writeResult);
+    const result = await admin.firestore().collection('users').doc(uId).set({
+        "isSetup": true,
+        "name": data.name,
+        "birthDay": data.birthDay,
+        "gender": data.gender,
+        "geohash": data.geohash,
+        "latitude": data.latitude,
+        "longitude": data.longitude,
+        "maxAgePreference": data.maxAgePreference,
+        "minAgePreference": data.minAgePreference,
+        "femalePreference": data.femalePreference,
+        "malePreference": data.malePreference,
+        "otherPreference": data.otherPreference,
+        "locationPreference": data.locationPreference,
+        "description": data.description
+        //TODO PROFILE PIC
+        //TODO MANY PIC
+    })
+    return res.json(result)
 })
-/*
-app.post('/message', async (req, res) => {
-    const body = req.body;
-    const postResult = await admin.firestore()
-        .collection('chats')
-        .doc(body.chatId)
-        .collection('messages')
-        .add({
-            content: body.content,
-            sender: body.sender,
-            timestamp: new Date()
-        });
-    return res.json(postResult);
-})
-*/
 app.get('/matches' +
     '/userAge/:userAge' +
     '/maxAge/:maxAge' +

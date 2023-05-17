@@ -41,16 +41,16 @@ class UserService with ChangeNotifier{
         final String? description = userData['description'] as String?;
 
         _user = AppUser(
-          FirebaseAuth.instance.currentUser!.uid,
-          name!,
-          birthday.toDate(),
-          gender!,
-          maxAge!,
-          minAge!,
-          genderPreferenceList,
-          distancePreference!.toDouble(),
-          "filler",
-          description!,
+          id: FirebaseAuth.instance.currentUser!.uid,
+          name: name!,
+          age: birthday.toDate(),
+          gender: gender!,
+          maxAgePreference: maxAge!,
+          minAgePreference: minAge!,
+          genderPreferences: genderPreferenceList,
+          locationPreference: distancePreference!.toDouble(),
+          profilePicture: "filler",
+          description: description!,
         );
         _user!.location = GeoFirePoint(location!.latitude, location.longitude);
         notifyListeners(); // Notify listeners of state change
