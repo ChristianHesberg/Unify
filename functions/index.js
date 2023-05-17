@@ -89,5 +89,19 @@ app.get('/matches' +
     })
 });
 
+app.post('/message', async (req, res) => {
+    const body = req.body;
+    const postResult = await admin.firestore()
+        .collection('chats')
+        .doc(body.chatId)
+        .collection('messages')
+        .add({
+            content: body.content,
+            sender: body.sender,
+            timestamp: new Date()
+        });
+    return res.json(postResult);
+})
+
 exports.api = functions.https.onRequest(app);
 

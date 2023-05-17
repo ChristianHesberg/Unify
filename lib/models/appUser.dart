@@ -9,6 +9,7 @@ class AppUser{
   int minAgePreference;
   List<String> genderPreferences;
   double locationPreference;
+  String profilePicture;
   String description;
 
   AppUser(
@@ -20,5 +21,6 @@ class AppUser{
       this.minAgePreference,
       this.genderPreferences,
       this.locationPreference,
+      this.profilePicture,
       this.description);
 }

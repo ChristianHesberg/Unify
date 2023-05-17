@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
@@ -22,8 +20,7 @@ class MatchService{
         27,
         ['male','female'],
         50,
-      "fefewfew"
-    );
+        "fefewfew");
     _firestore.useFirestoreEmulator('localhost', 8080);
     //writeLocation();
     //getUsersWithinRadius();
