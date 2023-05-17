@@ -31,7 +31,6 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   }
   @override
   Widget build(BuildContext context) {
-    fetchUser();
     return Scaffold(
       appBar: AppBar(title: const Text("Unify"), backgroundColor: Colors.black),
       body: _showWidget(_selectedIndex),
@@ -61,10 +60,5 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
     setState(() {
       _selectedIndex = index;
     });
-  }
-
-  fetchUser(){
-    final user = Provider.of<UserService?>(context);
-    user?.getUser();
   }
 }

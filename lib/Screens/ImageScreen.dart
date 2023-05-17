@@ -45,7 +45,7 @@ class _ImageScreenState extends State<ImageScreen> {
             mainAxisSpacing: 0,
             crossAxisCount: 3,
           ),
-          itemCount: user.images.length,
+          itemCount: user.imageList.length,
           itemBuilder: (context, index) {
             return InkWell(
               highlightColor: Colors.blue.withOpacity(0.3),
@@ -54,7 +54,7 @@ class _ImageScreenState extends State<ImageScreen> {
                 _deleteBtn(index);
               },
               child: Ink.image(
-                image: NetworkImage(user.images[index]),
+                image: NetworkImage(user.imageList[index].url),
                 fit: BoxFit.cover,
               ),
             );
@@ -98,7 +98,7 @@ class _ImageScreenState extends State<ImageScreen> {
               TextButton(
                   onPressed: () {
                     //TODO Delete Picture
-                    user.images.removeAt(index);
+                    user.imageList.removeAt(index);
                     setState(() {
                       Navigator.of(context).pop();
                     });

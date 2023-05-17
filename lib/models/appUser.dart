@@ -1,4 +1,7 @@
 import 'package:geoflutterfire2/geoflutterfire2.dart';
+
+import 'images.dart';
+
 class AppUser{
   String id;
   String name;
@@ -11,7 +14,7 @@ class AppUser{
   double locationPreference;
   String profilePicture;
   String description;
-  List<String> images;
+  List<images> imageList;
 
   AppUser(
       this.id,
@@ -24,5 +27,5 @@ class AppUser{
       this.locationPreference,
       this.profilePicture,
       this.description,
-      this.images);
+      this.imageList);
 }
