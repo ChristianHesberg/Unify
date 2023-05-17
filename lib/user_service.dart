@@ -13,14 +13,19 @@ class UserService with ChangeNotifier{
 
   void getUser() async {
     try {
+      //logged in user id
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+
+      //query
       final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
       await FirebaseFirestore.instance
           .collection('users')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .doc(uid)
           .get();
 
+      //data handle
       final userData = documentSnapshot.data();
-      if (userData != null && userData is Map<String, dynamic>) {
+      if (userData != null) {
         final String? name = userData['name'] as String?;
         final Timestamp birthday = userData['birthday'] as Timestamp;
         final String? gender = userData['gender'] as String?;
@@ -30,6 +35,7 @@ class UserService with ChangeNotifier{
         final bool? malePreference = userData['malePreference'] as bool?;
         final bool? otherPreference = userData['otherPreference'] as bool?;
 
+        // setup gender preference list
         List<String> genderPreferenceList = [
           if (malePreference == true) 'male',
           if (femalePreference == true) 'female',
@@ -41,10 +47,13 @@ class UserService with ChangeNotifier{
         final GeoPoint? location = userData['location'] as GeoPoint?;
         final String? description = userData['description'] as String?;
 
-        String profilePicture = await downloadImage(FirebaseAuth.instance.currentUser!.uid, "profilepicture");
-        List<String> image = await getImagesInFolder();
+        // get pictures
+        String profilePicture = await downloadImage(uid, "profilepicture");
+        List<String> image = await getImagesInFolder(uid);
+
+
     _user = AppUser(
-          FirebaseAuth.instance.currentUser!.uid,
+          uid,
           name!,
           birthday.toDate(),
           gender!,
@@ -56,7 +65,10 @@ class UserService with ChangeNotifier{
           description!,
           image
         );
+
+    //set user location
         _user!.location = GeoFirePoint(location!.latitude, location.longitude);
+
         notifyListeners(); // Notify listeners of state change
       } else {
         _user = null;
@@ -78,8 +90,8 @@ class UserService with ChangeNotifier{
     return await storageReference.getDownloadURL();
   }
 
-  Future<List<String>> getImagesInFolder() async {
-    Reference storageReference = FirebaseStorage.instance.ref("users/${FirebaseAuth.instance.currentUser!.uid}/images");
+  Future<List<String>> getImagesInFolder(String uid) async {
+    Reference storageReference = FirebaseStorage.instance.ref("users/$uid/images");
 
     ListResult result = await storageReference.listAll();
 
@@ -92,6 +104,5 @@ class UserService with ChangeNotifier{
     }
     return urlList;
   }
-
 
 }
