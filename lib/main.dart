@@ -10,6 +10,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:unify/firebase_options.dart';
 import 'package:unify/match_service.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,7 +19,7 @@ Future<void> main() async {
 
   FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
   await FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
-
+  FirebaseStorage.instance.useStorageEmulator("10.0.2.2", 9199);
   runApp(ChangeNotifierProvider(create: (context) => UserService(),child: MyApp(),));
 }
 
