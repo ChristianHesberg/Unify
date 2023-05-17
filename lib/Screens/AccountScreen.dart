@@ -31,10 +31,8 @@ class _AccountScreenState extends State<AccountScreen> {
           builder:(context, value, child) {
             if(value.user == null){
               value.getUser();
-              print("test1");
               return Center(child: CircularProgressIndicator());
             }else{
-              print("test2");
               user = value.user!;
               return _accountScreen();
             }
@@ -109,7 +107,7 @@ class _AccountScreenState extends State<AccountScreen> {
                             getImage(ImageSource.gallery);
                           }
                         },
-                        child: Ink.image(image: NetworkImage('https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'),
+                        child: Ink.image(image: NetworkImage(user.profilePicture),
                             fit: BoxFit.cover,
                             width: 240,
                           height: 240,

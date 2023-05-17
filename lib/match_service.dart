@@ -21,7 +21,8 @@ class MatchService{
         ['male','female'],
         50,
         "sdas",
-        "fefewfew");
+        "fefewfew",
+    []);
     _firestore.useFirestoreEmulator('localhost', 8080);
     //writeLocation();
     //getUsersWithinRadius();

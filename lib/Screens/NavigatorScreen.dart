@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:unify/Screens/ContactScreen.dart';
 import 'package:unify/Screens/DiscoverScreen.dart';
+import 'package:unify/user_service.dart';
 
 import 'SettingsScreen.dart';
 
@@ -13,7 +15,6 @@ class NavigatorScreen extends StatefulWidget {
 
 class _NavigatorScreenState extends State<NavigatorScreen> {
   int _selectedIndex = 0;
-
 
   _showWidget(int pos) {
     switch (pos) {
@@ -30,6 +31,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   }
   @override
   Widget build(BuildContext context) {
+    fetchUser();
     return Scaffold(
       appBar: AppBar(title: const Text("Unify"), backgroundColor: Colors.black),
       body: _showWidget(_selectedIndex),
@@ -59,5 +61,10 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  fetchUser(){
+    final user = Provider.of<UserService?>(context);
+    user?.getUser();
   }
 }

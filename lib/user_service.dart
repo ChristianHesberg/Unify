@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:geoflutterfire2/geoflutterfire2.dart';
@@ -10,7 +11,7 @@ class UserService with ChangeNotifier{
 
   AppUser? get user => _user;
 
-  Future<AppUser?> getUser() async {
+  void getUser() async {
     try {
       final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
       await FirebaseFirestore.instance
@@ -40,7 +41,9 @@ class UserService with ChangeNotifier{
         final GeoPoint? location = userData['location'] as GeoPoint?;
         final String? description = userData['description'] as String?;
 
-        _user = AppUser(
+        String profilePicture = await downloadImage(FirebaseAuth.instance.currentUser!.uid, "profilepicture");
+        List<String> image = await getImagesInFolder();
+    _user = AppUser(
           FirebaseAuth.instance.currentUser!.uid,
           name!,
           birthday.toDate(),
@@ -49,22 +52,46 @@ class UserService with ChangeNotifier{
           minAge!,
           genderPreferenceList,
           distancePreference!.toDouble(),
-          "img",
+          profilePicture,
           description!,
+          image
         );
         _user!.location = GeoFirePoint(location!.latitude, location.longitude);
         notifyListeners(); // Notify listeners of state change
-        return _user!;
       } else {
         _user = null;
         notifyListeners();
-        return Future.error("error");
       }
     } catch (e) {
       print(e);
     }
   }
+  
+  Future<String> downloadImage(String userId, String imageName) async {
+    // Create a reference to the Firebase Storage location of the image
 
+    String path = 'users/$userId/$imageName.jpg';
+    Reference storageReference = FirebaseStorage.instance
+        .ref()
+        .child(path);
+
+    return await storageReference.getDownloadURL();
+  }
+
+  Future<List<String>> getImagesInFolder() async {
+    Reference storageReference = FirebaseStorage.instance.ref("users/${FirebaseAuth.instance.currentUser!.uid}/images");
+
+    ListResult result = await storageReference.listAll();
+
+    List<String> urlList = [];
+    for (Reference ref in result.items) {
+      // Get the download URL for each image
+      String downloadUrl = await ref.getDownloadURL();
+      urlList.add(downloadUrl);
+
+    }
+    return urlList;
+  }
 
 
 }

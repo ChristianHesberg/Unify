@@ -11,6 +11,7 @@ class AppUser{
   double locationPreference;
   String profilePicture;
   String description;
+  List<String> images;
 
   AppUser(
       this.id,
@@ -22,5 +23,6 @@ class AppUser{
       this.genderPreferences,
       this.locationPreference,
       this.profilePicture,
-      this.description);
+      this.description,
+      this.images);
 }

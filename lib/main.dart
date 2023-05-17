@@ -18,7 +18,7 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseAuth.instance.useAuthEmulator('10.0.2.2', 9099);
   FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
-  FirebaseStorage.instance.useStorageEmulator("10.0.2.2", 9199);
+  FirebaseStorage.instance.useStorageEmulator('localhost', 9199);
   runApp(ChangeNotifierProvider(create: (context) => UserService(),child: MyApp(),));
 }
 
