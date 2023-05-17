@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:unify/models/messageDTO.dart';
 import 'package:http/http.dart' as http;
 
 import 'models/chat.dart';
@@ -13,8 +12,7 @@ class ChatService{
   static const chats = 'chats';
   static const messages = 'messages';
   static const timestamp = 'timestamp';
-  static const baseUrl = 'http://10.0.2.2:5001';
-  static const basePath = '/unify-ef8e0/us-central1/api/';
+  static const baseUrl = 'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/';
   final _firestore = FirebaseFirestore.instance;
 
 
@@ -23,7 +21,6 @@ class ChatService{
   }
 
   Stream<Iterable<Chat>> getChats(User user) {
-    print('userId is:' + user.uid);
     return _firestore
         .collection(chats)
         .where(ChatKeys.userIds, arrayContains: user.uid)
@@ -52,7 +49,7 @@ class ChatService{
 
   sendMessage(User user, Chat chat, String message) async {
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:5001/unify-ef8e0/us-central1/api/message'),
+      Uri.parse('${baseUrl}message'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
