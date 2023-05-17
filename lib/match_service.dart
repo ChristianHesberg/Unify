@@ -11,16 +11,7 @@ class MatchService{
 
 
   MatchService() {
-    user = AppUser(
-        'SdeTTfnQG52HM97YnsKs',
-        'crissy',
-        DateTime.now(),
-        'female',
-        23,
-        27,
-        ['male','female'],
-        50,
-        "fefewfew");
+
     _firestore.useFirestoreEmulator('localhost', 8080);
     //writeLocation();
     //getUsersWithinRadius();

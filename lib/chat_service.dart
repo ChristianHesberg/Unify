@@ -26,7 +26,7 @@ class ChatService{
     print('userId is:' + user.uid);
     return _firestore
         .collection(chats)
-        .where(ChatKeys.users, arrayContains: user.uid)
+        .where(ChatKeys.userIds, arrayContains: user.uid)
         //.orderBy(timestamp)
         .withConverter(
       fromFirestore: (snapshot, options) =>
@@ -51,15 +51,6 @@ class ChatService{
   }
 
   sendMessage(User user, Chat chat, String message) async {
-    print(ChatKeys.chatId + chat.id);
-    print(MessageKeys.content + message);
-    print(MessageKeys.sender);
-    print(SenderKeys.displayName + user.displayName!);
-    print(SenderKeys.uid + user.uid);
-    //final sender = Sender(
-    //  uid: user.uid,
-    //  displayName: user.displayName ?? '');
-    //MessageDto dto = MessageDto(chatId: chat.id, content: message, sender: sender);
     final response = await http.post(
       Uri.parse('http://10.0.2.2:5001/unify-ef8e0/us-central1/api/message'),
         headers: <String, String>{

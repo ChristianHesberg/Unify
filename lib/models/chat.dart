@@ -1,23 +1,22 @@
-import 'package:unify/models/app_user.dart';
+import 'package:unify/models/chatUser.dart';
 
 class ChatKeys {
   static const name = 'name';
   static const users = 'users';
   static const chatId = 'chatId';
+  static const userIds = 'userIds';
 }
 
 class Chat{
   final String id;
-  final String name;
-  final List<String> users;
+  final List<ChatUser> users;
 
-  Chat(this.id,this.name,this.users);
+  Chat(this.id, this.users);
 
   Chat.fromMap(this.id, Map<String, dynamic> data)
-      : name = data[ChatKeys.name],
-       users = [...data[ChatKeys.users]];
+      : users = [ChatUser.fromMap(data[ChatKeys.users]['user1']), ChatUser.fromMap(data[ChatKeys.users]['user2'])];
 
   Map<String, dynamic> toMap() {
-    return {ChatKeys.name: name, ChatKeys.users: users};
+    return {ChatKeys.users: users};
   }
 }
