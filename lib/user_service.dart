@@ -49,6 +49,7 @@ class UserService with ChangeNotifier{
           minAge!,
           genderPreferenceList,
           distancePreference!.toDouble(),
+          "img",
           description!,
         );
         _user!.location = GeoFirePoint(location!.latitude, location.longitude);
