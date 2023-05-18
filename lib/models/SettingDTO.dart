@@ -1,5 +1,6 @@
 import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 
 class SettingsDTO {
   final String id;
@@ -13,7 +14,7 @@ class SettingsDTO {
   bool malePreference;
   bool otherPreference;
   double locationPreference;
-  String profilePicture;
+  XFile profilePicture;
   String description;
 
   SettingsDTO(

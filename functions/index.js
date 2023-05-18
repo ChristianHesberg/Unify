@@ -6,6 +6,7 @@ const geofire = require('geofire-common');
 
 const app = require('express')();
 const cors = require('cors');
+const formidable = require("formidable-serverless");
 app.use(cors());
 
 
@@ -26,31 +27,63 @@ exports.authOnAccountCreate = functions.auth
     })
 
 app.post("/uploadProfilePic", async (req, res) => {
-        const uId = req.body.uId;
-        const image = req.body.image;
+        try {
+            // Extract the image file from the request payload
+            const file = req.files.image;
 
-        const ref = await admin.storage.ref();
-        const fileRef = ref.child("profilePics/" + uId);
-        const uploadTask = ref.put(image);
+            // Generate a unique filename using UUID
+            const filename = `${uuidv4()}_${file.name}`;
 
-        uploadTask.on('state_changed', (snapshot) => {
-                // Handle progress, if needed
-            },
-            (error) => {
-                //handle error
-            }, (_) => {
-                // Upload completed successfully
-                // Retrieve the uploaded image's download URL
-                uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                    admin.firestore().collection("users").doc(uId).set({profilePicture: downloadURL}, {merge: true})
-                });
-            })
+            // Create a temporary local file path
+            const tempFilePath = path.join(os.tmpdir(), filename);
+
+            // Save the file locally
+            file.mv(tempFilePath, async (err) => {
+                if (err) {
+                    console.error('Error while saving file locally:', err);
+                    return res.status(500).send('Error occurred while saving file.');
+                }
+
+                try {
+                    // Upload the file to Firestore
+                    const bucket = admin.storage().bucket();
+                    await bucket.upload(tempFilePath, {
+                        destination: `images/${filename}`,
+                        metadata: {
+                            contentType: file.mimetype,
+                        },
+                    });
+
+                    // Get the public URL of the uploaded image
+                    const imageUrl = `https://storage.googleapis.com/${bucket.name}/images/${filename}`;
+
+                    // Save the image URL to Firestore
+                    const firestore = admin.firestore();
+                    await firestore.collection('images').add({
+                        imageUrl: imageUrl,
+                    });
+
+                    // Return a success response
+                    return res.status(200).send('Image uploaded successfully!');
+                } catch (error) {
+                    console.error('Error while uploading file to Firestore:', error);
+                    return res.status(500).send('Error occurred while uploading file.');
+                } finally {
+                    // Delete the temporary local file
+                    fs.unlinkSync(tempFilePath);
+                }
+            });
+        } catch (error) {
+            console.error('Error occurred:', error);
+            return res.status(500).send('Error occurred while processing request.');
+        }
     }
 );
 
 app.post("/accountSetup", async (req, res) => {
     const uId = req.body.uId;
     const data = req.body;
+    var x = new File()
 
     const result = await admin.firestore().collection('users').doc(uId).set({
         "isSetup": true,

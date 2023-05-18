@@ -21,12 +21,6 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   @override
   void initState() {
     super.initState();
-
-    //TODO HOW OMG
-    //get user info
-    // check if account is set up ->
-    //if not -> setup screen
-    //else find matches -> nav screen
   }
 
   _showWidget(int pos) {
@@ -42,9 +36,10 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
+    var fireService = Provider.of<FireService>(context);
+    if (!fireService.isSetup) return const AccountSetupScreen();
     return Scaffold(
       appBar: AppBar(title: const Text("Unify"), backgroundColor: Colors.black),
       body: _showWidget(_selectedIndex),

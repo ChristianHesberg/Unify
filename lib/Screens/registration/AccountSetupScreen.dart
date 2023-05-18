@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cross_file_image/cross_file_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +7,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:unify/FireService.dart';
-import 'package:unify/Models/appUser.dart';
-import 'package:unify/Screens/IsSetUpScreen.dart';
 import 'package:unify/Screens/NavigatorScreen.dart';
 import 'package:unify/geolocator_server.dart';
 import 'package:unify/models/SettingDTO.dart';
@@ -192,13 +189,10 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
         onPressed: () async {
           _loading = true;
           setState(() {});
-          //TODO HOW DO YOU KNOW WHEN CLOUD FUNC IS DONE RUNNING
           var dto = await _createSettingsDto();
-
-          var response = await fireService.updateAccount(dto);
+          await fireService.updateAccount(dto);
           _loading = false;
-          print("@@@@@@@@@@@@@@RESPONSE@@@@@@@@@@@@@: ${response}");
-
+          fireService.isSetup = true; //TODO SCUFFED?
           setState(() {
             Navigator.pushReplacement(
               context,
@@ -218,7 +212,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
     var pos = await Server.determinePosition();
     final geo = GeoFlutterFire();
     var point = geo.point(latitude: pos.latitude, longitude: pos.longitude);
-    //TODO REWORK AWAY FROM APPUSER AS INPUT
+
     return SettingsDTO(
       id: FirebaseAuth.instance.currentUser!.uid,
       name: _name.text,
@@ -228,7 +222,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
       maxAgePreference: maxAge,
       minAgePreference: minAge,
       locationPreference: distance,
-      profilePicture: profilePicture.toString(),
+      profilePicture: profilePicture!,
       description: _description.text,
       femalePreference: genderMap["Women"]!,
       malePreference: genderMap["Men"]!,
@@ -329,9 +323,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
   Map<String, bool> genderMap = {"Men": true, "Women": true, "Other": true};
 
   _handleGenderCheckBoxes(Map<String, bool> values) {
-    //todo validate
     genderMap = values;
-    print(genderMap);
   }
 
   _handleDistanceSlider(double val) {

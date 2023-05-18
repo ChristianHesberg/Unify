@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:geolocator/geolocator.dart';
@@ -9,12 +11,13 @@ import 'package:http/http.dart';
 import 'package:unify/Models/appUser.dart';
 import 'package:unify/Screens/LoginScreen.dart';
 import 'package:http/http.dart' as http;
-import 'package:unify/geolocator_server.dart';
+
 import 'package:unify/models/SettingDTO.dart';
 
 class FireService {
   final _auth = FirebaseAuth.instance;
   final _fireStore = FirebaseFirestore.instance;
+  final _storage = FirebaseStorage.instance;
   final baseUrl = "http://10.0.2.2:5001/unify-ef8e0/us-central1/api";
 
   //TODO HOW DO YOU CREATE ACCOUNT WITH CLOUD FUNC??
@@ -47,15 +50,19 @@ class FireService {
     print("RESULT: ${result.body}");
   }
 
-  updateAccount(SettingsDTO dto) async {
-    /*
-    var result2 = await http.post(Uri.parse("$baseUrl/accountSetup"),
+
+  uploadImages1(SettingsDTO dto) async {
+    var image = await dto.profilePicture;
+
+    var request = await http.post(Uri.parse("$baseUrl/uploadProfilePic"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8'
         },
-        body: json.encode(
-            {"uid": _auth.currentUser!.uid, "image": dto.profilePicture}));
-*/
+        body: json.encode({"uId": 5, "image": image.readAsBytes()}));
+  }
+
+  updateAccount(SettingsDTO dto) async {
+   //TODO YOINK IMAGE UPLOAD FRA MAGNUS
 
     Response result = await http.post(Uri.parse("$baseUrl/accountSetup"),
         headers: <String, String>{
@@ -86,12 +93,13 @@ class FireService {
   var isSetup = false;
 
   checkStatus() async {
-    String uId = _auth.currentUser!.uid;
+    String uId = FirebaseAuth.instance.currentUser!.uid;
     print("Checking status for uId: $uId");
     var userDoc = await _firestore.collection("users").doc(uId).get();
     var doc = userDoc.data();
     isSetup = doc!["isSetup"];
     print("isSetup: $isSetup");
+    return isSetup;
   }
 
   updateCurrentUser(String uid) async {
