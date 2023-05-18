@@ -26,6 +26,9 @@ app.get('/matches' +
     const radiusInM = Number(req.params.radius) * 1000;
     const limit = 10;
 
+    const maxAge = new Date(req.params.maxAge);
+    const minAge = new Date(req.params.minAge);
+
     const genderPreferences = req.params.genderPrefs.split("-");
 
     const bounds = geofire.geohashQueryBounds(center, radiusInM);
@@ -36,8 +39,8 @@ app.get('/matches' +
                 .where(req.params.matchGender, "==", true)
                 .where('maxAgePreference', ">=", Number(req.params.userAge))
                 .where('minAgePreference', '<=', Number(req.params.userAge))
-                .where('age', '<=', Number(req.params.maxAge))
-                .where('age', '>=', Number(req.params.minAge))
+                .where('birthday', '>=', maxAge)
+                .where('birthday', '<=', minAge)
                 .where('gender', 'in', genderPreferences)
                 .orderBy('geohash')
                 .startAt(b[0])
@@ -85,6 +88,7 @@ app.get('/matches' +
         if(req.params.lastDoc!==':lastDoc'){
             filteredDocs = filteredDocs.slice(1);
         }
+
         res.send(filteredDocs);
     })
 });

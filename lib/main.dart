@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:unify/Models/appUser.dart';
 import 'package:unify/user_service.dart';
 import 'Screens/NavigatorScreen.dart';
 import 'package:provider/provider.dart';

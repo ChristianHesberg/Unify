@@ -159,7 +159,7 @@ class _AccountScreenState extends State<AccountScreen> {
       ignoring: !canEdit,
         child: DatePicker(
       onClick: _handleDateOutput,
-      birthDate: user.age,
+      //birthDate: user.age,
     )); //GenderDropDown(startIndex: 1,canChange: !canEdit,);
   }
 
