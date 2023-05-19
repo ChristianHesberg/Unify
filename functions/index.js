@@ -112,8 +112,11 @@ app.post('/deleteImage', async (req, res) => {
     // Get the user ID and filename from the request body
     const {userId, downloadUrl} = req.body;
 
+    //depending on using emulators or not. download url´s are different. therefor the name have been giving an identifier _name-of-image_
+    const firstIdentifier = downloadUrl.indexOf("_");
+    const secondIdentifier = downloadUrl.indexOf("_", firstIdentifier + 1);
+    const filename = downloadUrl.substring(firstIdentifier,secondIdentifier + 1);
 
-    const filename = downloadUrl.substring(downloadUrl.length - 36);
     // Construct the path to the image
     const path = `users/${userId}/images/${filename}`;
 
@@ -121,11 +124,11 @@ app.post('/deleteImage', async (req, res) => {
         // Delete the image from Firebase Cloud Storage
         await admin.storage().bucket("gs://unify-ef8e0.appspot.com/").file(path).delete();
 
-        const userRef = admin.firestore().collection("users").doc(userId).update({
+        await admin.firestore().collection("users").doc(userId).update({
             imageList: admin.firestore.FieldValue.arrayRemove(downloadUrl)
         });
 
-            return res.status(200).json({message: 'Image deleted successfully.'});
+            return res.status(200).send("image deleted successfully");
     } catch (error) {
         res.status(500).json({error: 'An error occurred while deleting the image.'});
         throw new functions.https.HttpsError('internal', 'An error occurred while deleting the image.', error);
@@ -182,8 +185,8 @@ app.post('/uploadImages', async (req, res) => {
         for (let img of list) {
             const random_uuid = uuidv4(undefined, undefined, undefined);
             const fileBuffer = Buffer.from(img, 'base64');
-            const fileName = `${random_uuid}`;
-            const path = `users/${userId}/images/${random_uuid}`;
+            const fileName = `_${random_uuid}_`;
+            const path = `users/${userId}/images/${fileName}`;
             outputList.push(fileName);
             await bucket.file(path).save(fileBuffer, {
                 metadata: {
