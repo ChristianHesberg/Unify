@@ -72,7 +72,7 @@ class UserService with ChangeNotifier{
     List<AppUser> result = [];
     var body = json.decode(response.body);
     for (var map in body) {
-      result.add(AppUser.fromMap(map['id'], map['data']));
+      result.add(AppUser.fromMapJson(map['id'], map['data']));
     }
     lastDoc = result[result.length-1].id;
     return result;

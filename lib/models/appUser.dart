@@ -31,9 +31,9 @@ class AppUser{
       this.profilePicture,
       this.imageList);
 
-  AppUser.fromMap(this.id, Map<String, dynamic> data)
+  AppUser.fromMapJson(this.id, Map<String, dynamic> data)
     : name = data['name'],
-      birthday = (data['birthday'] as Timestamp).toDate(),
+      birthday = Timestamp(data['birthday']['_seconds'], data['birthday']['_nanoseconds']).toDate(),
       lat = data['lat'],
       lng = data['lng'],
       gender = data['gender'],
@@ -44,6 +44,20 @@ class AppUser{
       description = data['description'],
       profilePicture = data['profilePicture'],
       imageList = data['imageList'];
+
+  AppUser.fromMap(this.id, Map<String, dynamic> data)
+      : name = data['name'],
+        birthday = data['birthday'].toDate(),
+        lat = data['lat'],
+        lng = data['lng'],
+        gender = data['gender'],
+        maxAgePreference = data['maxAgePreference'],
+        minAgePreference = data['minAgePreference'],
+        genderPreferences = getGenderPreferencesAsList(data['malePreference'], data['femalePreference'], data['otherGenderPreference']),
+        locationPreference = data['distancePreference'],
+        description = data['description'],
+        profilePicture = data['profilePicture'],
+        imageList = data['imageList'];
 
 
   getBirthdayAsAge(){
