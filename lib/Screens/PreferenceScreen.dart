@@ -47,7 +47,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
 
             AgeSlider(ageRangeValues: SfRangeValues(user.minAgePreference, user.maxAgePreference), onSlide: _handleOnSlide),
 
-            DistanceSlider(onSlide: _handleDistanceSlider,startingValue: user.locationPreference,),
+            DistanceSlider(onSlide: _handleDistanceSlider,startingValue: user.locationPreference.toDouble(),),
 
             ElevatedButton(onPressed: () {}, child: Text("Update"))
           ],

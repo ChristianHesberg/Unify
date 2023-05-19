@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:unify/Models/appUser.dart';
-import 'package:unify/Models/images.dart';
+import 'package:unify/Models/appImage.dart';
 
 class UserService with ChangeNotifier{
   AppUser? _user;
@@ -29,6 +29,8 @@ class UserService with ChangeNotifier{
       if (userData != null) {
         final String? name = userData['name'] as String?;
         final Timestamp birthday = userData['birthday'] as Timestamp;
+        final double lat = userData['lat'];
+        final double lng = userData['lng'];
         final String? gender = userData['gender'] as String?;
         final int? maxAge = userData['maxAgePreference'] as int?;
         final int? minAge = userData['minAgePreference'] as int?;
@@ -50,25 +52,26 @@ class UserService with ChangeNotifier{
 
         // get pictures
         String profilePicture = await downloadImage(uid, "profilepicture");
-        List<images> image = await getImagesInFolder(uid);
+        List<AppImage> image = await getImagesInFolder(uid);
 
 
     _user = AppUser(
           uid,
           name!,
           birthday.toDate(),
+          lat,
+          lng,
           gender!,
           maxAge!,
           minAge!,
           genderPreferenceList,
-          distancePreference!.toDouble(),
+          distancePreference!,
           profilePicture,
           description!,
           image
         );
 
     //set user location
-        _user!.location = GeoFirePoint(location!.latitude, location.longitude);
 
         notifyListeners(); // Notify listeners of state change
       } else {
@@ -91,17 +94,17 @@ class UserService with ChangeNotifier{
     return await storageReference.getDownloadURL();
   }
 
-  Future<List<images>> getImagesInFolder(String uid) async {
+  Future<List<AppImage>> getImagesInFolder(String uid) async {
     Reference storageReference = FirebaseStorage.instance.ref("users/$uid/images");
 
     ListResult result = await storageReference.listAll();
 
-    List<images> urlList = [];
+    List<AppImage> urlList = [];
     for (Reference ref in result.items) {
       // Get the download URL for each image
       String downloadUrl = await ref.getDownloadURL();
       String imageName = ref.name;
-      urlList.add(images(downloadUrl, imageName));
+      urlList.add(AppImage(downloadUrl, imageName));
     }
     return urlList;
   }

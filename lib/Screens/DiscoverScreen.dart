@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:unify/Widgets/user_text.dart';
 
 import '../Widgets/contact_user_widget.dart';
+import '../match_service.dart';
 
 class DiscoverScreen extends StatelessWidget {
   PageController controller = PageController();
   PageController imgController = PageController();
+  MatchService matchService = MatchService();
 
   //TODO get people from firebase
   final peopleList = [
