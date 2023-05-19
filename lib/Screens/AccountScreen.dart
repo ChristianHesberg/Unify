@@ -130,7 +130,6 @@ class _AccountScreenState extends State<AccountScreen> {
 
     setState(() {
       userService.uploadProfilePicture(img!);
-      userService.getUser();
     });
   }
 

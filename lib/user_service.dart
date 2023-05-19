@@ -153,7 +153,7 @@ class UserService with ChangeNotifier {
           'userId': _user!.id
         },
       ).then((value) => {
-        updateUserProfilePicture(value.body.replaceAll('"', "")),
+        updateUserProfilePicture(value.body.replaceAll('"', "")).then((value) => getUser()),
       });
 
 
