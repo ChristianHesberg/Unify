@@ -9,7 +9,6 @@ import '../match_service.dart';
 class DiscoverScreen extends StatelessWidget {
   PageController controller = PageController();
   PageController imgController = PageController();
-  MatchService matchService = MatchService();
 
   //TODO get people from firebase
   final peopleList = [

@@ -25,10 +25,6 @@ Future<void> main() async {
   FirebaseFirestore.instance.useFirestoreEmulator('10.0.2.2', 8080);
   FirebaseStorage.instance.useStorageEmulator('10.0.2.2', 9199);
   runApp(ChangeNotifierProvider(create: (context) => UserService(),child: MyApp(),));
-  
-  MatchService matchService = MatchService();
-  AppUser user = AppUser('B2ZugXQqCmy7tp2wamPx', 'crissy', DateTime(1998, 1, 1), 37.3882733, -122.0778017, 'female', 40, 20, ['male', 'female', 'other'], 40, 'string', 'description', ['string','string']);
-  matchService.getUsersWithinRadius(user);
 }
 
 class MyApp extends StatelessWidget {
@@ -40,7 +36,6 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
         providers: [
           Provider(create: (context) => ChatService()),
-          Provider(create: (context) => MatchService()),
           StreamProvider(
             create: (context) => FirebaseAuth.instance.authStateChanges(),
             initialData: null,

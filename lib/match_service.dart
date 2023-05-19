@@ -15,12 +15,6 @@ class MatchService{
   static const baseUrl = 'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/';
   String lastDoc = ':lastDoc';
 
-  MatchService() {
-    //_firestore.useFirestoreEmulator('10.0.2.2', 8080);
-    //writeLocation();
-    //getUsersWithinRadius();
-  }
-
   writeLocation(AppUser user) async {
     Position position = await Server.determinePosition();
     var point = geo.point(latitude: position.latitude, longitude: position.longitude);
@@ -39,13 +33,13 @@ class MatchService{
     final response = await http.get(
       Uri.parse(urlBuilder(user))
     );
-    var result = [];
+    List<AppUser> result = [];
     var body = json.decode(response.body);
     for (var map in body) {
       result.add(AppUser.fromMap(map['id'], map['data']));
     }
-    //return result;
-    print(result);
+    lastDoc = result[result.length-1].id;
+    return result;
   }
 
   urlBuilder(AppUser user){

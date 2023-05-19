@@ -16,7 +16,7 @@ class AppUser{
   int locationPreference;
   String profilePicture;
   String description;
-  List<dynamic> imageList;
+  List<String> imageList;
 
   AppUser(
       this.id,

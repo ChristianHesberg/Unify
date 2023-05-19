@@ -1,86 +1,89 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
-
 import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:unify/models/appUser.dart';
-import 'package:unify/models/appImage.dart';
+import 'package:http/http.dart' as http;
+import 'geolocator_server.dart';
 
 class UserService with ChangeNotifier{
-  AppUser? _user;
+  late AppUser _user;
+  final geo = GeoFlutterFire();
+  final _firestore = FirebaseFirestore.instance;
+  static const baseUrl = 'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/';
+  String lastDoc = ':lastDoc';
 
-  AppUser? get user => _user;
+  AppUser get user => _user;
 
   void getUser() async {
     try {
       //logged in user id
       String uid = FirebaseAuth.instance.currentUser!.uid;
 
+      //set user location
+      writeLocation();
+
       //query
       final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-      await FirebaseFirestore.instance
+      await _firestore
           .collection('users')
           .doc(uid)
           .get();
 
       //data handle
-      final userData = documentSnapshot.data();
-      if (userData != null) {
-        final String? name = userData['name'] as String?;
-        final Timestamp birthday = userData['birthday'] as Timestamp;
-        final double lat = userData['lat'];
-        final double lng = userData['lng'];
-        final String? gender = userData['gender'] as String?;
-        final int? maxAge = userData['maxAgePreference'] as int?;
-        final int? minAge = userData['minAgePreference'] as int?;
-        final bool? femalePreference = userData['femalePreference'] as bool?;
-        final bool? malePreference = userData['malePreference'] as bool?;
-        final bool? otherPreference = userData['otherPreference'] as bool?;
+      final userData = documentSnapshot;
+      _user = AppUser.fromMap(userData.id, userData.data()!);
 
-        // setup gender preference list
-        List<String> genderPreferenceList = [
-          if (malePreference == true) 'male',
-          if (femalePreference == true) 'female',
-          if (otherPreference == true) 'other',
-        ];
-
-        final int? distancePreference =
-        userData['distancePreference'] as int?;
-        final GeoPoint? location = userData['location'] as GeoPoint?;
-        final String? description = userData['description'] as String?;
-
-        // get pictures
-        String profilePicture = await downloadImage(uid, "profilepicture");
-        List<String> image = await getImagesInFolder(uid);
-
-
-    _user = AppUser(
-          uid,
-          name!,
-          birthday.toDate(),
-          lat,
-          lng,
-          gender!,
-          maxAge!,
-          minAge!,
-          genderPreferenceList,
-          distancePreference!,
-          profilePicture,
-          description!,
-          image
-        );
-
-    //set user location
-
-        notifyListeners(); // Notify listeners of state change
-      } else {
-        _user = null;
-        notifyListeners();
+      notifyListeners(); // Notify listeners of state change
       }
-    } catch (e) {
+      catch (e) {
       print(e);
     }
+  }
+
+  writeLocation() async {
+    Position position = await Server.determinePosition();
+    var point = geo.point(latitude: position.latitude, longitude: position.longitude);
+
+    _firestore
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update({
+      'geohash': point.hash,
+      'lat': position.latitude,
+      'lng': position.longitude
+    });
+  }
+
+  getUsersWithinRadius() async {
+    final response = await http.get(
+        Uri.parse(urlBuilder())
+    );
+    List<AppUser> result = [];
+    var body = json.decode(response.body);
+    for (var map in body) {
+      result.add(AppUser.fromMap(map['id'], map['data']));
+    }
+    lastDoc = result[result.length-1].id;
+    return result;
+  }
+
+  urlBuilder(){
+    return baseUrl + 'matches' +
+        '/userAge/' + _user.getBirthdayAsAge().toString() +
+        '/maxAge/' + _user.getMaxAgePrefAsBirthday() +
+        '/minAge/' + _user.getMinAgePrefAsBirthday() +
+        '/matchGender/' + _user.getGenderAsPreference() +
+        '/genderPrefs/' + _user.getGenderPreferencesAsString() +
+        '/uid/' + _user.id +
+        '/lat/' + _user.lat.toString() +
+        '/lng/' + _user.lng.toString() +
+        '/radius/' + _user.locationPreference.toString() +
+        '/lastDoc/' + lastDoc;
   }
   
   Future<String> downloadImage(String userId, String imageName) async {
