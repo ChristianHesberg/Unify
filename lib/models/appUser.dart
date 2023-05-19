@@ -1,6 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:geoflutterfire2/geoflutterfire2.dart';
-import 'appImage.dart';
 import 'package:intl/intl.dart';
 
 class AppUser{
@@ -16,7 +14,7 @@ class AppUser{
   int locationPreference;
   String profilePicture;
   String description;
-  List<String> imageList;
+  List<dynamic> imageList;
 
   AppUser(
       this.id,
@@ -35,7 +33,7 @@ class AppUser{
 
   AppUser.fromMap(this.id, Map<String, dynamic> data)
     : name = data['name'],
-      birthday = (Timestamp(data['birthday']['_seconds'], data['birthday']['_nanoseconds'])).toDate(),
+      birthday = (data['birthday'] as Timestamp).toDate(),
       lat = data['lat'],
       lng = data['lng'],
       gender = data['gender'],

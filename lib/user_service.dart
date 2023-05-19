@@ -11,41 +11,47 @@ import 'package:http/http.dart' as http;
 import 'geolocator_server.dart';
 
 class UserService with ChangeNotifier{
-  late AppUser _user;
+  AppUser? _user;
   final geo = GeoFlutterFire();
   final _firestore = FirebaseFirestore.instance;
   static const baseUrl = 'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/';
   String lastDoc = ':lastDoc';
 
-  AppUser get user => _user;
+  AppUser? get user => _user;
 
-  void getUser() async {
-    try {
+
+  Future<AppUser?> initializeUser() async {
+    if(user==null){
+      await getUser();
+    }
+    return _user;
+  }
+
+  Future<AppUser?> getUser() async {
       //logged in user id
       String uid = FirebaseAuth.instance.currentUser!.uid;
 
       //set user location
-      writeLocation();
+      _writeLocation();
 
       //query
-      final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+      final DocumentSnapshot<Map<String, dynamic>> userData =
       await _firestore
           .collection('users')
           .doc(uid)
           .get();
 
       //data handle
-      final userData = documentSnapshot;
       _user = AppUser.fromMap(userData.id, userData.data()!);
 
-      notifyListeners(); // Notify listeners of state change
-      }
-      catch (e) {
-      print(e);
-    }
+      notifyListeners();// Notify listeners of state change
+      print(uid);
+      print(_user);
+      return _user;
+
   }
 
-  writeLocation() async {
+  _writeLocation() async {
     Position position = await Server.determinePosition();
     var point = geo.point(latitude: position.latitude, longitude: position.longitude);
 
@@ -74,15 +80,15 @@ class UserService with ChangeNotifier{
 
   urlBuilder(){
     return baseUrl + 'matches' +
-        '/userAge/' + _user.getBirthdayAsAge().toString() +
-        '/maxAge/' + _user.getMaxAgePrefAsBirthday() +
-        '/minAge/' + _user.getMinAgePrefAsBirthday() +
-        '/matchGender/' + _user.getGenderAsPreference() +
-        '/genderPrefs/' + _user.getGenderPreferencesAsString() +
-        '/uid/' + _user.id +
-        '/lat/' + _user.lat.toString() +
-        '/lng/' + _user.lng.toString() +
-        '/radius/' + _user.locationPreference.toString() +
+        '/userAge/' + _user!.getBirthdayAsAge().toString() +
+        '/maxAge/' + _user!.getMaxAgePrefAsBirthday() +
+        '/minAge/' + _user!.getMinAgePrefAsBirthday() +
+        '/matchGender/' + _user!.getGenderAsPreference() +
+        '/genderPrefs/' + _user!.getGenderPreferencesAsString() +
+        '/uid/' + _user!.id +
+        '/lat/' + _user!.lat.toString() +
+        '/lng/' + _user!.lng.toString() +
+        '/radius/' + _user!.locationPreference.toString() +
         '/lastDoc/' + lastDoc;
   }
   
