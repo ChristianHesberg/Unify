@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
@@ -37,10 +39,13 @@ class MatchService{
     final response = await http.get(
       Uri.parse(urlBuilder(user))
     );
-    var body = response.body;
-    //String id = body.id;
-    //return AppUser.fromMap(body.id, body.data)
-    print(body);
+    var result = [];
+    var body = json.decode(response.body);
+    for (var map in body) {
+      result.add(AppUser.fromMap(map['id'], map['data']));
+    }
+    //return result;
+    print(result);
   }
 
   urlBuilder(AppUser user){

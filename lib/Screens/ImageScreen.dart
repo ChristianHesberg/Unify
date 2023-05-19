@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-import '../Models/appUser.dart';
+import '../models/appUser.dart';
 import '../user_service.dart';
 
 class ImageScreen extends StatefulWidget {
@@ -54,7 +54,7 @@ class _ImageScreenState extends State<ImageScreen> {
                 _deleteBtn(index);
               },
               child: Ink.image(
-                image: NetworkImage(user.imageList[index].url),
+                image: NetworkImage(user.imageList[index]),
                 fit: BoxFit.cover,
               ),
             );

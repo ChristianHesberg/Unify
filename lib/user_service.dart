@@ -4,8 +4,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:geoflutterfire2/geoflutterfire2.dart';
-import 'package:unify/Models/appUser.dart';
-import 'package:unify/Models/appImage.dart';
+import 'package:unify/models/appUser.dart';
+import 'package:unify/models/appImage.dart';
 
 class UserService with ChangeNotifier{
   AppUser? _user;
@@ -52,7 +52,7 @@ class UserService with ChangeNotifier{
 
         // get pictures
         String profilePicture = await downloadImage(uid, "profilepicture");
-        List<AppImage> image = await getImagesInFolder(uid);
+        List<String> image = await getImagesInFolder(uid);
 
 
     _user = AppUser(
@@ -94,17 +94,17 @@ class UserService with ChangeNotifier{
     return await storageReference.getDownloadURL();
   }
 
-  Future<List<AppImage>> getImagesInFolder(String uid) async {
+  Future<List<String>> getImagesInFolder(String uid) async {
     Reference storageReference = FirebaseStorage.instance.ref("users/$uid/images");
 
     ListResult result = await storageReference.listAll();
 
-    List<AppImage> urlList = [];
+    List<String> urlList = [];
     for (Reference ref in result.items) {
       // Get the download URL for each image
       String downloadUrl = await ref.getDownloadURL();
       String imageName = ref.name;
-      urlList.add(AppImage(downloadUrl, imageName));
+      urlList.add(downloadUrl);
     }
     return urlList;
   }

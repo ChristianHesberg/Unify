@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:unify/Models/appImage.dart';
 import 'package:unify/user_service.dart';
-import 'Models/appImage.dart';
+import 'models/appImage.dart';
 import 'Screens/NavigatorScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:unify/Screens/LoginScreen.dart';
@@ -28,7 +27,7 @@ Future<void> main() async {
   runApp(ChangeNotifierProvider(create: (context) => UserService(),child: MyApp(),));
   
   MatchService matchService = MatchService();
-  AppUser user = AppUser('B2ZugXQqCmy7tp2wamPx', 'crissy', DateTime(1998, 1, 1), 37.3882733, -122.0778017, 'female', 40, 20, ['male', 'female', 'other'], 40, 'string', 'description', [AppImage('string','string')]);
+  AppUser user = AppUser('B2ZugXQqCmy7tp2wamPx', 'crissy', DateTime(1998, 1, 1), 37.3882733, -122.0778017, 'female', 40, 20, ['male', 'female', 'other'], 40, 'string', 'description', ['string','string']);
   matchService.getUsersWithinRadius(user);
 }
 
@@ -41,6 +40,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
         providers: [
           Provider(create: (context) => ChatService()),
+          Provider(create: (context) => MatchService()),
           StreamProvider(
             create: (context) => FirebaseAuth.instance.authStateChanges(),
             initialData: null,

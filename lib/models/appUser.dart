@@ -16,7 +16,7 @@ class AppUser{
   int locationPreference;
   String profilePicture;
   String description;
-  List<AppImage> imageList;
+  List<dynamic> imageList;
 
   AppUser(
       this.id,
@@ -33,9 +33,9 @@ class AppUser{
       this.profilePicture,
       this.imageList);
 
-  /*AppUser.fromMap(this.id, Map<String, dynamic> data)
+  AppUser.fromMap(this.id, Map<String, dynamic> data)
     : name = data['name'],
-      birthday = (data['birthday'] as Timestamp).toDate(),
+      birthday = (Timestamp(data['birthday']['_seconds'], data['birthday']['_nanoseconds'])).toDate(),
       lat = data['lat'],
       lng = data['lng'],
       gender = data['gender'],
@@ -45,11 +45,9 @@ class AppUser{
       locationPreference = data['distancePreference'],
       description = data['description'],
       profilePicture = data['profilePicture'],
-      imageList =
+      imageList = data['imageList'];
 
 
-
-   */
   getBirthdayAsAge(){
     var now = DateTime.now();
     return (now.difference(birthday).inDays/365).truncate();
@@ -89,9 +87,15 @@ class AppUser{
     if(malePref) prefs.add('male');
     if(femalePref) prefs.add('female');
     if(otherPref) prefs.add('other');
+    return prefs;
   }
 
   static getImageListFromData(){
 
+  }
+
+  @override
+  String toString() {
+    return 'AppUser{id: $id, name: $name, birthday: $birthday, lat: $lat, lng: $lng, gender: $gender, maxAgePreference: $maxAgePreference, minAgePreference: $minAgePreference, genderPreferences: $genderPreferences, locationPreference: $locationPreference, profilePicture: $profilePicture, description: $description, imageList: $imageList}';
   }
 }
