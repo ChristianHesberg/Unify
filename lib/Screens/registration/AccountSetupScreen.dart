@@ -264,7 +264,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                       Navigator.pop(context);
                       getImage(ImageSource.gallery);
                     },
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(Icons.image),
                         Text('From Gallery'),
@@ -277,7 +277,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                       Navigator.pop(context);
                       getImage(ImageSource.camera);
                     },
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(Icons.camera),
                         Text('From Camera'),
