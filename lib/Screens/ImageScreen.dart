@@ -2,6 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+
+import '../Models/appUser.dart';
+import '../user_service.dart';
 
 class ImageScreen extends StatefulWidget {
   const ImageScreen({Key? key}) : super(key: key);
@@ -12,54 +16,62 @@ class ImageScreen extends StatefulWidget {
 
 class _ImageScreenState extends State<ImageScreen> {
   final _image_picker = ImagePicker();
-  List<String> _items = [
-    "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "https://images.pexels.com/photos/4065187/pexels-photo-4065187.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "https://images.pexels.com/photos/15098953/pexels-photo-15098953.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "https://images.pexels.com/photos/12186144/pexels-photo-12186144.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    "https://images.pexels.com/photos/13046993/pexels-photo-13046993.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-  ];
+  late AppUser user;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Images"), backgroundColor: Colors.black),
-      body: Stack(
-        children: [
-          GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisSpacing: 0,
-              mainAxisSpacing: 0,
-              crossAxisCount: 3,
-            ),
-            itemCount: _items.length,
-            itemBuilder: (context, index) {
-              return InkWell(
-                highlightColor: Colors.blue.withOpacity(0.3),
-                splashColor: Colors.blue.withOpacity(0.5),
-                onLongPress: () {
-                  _deleteBtn(index);
-                },
-                child: Ink.image(
-                  image: NetworkImage(_items[index]),
-                  fit: BoxFit.cover,
-                ),
-              );
+      body: Consumer<UserService>(
+        builder: (BuildContext context, value, Widget? child) {
+          if(value.user == null){
+            value.getUser();
+            return Center(child: CircularProgressIndicator(),);
+          }else{
+            user = value.user!;
+            return _buildImageScreen();
+          }
+        },
+      ),
+    );
+  }
+
+  Stack _buildImageScreen() {
+    return Stack(
+      children: [
+        GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisSpacing: 0,
+            mainAxisSpacing: 0,
+            crossAxisCount: 3,
+          ),
+          itemCount: user.imageList.length,
+          itemBuilder: (context, index) {
+            return InkWell(
+              highlightColor: Colors.blue.withOpacity(0.3),
+              splashColor: Colors.blue.withOpacity(0.5),
+              onLongPress: () {
+                _deleteBtn(index);
+              },
+              child: Ink.image(
+                image: NetworkImage(user.imageList[index].url),
+                fit: BoxFit.cover,
+              ),
+            );
+          },
+        ),
+        Positioned(
+          bottom: 16.0,
+          right: 16.0,
+          child: FloatingActionButton(
+            child: Icon(Icons.add),
+            backgroundColor: Colors.blue,
+            onPressed: () {
+              getManyPhotos();
             },
           ),
-          Positioned(
-            bottom: 16.0,
-            right: 16.0,
-            child: FloatingActionButton(
-              child: Icon(Icons.add),
-              backgroundColor: Colors.blue,
-              onPressed: () {
-                getManyPhotos();
-              },
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -86,7 +98,7 @@ class _ImageScreenState extends State<ImageScreen> {
               TextButton(
                   onPressed: () {
                     //TODO Delete Picture
-                    _items.removeAt(index);
+                    user.imageList.removeAt(index);
                     setState(() {
                       Navigator.of(context).pop();
                     });

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'package:unify/FireService.dart';
 import 'package:unify/Screens/ContactScreen.dart';
 import 'package:unify/Screens/DiscoverScreen.dart';
@@ -17,11 +18,6 @@ class NavigatorScreen extends StatefulWidget {
 
 class _NavigatorScreenState extends State<NavigatorScreen> {
   int _selectedIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   _showWidget(int pos) {
     switch (pos) {

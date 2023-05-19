@@ -10,18 +10,8 @@ class MatchService {
   late AppUser user;
 
   MatchService() {
-    user = AppUser(
-        id: 'SdeTTfnQG52HM97YnsKs',
-        name: 'crissy',
-        age: DateTime.now(),
-        gender: 'female',
-        minAgePreference: 23,
-        maxAgePreference: 27,
-        genderPreferences: ['male', 'female'],
-        locationPreference: 50,
-        description: "filler",
-        profilePicture: "fefewfew",
-        location: GeoFirePoint(1, 2));
+    user = AppUser('SdeTTfnQG52HM97YnsKs', 'crissy', DateTime.now(), 'female',
+        23, 27, ['male', 'female'], 50, "sdas", "fefewfew", []);
     _firestore.useFirestoreEmulator('localhost', 8080);
     //writeLocation();
     //getUsersWithinRadius();

@@ -6,6 +6,8 @@ import 'package:unify/user_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:unify/firebase_options.dart';
+import 'package:unify/match_service.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 import 'Screens/LoginScreen.dart';
 import 'Screens/NavigatorScreen.dart';
@@ -23,6 +25,7 @@ Future<void> main() async {
   runApp(const MyApp());
   FirebaseAuth.instance.useAuthEmulator('10.0.2.2', 9099);
   FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+  FirebaseStorage.instance.useStorageEmulator('localhost', 9199);
   runApp(ChangeNotifierProvider(create: (context) => UserService(),child: MyApp(),));
 }
 
