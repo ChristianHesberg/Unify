@@ -52,10 +52,8 @@ class UserService with ChangeNotifier {
         final int? distancePreference = userData['distancePreference'] as int?;
         final GeoPoint? location = userData['location'] as GeoPoint?;
         final String? description = userData['description'] as String?;
-
-        // get pictures
-        String profilePicture = await downloadImage(uid, "profilepicture.jpg");
-        List<images> image = await getImagesInFolder(uid);
+        final String? profilePicture = userData['profilePicture'] as String?;
+        final List<dynamic>? images = userData['imageList'] as List<dynamic>?;
 
         _user = AppUser(
             uid,
@@ -66,9 +64,9 @@ class UserService with ChangeNotifier {
             minAge!,
             genderPreferenceList,
             distancePreference!.toDouble(),
-            profilePicture,
+            profilePicture!,
             description!,
-            image);
+            images!);
 
         //set user location
         _user!.location = GeoFirePoint(location!.latitude, location.longitude);
@@ -87,7 +85,6 @@ class UserService with ChangeNotifier {
     // Create a reference to the Firebase Storage location of the image
 
     String path = 'users/$userId/$imageName';
-    print(path);
     Reference storageReference = FirebaseStorage.instance.ref().child(path);
 
     return await storageReference.getDownloadURL();
@@ -99,16 +96,10 @@ class UserService with ChangeNotifier {
     Reference test = FirebaseStorage.instance.ref();
     List<String> downloadUrlList = [];
 
-    print("test start");
     for(String filename in filenameList){
       String path = 'users/$userId/images/$filename';
-      print(path);
       downloadUrlList.add(await test.child(path).getDownloadURL());
     }
-
-    print("test part 2");
-    print(downloadUrlList);
-    print("test over");
     return downloadUrlList;
   }
 
@@ -128,14 +119,14 @@ class UserService with ChangeNotifier {
     return urlList;
   }
 
-  Future<void> deleteImage(String userId, String filename) async {
+  Future<void> deleteImage(String userId, String downloadUrl) async {
     final url = 'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/deleteImage';
 
     try {
       final response = await http.post(
         Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({'userId': userId, 'filename': filename}),
+        body: json.encode({'userId': userId, 'downloadUrl': downloadUrl}),
       );
 
       if (response.statusCode == 200) {
@@ -208,7 +199,7 @@ class UserService with ChangeNotifier {
           'userId': FirebaseAuth.instance.currentUser!.uid
         },
       ).then((value) => {
-        updateUserImages(json.decode(value.body).cast<String>().toList())
+        updateUserImages(json.decode(value.body).cast<String>().toList()).then((value) => getUser())
       });
     } catch (e) {
       print('Error uploading image: $e');
@@ -220,7 +211,6 @@ class UserService with ChangeNotifier {
         'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/updateUserImages';
     try {
       List<String> downloadUrl = await downloadMultipleImages(_user!.id, fileNames);
-      print(downloadUrl);
       await http.put(
         Uri.parse(url),
         body: {

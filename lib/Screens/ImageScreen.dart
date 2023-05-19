@@ -25,10 +25,12 @@ class _ImageScreenState extends State<ImageScreen> {
       appBar: AppBar(title: Text("Images"), backgroundColor: Colors.black),
       body: Consumer<UserService>(
         builder: (BuildContext context, value, Widget? child) {
-          if(value.user == null){
+          if (value.user == null) {
             value.getUser();
-            return Center(child: CircularProgressIndicator(),);
-          }else{
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else {
             user = value.user!;
             return _buildImageScreen();
           }
@@ -55,7 +57,7 @@ class _ImageScreenState extends State<ImageScreen> {
                 _deleteBtn(index);
               },
               child: Ink.image(
-                image: NetworkImage(user.imageList[index].url),
+                image: NetworkImage(user.imageList[index]),
                 fit: BoxFit.cover,
               ),
             );
@@ -75,20 +77,24 @@ class _ImageScreenState extends State<ImageScreen> {
       ],
     );
   }
+
   List<XFile> xFileList = [];
+
   Future getManyPhotos() async {
-    final userService = Provider.of<UserService>(context, listen:false);
+    final userService = Provider.of<UserService>(context, listen: false);
     var images = await _image_picker.pickImage(source: ImageSource.camera);
     xFileList.add(images!);
-    if(xFileList.length > 1){
-      setState(() {
-        userService.uploadImages(xFileList).then((value) => userService.getUser());
+    if (xFileList.length > 1) {
+        await userService
+            .uploadImages(xFileList);
+        xFileList = [];
+        setState(() {
       });
     }
   }
 
   _deleteBtn(int index) {
-    final userService = Provider.of<UserService>(context, listen:false);
+    final userService = Provider.of<UserService>(context, listen: false);
 
     return showDialog(
         context: context,
@@ -104,7 +110,7 @@ class _ImageScreenState extends State<ImageScreen> {
                   child: Text("Cancel")),
               TextButton(
                   onPressed: () {
-                    userService.deleteImage(user.id, user.imageList[index].name);
+                    userService.deleteImage(user.id, user.imageList[index]);
                     user.imageList.removeAt(index);
                     setState(() {
                       Navigator.of(context).pop();

@@ -110,8 +110,10 @@ app.get('/whatever', (reg, res) => {
 
 app.post('/deleteImage', async (req, res) => {
     // Get the user ID and filename from the request body
-    const {userId, filename} = req.body;
+    const {userId, downloadUrl} = req.body;
 
+
+    const filename = downloadUrl.substring(downloadUrl.length - 36);
     // Construct the path to the image
     const path = `users/${userId}/images/${filename}`;
 
@@ -119,11 +121,14 @@ app.post('/deleteImage', async (req, res) => {
         // Delete the image from Firebase Cloud Storage
         await admin.storage().bucket("gs://unify-ef8e0.appspot.com/").file(path).delete();
 
-        return res.status(200).json({message: 'Image deleted successfully.'});
+        const userRef = admin.firestore().collection("users").doc(userId).update({
+            imageList: admin.firestore.FieldValue.arrayRemove(downloadUrl)
+        });
+
+            return res.status(200).json({message: 'Image deleted successfully.'});
     } catch (error) {
         res.status(500).json({error: 'An error occurred while deleting the image.'});
         throw new functions.https.HttpsError('internal', 'An error occurred while deleting the image.', error);
-
     }
 });
 
@@ -167,7 +172,7 @@ app.put('/updateUserProfilePicture', async (req, res) => {
 });
 app.post('/uploadImages', async (req, res) => {
     try {
-        const images = req.body.images.replace("[", "").replace("]", "");
+        const images = req.body.images.replace("[", "").replace("]", "").replace(" ", "");
         const list = images.split(",");
         const userId = req.body.userId;
         const bucket = admin.storage().bucket("gs://unify-ef8e0.appspot.com/");
@@ -196,7 +201,7 @@ app.post('/uploadImages', async (req, res) => {
 
 app.put('/updateUserImages', async (req, res) => {
     try {
-        const urlList = req.body.urls.replace("[", "").replace("]", "");
+        const urlList = req.body.urls.replace("[", "").replace("]", "").replace(" ", "");
         const downloadUrlList = urlList.split(",");
         const userId = req.body.userId;
 
