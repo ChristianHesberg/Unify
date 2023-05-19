@@ -129,10 +129,11 @@ class _AccountScreenState extends State<AccountScreen> {
     var img = await _image_picker.pickImage(source: ImageSource.camera);
 
     setState(() {
-      userService.uploadProfilePicture(img!).then((value) => userService.getUser());
-
+      userService.uploadProfilePicture(img!);
+      userService.getUser();
     });
   }
+
   Widget _userInfoForm(BuildContext context) {
 
     return Form(

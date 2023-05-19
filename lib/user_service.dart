@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:convert';
+import 'dart:convert';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -50,7 +54,7 @@ class UserService with ChangeNotifier {
         final String? description = userData['description'] as String?;
 
         // get pictures
-        String profilePicture = await downloadImage(uid, "profilepicture");
+        String profilePicture = await downloadImage(uid, "profilepicture.jpg");
         List<images> image = await getImagesInFolder(uid);
 
         _user = AppUser(
@@ -82,10 +86,30 @@ class UserService with ChangeNotifier {
   Future<String> downloadImage(String userId, String imageName) async {
     // Create a reference to the Firebase Storage location of the image
 
-    String path = 'users/$userId/$imageName.jpg';
+    String path = 'users/$userId/$imageName';
+    print(path);
     Reference storageReference = FirebaseStorage.instance.ref().child(path);
 
     return await storageReference.getDownloadURL();
+  }
+
+  Future<List<String>> downloadMultipleImages(String userId, List<String> filenameList) async {
+    // Create a reference to the Firebase Storage location of the image
+
+    Reference test = FirebaseStorage.instance.ref();
+    List<String> downloadUrlList = [];
+
+    print("test start");
+    for(String filename in filenameList){
+      String path = 'users/$userId/images/$filename';
+      print(path);
+      downloadUrlList.add(await test.child(path).getDownloadURL());
+    }
+
+    print("test part 2");
+    print(downloadUrlList);
+    print("test over");
+    return downloadUrlList;
   }
 
   Future<List<images>> getImagesInFolder(String uid) async {
@@ -126,31 +150,49 @@ class UserService with ChangeNotifier {
   }
 
   Future<void> uploadProfilePicture(XFile image) async {
-    final url =
+    const url =
         'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/uploadProfilePicture';
     try {
       String base64Image = base64Encode(await image.readAsBytes());
 
-      var response = await http.post(
+      await http.post(
         Uri.parse(url),
         body: {
           'image': base64Image,
-          'userId': FirebaseAuth.instance.currentUser!.uid
+          'userId': _user!.id
+        },
+      ).then((value) => {
+        updateUserProfilePicture(value.body.replaceAll('"', "")),
+      });
+
+
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> updateUserProfilePicture(String fileName) async {
+
+    const url =
+        'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/updateUserProfilePicture';
+    try {
+      String downloadUrl = await downloadImage(_user!.id, fileName);
+
+      await http.put(
+        Uri.parse(url),
+        body: {
+          'url': downloadUrl,
+          'userId': _user!.id
         },
       );
 
-      if (response.statusCode == 200) {
-        print('Image uploaded successfully');
-      } else {
-        print('Error uploading image. Status code: ${response.statusCode}');
-      }
     } catch (e) {
-      print('Error uploading image: $e');
+      print(e);
     }
   }
 
   Future<void> uploadImages(List<XFile> images) async {
-    final url =
+    const url =
         'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/uploadImages';
     try {
       List<String> base64Images = [];
@@ -158,22 +200,40 @@ class UserService with ChangeNotifier {
         base64Images.add(base64Encode(await img.readAsBytes()));
       }
 
-      print(base64Images.toString());
-      var response = await http.post(
+      Map<String, dynamic> map;
+      await http.post(
         Uri.parse(url),
         body: {
           'images': base64Images.toString(),
           'userId': FirebaseAuth.instance.currentUser!.uid
         },
-      );
-
-      if (response.statusCode == 200) {
-        print('Image uploaded successfully');
-      } else {
-        print('Error uploading image. Status code: ${response.statusCode}');
-      }
+      ).then((value) => {
+        updateUserImages(json.decode(value.body).cast<String>().toList())
+      });
     } catch (e) {
       print('Error uploading image: $e');
     }
   }
+
+  Future<void> updateUserImages(List<String> fileNames) async {
+    const url =
+        'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/updateUserImages';
+    try {
+      List<String> downloadUrl = await downloadMultipleImages(_user!.id, fileNames);
+      print(downloadUrl);
+      await http.put(
+        Uri.parse(url),
+        body: {
+          'urls': downloadUrl.toString(),
+          'userId': _user!.id
+        },
+      );
+
+    } catch (e) {
+      print(e);
+    }
+
+  }
+
+
 }

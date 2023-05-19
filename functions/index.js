@@ -134,15 +134,17 @@ app.post('/uploadProfilePicture', async (req, res) => {
         const userId = req.body.userId;
         const bucket = admin.storage().bucket("gs://unify-ef8e0.appspot.com/");
         const fileBuffer = Buffer.from(base64Image, 'base64');
-        const fileName = `users/${userId}/profilepicture.jpg`;
+        const fileName = "profilepicture.jpg";
+        const path = `users/${userId}/${fileName}`;
 
-        await bucket.file(fileName).save(fileBuffer, {
+        const file = bucket.file(path);
+        await file.save(fileBuffer, {
             metadata: {
                 contentType: 'image/jpeg', // Update the content type according to your image format
             },
         });
 
-        res.status(200).send('Image uploaded successfully');
+        return res.json(fileName); // warning will return a string that will have "" inside the string.
     } catch (error) {
         res.status(500).send('Error uploading image');
         throw new functions.https.HttpsError('internal', 'An error occurred while deleting the image.', error);
@@ -150,29 +152,65 @@ app.post('/uploadProfilePicture', async (req, res) => {
     }
 });
 
+app.put('/updateUserProfilePicture', async (req, res) => {
+    try {
+        const downloadURL = req.body.url;
+        const userId = req.body.userId;
+
+        const userRef = admin.firestore().collection("users").doc(userId);
+        await userRef.update({profilePicture: downloadURL});
+
+        res.status(200).send("updated user");
+    } catch (error) {
+        res.status(500).send("Error updating user");
+    }
+});
 app.post('/uploadImages', async (req, res) => {
     try {
-        const images = req.body.images.replace("[","").replace("]","");
+        const images = req.body.images.replace("[", "").replace("]", "");
         const list = images.split(",");
         const userId = req.body.userId;
         const bucket = admin.storage().bucket("gs://unify-ef8e0.appspot.com/");
 
+        let outputList = [];
+
         for (let img of list) {
             const random_uuid = uuidv4(undefined, undefined, undefined);
             const fileBuffer = Buffer.from(img, 'base64');
-            const fileName = `users/${userId}/images/${random_uuid}.jpg`;
-            await bucket.file(fileName).save(fileBuffer, {
+            const fileName = `${random_uuid}`;
+            const path = `users/${userId}/images/${random_uuid}`;
+            outputList.push(fileName);
+            await bucket.file(path).save(fileBuffer, {
                 metadata: {
                     contentType: 'image/jpeg', // Update the content type according to your image format
                 },
             });
         }
 
-        res.status(200).send('Image uploaded successfully');
+        return res.json(outputList)
     } catch (error) {
         res.status(500).send('Error uploading image');
         throw new functions.https.HttpsError('internal', 'An error occurred while deleting the image.', error);
+    }
+});
 
+app.put('/updateUserImages', async (req, res) => {
+    try {
+        const urlList = req.body.urls.replace("[", "").replace("]", "");
+        const downloadUrlList = urlList.split(",");
+        const userId = req.body.userId;
+
+        const userRef = admin.firestore().collection("users").doc(userId);
+
+        for (let url of downloadUrlList){
+            await userRef.update({
+                imageList: admin.firestore.FieldValue.arrayUnion(url)
+            });
+        }
+
+        res.status(200).send("updated user");
+    } catch (error) {
+        res.status(500).send("Error updating user");
     }
 });
 
