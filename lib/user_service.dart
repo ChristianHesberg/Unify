@@ -74,7 +74,9 @@ class UserService with ChangeNotifier{
     for (var map in body) {
       result.add(AppUser.fromMapJson(map['id'], map['data']));
     }
-    lastDoc = result[result.length-1].id;
+    if(result.isNotEmpty){
+      lastDoc = result[result.length-1].id;
+    }
     return result;
   }
 

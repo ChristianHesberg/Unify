@@ -24,7 +24,7 @@ app.get('/matches' +
     const lng = Number(req.params.lng);
     const center = [lat, lng];
     const radiusInM = Number(req.params.radius) * 1000;
-    const limit = 10;
+    const limit = 1;
 
     const maxAge = new Date(req.params.maxAge);
     const minAge = new Date(req.params.minAge);

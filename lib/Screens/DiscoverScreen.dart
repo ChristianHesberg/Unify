@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:unify/Widgets/user_text.dart';
@@ -8,26 +6,31 @@ import 'package:unify/user_service.dart';
 
 import '../Widgets/contact_user_widget.dart';
 
-class DiscoverScreen extends StatelessWidget {
+class DiscoverScreen extends StatefulWidget {
+  DiscoverScreen({super.key});
+
+  @override
+  State<DiscoverScreen> createState() => _DiscoverScreenState();
+}
+
+class _DiscoverScreenState extends State<DiscoverScreen> {
   PageController controller = PageController();
+
   PageController imgController = PageController();
 
-  //TODO get people from firebase
   List<AppUser> peopleList = [];
 
-  DiscoverScreen({super.key});
+  bool userInit = false;
 
   @override
   Widget build(BuildContext context) {
     var userService = Provider.of<UserService>(context);
     return FutureBuilder(
       future: buildUserList(userService),
-      builder: (BuildContext context, AsyncSnapshot<dynamic>
-          snapshot){
-        if(peopleList.isNotEmpty){
-          return buildDiscover();
-        }
-        else{
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        if (peopleList.isNotEmpty) {
+          return buildDiscover(context);
+        } else {
           return const CircularProgressIndicator();
         }
       },
@@ -35,16 +38,24 @@ class DiscoverScreen extends StatelessWidget {
   }
 
   Future buildUserList(UserService service) async {
-    await service.initializeUser();
-    peopleList = await service.getUsersWithinRadius();
+    if(!userInit){
+      await service.initializeUser();
+    }
+    peopleList += await service.getUsersWithinRadius();
     return null;
   }
 
-  Widget buildDiscover(){
+  Widget buildDiscover(BuildContext context) {
     return Scaffold(
       body: PageView.builder(
           controller: controller,
           scrollDirection: Axis.horizontal,
+          onPageChanged: (i) async {
+            if (i == peopleList.length - 1) {
+              setState(() {
+              });
+            }
+          },
           itemCount: peopleList.length,
           itemBuilder: (context, position) {
             return Column(
@@ -55,7 +66,7 @@ class DiscoverScreen extends StatelessWidget {
                   children: [
                     UserText(
                       text:
-                      "${peopleList[position].name}, ${peopleList[position].getBirthdayAsAge()}",
+                          "${peopleList[position].name}, ${peopleList[position].getBirthdayAsAge()}",
                     ),
                     const ContractUserBtn(),
                   ],
@@ -78,7 +89,8 @@ class DiscoverScreen extends StatelessWidget {
 
   Widget pictures(int position, BuildContext context) {
     return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height / 2, maxWidth: 500),
+      constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height / 2, maxWidth: 500),
       child: PageView.builder(
           controller: imgController,
           scrollDirection: Axis.horizontal,
@@ -131,4 +143,3 @@ class DiscoverScreen extends StatelessWidget {
     );
   }
 }
-
