@@ -1,3 +1,6 @@
+
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -120,12 +123,16 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Future getImage(ImageSource media) async {
+    final userService = Provider.of<UserService>(context, listen:false);
+
     final _image_picker = ImagePicker();
-    var img = await _image_picker.pickImage(source: media);
+    var img = await _image_picker.pickImage(source: ImageSource.camera);
+
     setState(() {
-      //TODO update img as user profilepicture
+      userService.uploadProfilePicture(img!);
     });
   }
+
   Widget _userInfoForm(BuildContext context) {
 
     return Form(
