@@ -35,7 +35,20 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   @override
   Widget build(BuildContext context) {
     var fireService = Provider.of<FireService>(context);
-    if (!fireService.isSetup) return const AccountSetupScreen();
+    //future builder check status
+    return FutureBuilder(
+      future: fireService.checkStatus(),
+      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        if (snapshot.hasData) {
+          if (snapshot.data == false) return const AccountSetupScreen();
+          return _buildNavigatorScreen();
+        }
+        return _buildLoadingIndicator();
+      },
+    );
+  }
+
+  _buildNavigatorScreen() {
     return Scaffold(
       appBar: AppBar(title: const Text("Unify"), backgroundColor: Colors.black),
       body: _showWidget(_selectedIndex),
@@ -51,6 +64,10 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
                 label: "Settings", icon: Icon(Icons.settings)),
           ]),
     );
+  }
+
+  _buildLoadingIndicator() {
+    return Center(child: CircularProgressIndicator());
   }
 
   void _onItemTapped(int index) {

@@ -193,7 +193,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
           var dto = await _createSettingsDto();
           await fireService.updateAccount(dto);
           _loading = false;
-          fireService.isSetup = true; //TODO SCUFFED?
+          //fireService.isSetup = true; //TODO SCUFFED?
           setState(() {
             Navigator.pushReplacement(
               context,

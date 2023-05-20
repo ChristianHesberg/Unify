@@ -15,7 +15,6 @@ class FireService {
   final _auth = FirebaseAuth.instance;
   final _fireStore = FirebaseFirestore.instance;
   final baseUrl = "http://10.0.2.2:5001/unify-ef8e0/us-central1/api";
-  var isSetup = false;
 
   final UserService userService = UserService();
 
@@ -33,7 +32,6 @@ class FireService {
 
   Future<void> signOut(context) async {
     await FirebaseAuth.instance.signOut();
-    isSetup = false;
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
@@ -72,7 +70,8 @@ class FireService {
     return result.body;
   }
 
-  checkStatus() async {
+  Future<bool> checkStatus() async {
+    var isSetup = false;
     String uId = FirebaseAuth.instance.currentUser!.uid;
     print("Checking status for uId: $uId");
     var userDoc = await _fireStore.collection("users").doc(uId).get();

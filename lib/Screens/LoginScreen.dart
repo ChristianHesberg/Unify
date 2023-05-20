@@ -22,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final _fireService = Provider.of<FireService>(context);
+    final fireService = Provider.of<FireService>(context);
     return Scaffold(
       appBar: AppBar(title: const Text("Unify")),
       body: Padding(
@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
             TextField(
               controller: _password,
             ),
-            _buildLoginBtn(_fireService),
+            _buildLoginBtn(fireService),
             _buildRegisterBtn(),
           ],
         ),
@@ -57,6 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
         final email = _email.value.text;
         final password = _password.value.text;
         await fireService.signIn(email,password);
+
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => const NavigatorScreen(),
