@@ -38,7 +38,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
   final _description = TextEditingController();
   final _name = TextEditingController(text: "asdasdasd");
   late final Position currentLocation;
-  var _loading = false;
+
   List<XFile> images = [];
 
   @override
@@ -51,26 +51,23 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
   Widget build(BuildContext context) {
     var fireService = Provider.of<FireService>(context);
     return Scaffold(
-      appBar:
-          AppBar(title: const Text("Set up your account details!"), actions: [
-        IconButton(
-          onPressed: () {
-            fireService.signOut(context);
-          },
-          icon: const Icon(Icons.exit_to_app),
-        )
-      ]),
-      body: _loading == false
-          ? PageView(
-              physics: const NeverScrollableScrollPhysics(),
-              controller: _pageController,
-              children: [
-                _buildUserInfo(),
-                _buildUserPreferences(fireService, context)
-              ],
-            )
-          : const CircularProgressIndicator(),
-    );
+        appBar:
+            AppBar(title: const Text("Set up your account details!"), actions: [
+          IconButton(
+            onPressed: () {
+              fireService.signOut(context);
+            },
+            icon: const Icon(Icons.exit_to_app),
+          )
+        ]),
+        body: PageView(
+          physics: const NeverScrollableScrollPhysics(),
+          controller: _pageController,
+          children: [
+            _buildUserInfo(),
+            _buildUserPreferences(fireService, context)
+          ],
+        ));
   }
 
   void _handleGenderSelect(String value) {
@@ -188,12 +185,10 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
   _buildDoneBtn(FireService fireService, context) {
     return ElevatedButton(
         onPressed: () async {
-          _loading = true;
           setState(() {});
           var dto = await _createSettingsDto();
           await fireService.updateAccount(dto);
-          _loading = false;
-          //fireService.isSetup = true; //TODO SCUFFED?
+
           setState(() {
             Navigator.pushReplacement(
               context,
@@ -213,7 +208,6 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
     var pos = await Server.determinePosition();
     final geo = GeoFlutterFire();
     var point = geo.point(latitude: pos.latitude, longitude: pos.longitude);
-
 
     return SettingsDTO(
       id: FirebaseAuth.instance.currentUser!.uid,

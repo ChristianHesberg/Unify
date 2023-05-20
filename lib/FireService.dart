@@ -73,11 +73,9 @@ class FireService {
   Future<bool> checkStatus() async {
     var isSetup = false;
     String uId = FirebaseAuth.instance.currentUser!.uid;
-    print("Checking status for uId: $uId");
     var userDoc = await _fireStore.collection("users").doc(uId).get();
     var doc = userDoc.data();
     isSetup = doc!["isSetup"];
-    print("isSetup: $isSetup");
     return isSetup;
   }
 }
