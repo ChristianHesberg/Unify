@@ -105,7 +105,27 @@ app.post('/message', async (req, res) => {
             timestamp: new Date()
         });
     return res.json(postResult);
-})
+});
+
+app.post('/chat', async (req, res) =>  {
+    const body = req.body;
+    const postResult = await admin.firestore()
+        .collection('chats')
+        .add({
+           'userIds': [body.uid1, body.uid2],
+            'users': {
+               'user1': {
+                   'displayName': body.displayName1,
+                   'uid': body.uid1
+               },
+                'user2': {
+                   'displayName': body.displayName2,
+                    'uid': body.uid2
+                }
+            }
+        });
+    return res.json(postResult);
+});
 
 exports.api = functions.https.onRequest(app);
 
