@@ -39,6 +39,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
   final _name = TextEditingController(text: "asdasdasd");
   late final Position currentLocation;
   var _loading = false;
+  List<XFile> images = [];
 
   @override
   initState() {
@@ -213,6 +214,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
     final geo = GeoFlutterFire();
     var point = geo.point(latitude: pos.latitude, longitude: pos.longitude);
 
+
     return SettingsDTO(
       id: FirebaseAuth.instance.currentUser!.uid,
       name: _name.text,
@@ -223,14 +225,13 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
       minAgePreference: minAge,
       locationPreference: distance,
       profilePicture: profilePicture!,
+      imageList: images,
       description: _description.text,
       femalePreference: genderMap["Women"]!,
       malePreference: genderMap["Men"]!,
       otherPreference: genderMap["Other"]!,
     );
   }
-
-  List<XFile> images = [];
 
   Future getManyPhotos() async {
     var images = await _image_picker.pickMultiImage();
@@ -243,6 +244,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
     var img = await _image_picker.pickImage(source: media);
     setState(() {
       profilePicture = img;
+      print("PROFILEPICTURE: $img");
     });
   }
 
@@ -264,7 +266,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                       Navigator.pop(context);
                       getImage(ImageSource.gallery);
                     },
-                    child: Row(
+                    child: const Row(
                       children: [
                         Icon(Icons.image),
                         Text('From Gallery'),
@@ -277,7 +279,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                       Navigator.pop(context);
                       getImage(ImageSource.camera);
                     },
-                    child: Row(
+                    child: const Row(
                       children: [
                         Icon(Icons.camera),
                         Text('From Camera'),

@@ -51,7 +51,7 @@ class UserService with ChangeNotifier {
         ];
 
         final int? distancePreference = userData['distancePreference'] as int?;
-        final GeoPoint? location = userData['location'] as GeoPoint?;
+        final GeoPoint? location = userData['location'] as GeoPoint?; //TODO ???
         final String? description = userData['description'] as String?;
         final String? profilePicture = userData['profilePicture'] as String?;
         final List<dynamic>? images = userData['imageList'] as List<dynamic>?;
@@ -74,11 +74,12 @@ class UserService with ChangeNotifier {
 
         notifyListeners(); // Notify listeners of state change
       } else {
+
         _user = null;
         notifyListeners();
       }
     } catch (e) {
-      print(e);
+      print("Error in get user: $e");
     }
   }
 
@@ -153,7 +154,7 @@ class UserService with ChangeNotifier {
         Uri.parse(url),
         body: {
           'image': base64Image,
-          'userId': _user!.id
+          'userId': FirebaseAuth.instance.currentUser!.uid
         },
       ).then((value) => {
         updateUserProfilePicture(value.body.replaceAll('"', "")).then((value) => getUser()),
@@ -161,7 +162,7 @@ class UserService with ChangeNotifier {
 
 
     } catch (e) {
-      print(e);
+      print("error in uploadProfilePicture: $e");
     }
   }
 
@@ -181,7 +182,7 @@ class UserService with ChangeNotifier {
       );
 
     } catch (e) {
-      print(e);
+      print("Error in updateUserProfilePicture: $e");
     }
   }
 

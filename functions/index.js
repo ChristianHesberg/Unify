@@ -82,12 +82,11 @@ app.post("/uploadProfilePic", async (req, res) => {
 app.post("/accountSetup", async (req, res) => {
     const uId = req.body.uId;
     const data = req.body;
-    var x = new File()
 
     const result = await admin.firestore().collection('users').doc(uId).set({
         "isSetup": true,
         "name": data.name,
-        "birthDay": data.birthDay,
+        "birthday": new Date(data.birthDay),
         "gender": data.gender,
         "geohash": data.geohash,
         "latitude": data.latitude,
@@ -97,7 +96,7 @@ app.post("/accountSetup", async (req, res) => {
         "femalePreference": data.femalePreference,
         "malePreference": data.malePreference,
         "otherPreference": data.otherPreference,
-        "locationPreference": data.locationPreference,
+        "distancePreference": data.locationPreference,
         "description": data.description
         //TODO PROFILE PIC
         //TODO MANY PIC
@@ -295,6 +294,11 @@ app.post('/uploadImages', async (req, res) => {
         throw new functions.https.HttpsError('internal', 'An error occurred while deleting the image.', error);
     }
 });
+
+function test() {
+    print("lmao");
+}
+
 
 app.put('/updateUserImages', async (req, res) => {
     try {

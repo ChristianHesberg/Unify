@@ -15,6 +15,7 @@ class SettingsDTO {
   bool otherPreference;
   double locationPreference;
   XFile profilePicture;
+  List<XFile> imageList;
   String description;
 
   SettingsDTO(
@@ -30,5 +31,6 @@ class SettingsDTO {
       required this.otherPreference,
       required this.locationPreference,
       required this.profilePicture,
+      required this.imageList,
       required this.description});
 }

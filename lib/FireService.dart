@@ -1,26 +1,24 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:geoflutterfire2/geoflutterfire2.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart';
-import 'package:unify/Models/appUser.dart';
+import 'package:unify/Screens/DiscoverScreen.dart';
 import 'package:unify/Screens/LoginScreen.dart';
 import 'package:http/http.dart' as http;
-
 import 'package:unify/models/SettingDTO.dart';
+import 'package:unify/user_service.dart';
 
 class FireService {
   final _auth = FirebaseAuth.instance;
   final _fireStore = FirebaseFirestore.instance;
-  final _storage = FirebaseStorage.instance;
   final baseUrl = "http://10.0.2.2:5001/unify-ef8e0/us-central1/api";
+  var isSetup = false;
 
-  //TODO HOW DO YOU CREATE ACCOUNT WITH CLOUD FUNC??
+  final UserService userService = UserService();
+
   createAccount(String email, String password) async {
     await _auth
         .createUserWithEmailAndPassword(email: email, password: password)
@@ -44,26 +42,11 @@ class FireService {
     );
   }
 
-  testGet() async {
-    var result = await http.get(Uri.parse("$baseUrl/test"));
-
-    print("RESULT: ${result.body}");
-  }
-
-
-  uploadImages1(SettingsDTO dto) async {
-    var image = await dto.profilePicture;
-
-    var request = await http.post(Uri.parse("$baseUrl/uploadProfilePic"),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8'
-        },
-        body: json.encode({"uId": 5, "image": image.readAsBytes()}));
-  }
-
   updateAccount(SettingsDTO dto) async {
-   //TODO YOINK IMAGE UPLOAD FRA MAGNUS
+    //TODO YOINK IMAGE UPLOAD FRA MAGNUS Transaciton pic - account update
 
+    //await userService.uploadImages(dto.imageList);
+    await userService.uploadProfilePicture(dto.profilePicture);
     Response result = await http.post(Uri.parse("$baseUrl/accountSetup"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8'
@@ -86,23 +69,17 @@ class FireService {
           //TODO PROFILE PIC
           //TODO MANY PIC
         }));
+
     return result.body;
   }
-
-  static final _firestore = FirebaseFirestore.instance;
-  var isSetup = false;
 
   checkStatus() async {
     String uId = FirebaseAuth.instance.currentUser!.uid;
     print("Checking status for uId: $uId");
-    var userDoc = await _firestore.collection("users").doc(uId).get();
+    var userDoc = await _fireStore.collection("users").doc(uId).get();
     var doc = userDoc.data();
     isSetup = doc!["isSetup"];
     print("isSetup: $isSetup");
     return isSetup;
-  }
-
-  updateCurrentUser(String uid) async {
-    //print("@@@@@@@@@@userDoccccccccc: ${userDoc.data()}");
   }
 }

@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:unify/FireService.dart';
+import 'package:image_picker/image_picker.dart';
 
 class TestScreen extends StatefulWidget {
   const TestScreen({Key? key}) : super(key: key);
@@ -10,22 +12,16 @@ class TestScreen extends StatefulWidget {
 }
 
 class _TestScreenState extends State<TestScreen> {
+  var picker = ImagePicker();
   @override
   Widget build(BuildContext context) {
-    var fireService = Provider.of<FireService>(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Testing Screen"),
-      ),
-      body: Column(
-        children: [
-          ElevatedButton(
-              onPressed: () {
-                fireService.testGet();
-              },
-              child: Text("Test Get"))
-        ],
-      ),
-    );
+    var img = picker.pickImage(source: ImageSource.camera);
+
+    var ref = FirebaseStorage.instance.ref();
+    var DirImg = ref.child("images");
+
+
+
+    return Placeholder();
   }
 }
