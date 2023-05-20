@@ -89,15 +89,18 @@ app.post("/accountSetup", async (req, res) => {
         "birthday": new Date(data.birthDay),
         "gender": data.gender,
         "geohash": data.geohash,
-        "latitude": data.latitude,
-        "longitude": data.longitude,
+        "lat": data.latitude,
+        "lng": data.longitude,
         "maxAgePreference": data.maxAgePreference,
         "minAgePreference": data.minAgePreference,
         "femalePreference": data.femalePreference,
         "malePreference": data.malePreference,
-        "otherPreference": data.otherPreference,
+        "otherGenderPreference": data.otherPreference,
         "distancePreference": data.locationPreference,
-        "description": data.description
+        "description": data.description,
+        "profilePicture": "",
+        "imageList": []
+
         //TODO PROFILE PIC
         //TODO MANY PIC
     })
@@ -201,19 +204,19 @@ app.post('/message', async (req, res) => {
     return res.json(postResult);
 });
 
-app.post('/chat', async (req, res) =>  {
+app.post('/chat', async (req, res) => {
     const body = req.body;
     const postResult = await admin.firestore()
         .collection('chats')
         .add({
-           'userIds': [body.uid1, body.uid2],
+            'userIds': [body.uid1, body.uid2],
             'users': {
-               'user1': {
-                   'displayName': body.displayName1,
-                   'uid': body.uid1
-               },
+                'user1': {
+                    'displayName': body.displayName1,
+                    'uid': body.uid1
+                },
                 'user2': {
-                   'displayName': body.displayName2,
+                    'displayName': body.displayName2,
                     'uid': body.uid2
                 }
             }
@@ -232,7 +235,7 @@ app.post('/deleteImage', async (req, res) => {
     //depending on using emulators or not. download url´s are different. therefor the name have been giving an identifier _name-of-image_
     const firstIdentifier = downloadUrl.indexOf("_");
     const secondIdentifier = downloadUrl.indexOf("_", firstIdentifier + 1);
-    const filename = downloadUrl.substring(firstIdentifier,secondIdentifier + 1);
+    const filename = downloadUrl.substring(firstIdentifier, secondIdentifier + 1);
 
     // Construct the path to the image
     const path = `users/${userId}/images/${filename}`;
@@ -245,7 +248,7 @@ app.post('/deleteImage', async (req, res) => {
             imageList: admin.firestore.FieldValue.arrayRemove(downloadUrl)
         });
 
-            return res.status(200).send("image deleted successfully");
+        return res.status(200).send("image deleted successfully");
     } catch (error) {
         res.status(500).json({error: 'An error occurred while deleting the image.'});
         throw new functions.https.HttpsError('internal', 'An error occurred while deleting the image.', error);
@@ -332,7 +335,7 @@ app.put('/updateUserImages', async (req, res) => {
 
         const userRef = admin.firestore().collection("users").doc(userId);
 
-        for (let url of downloadUrlList){
+        for (let url of downloadUrlList) {
             await userRef.update({
                 imageList: admin.firestore.FieldValue.arrayUnion(url)
             });

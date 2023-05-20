@@ -244,7 +244,6 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
     var img = await _image_picker.pickImage(source: media);
     setState(() {
       profilePicture = img;
-      print("PROFILEPICTURE: $img");
     });
   }
 

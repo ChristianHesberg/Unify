@@ -134,7 +134,6 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Widget _userInfoForm(BuildContext context) {
-
     return Form(
         key: _formKey,
         child: Padding(

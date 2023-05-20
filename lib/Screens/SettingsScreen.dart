@@ -22,6 +22,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     var auth = Provider.of<FireService>(context);
+    var fireService = Provider.of<FireService>(context);
     return SettingsList(sections: [
       SettingsSection(title: const Text("Account"), tiles: <SettingsTile>[
         SettingsTile.navigation(
@@ -55,12 +56,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           },
         ),
       ]),
-      SettingsSection(title: const Text("Log out"), tiles: <SettingsTile>[
+      SettingsSection(title: const Text("Logout"), tiles: <SettingsTile>[
         SettingsTile.navigation(
           leading: const Icon(Icons.logout),
-          title: const Text("log out"),
+          title: const Text("Logout"),
           onPressed: (context) {
-            FirebaseAuth.instance.signOut();
+            fireService.signOut(context);
           },
         ),
       ])

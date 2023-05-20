@@ -15,7 +15,6 @@ import 'package:unify/models/appUser.dart';
 import 'package:http/http.dart' as http;
 import 'geolocator_server.dart';
 
-
 class UserService with ChangeNotifier {
   AppUser? _user;
   final geo = GeoFlutterFire();
@@ -49,8 +48,6 @@ class UserService with ChangeNotifier {
       _user = AppUser.fromMap(userData.id, userData.data()!);
 
       notifyListeners(); // Notify listeners of state change
-      print(uid);
-      print(_user);
       return _user;
     } catch (e) {
       print("Error in get user: $e");
@@ -193,14 +190,15 @@ class UserService with ChangeNotifier {
   }
 
   Future<void> updateUserProfilePicture(String fileName) async {
+    final uId = FirebaseAuth.instance.currentUser!.uid;
     const url =
         'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/updateUserProfilePicture';
     try {
-      String downloadUrl = await downloadImage(_user!.id, fileName);
+      String downloadUrl = await downloadImage(uId, fileName);
 
       await http.put(
         Uri.parse(url),
-        body: {'url': downloadUrl, 'userId': _user!.id},
+        body: {'url': downloadUrl, 'userId': uId},
       );
     } catch (e) {
       print("Error in updateUserProfilePicture: $e");
@@ -215,7 +213,7 @@ class UserService with ChangeNotifier {
         base64Images.add(base64Encode(await img.readAsBytes()));
       }
 
-      Map<String, dynamic> map;
+      Map<String, dynamic> map;//TODO WHAT IS MAP??
       await http.post(
         Uri.parse(url),
         body: {
@@ -232,17 +230,18 @@ class UserService with ChangeNotifier {
   }
 
   Future<void> updateUserImages(List<String> fileNames) async {
+    final uId = FirebaseAuth.instance.currentUser!.uid;
     const url =
         'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/updateUserImages';
     try {
       List<String> downloadUrl =
-          await downloadMultipleImages(_user!.id, fileNames);
+          await downloadMultipleImages(uId, fileNames);
       await http.put(
         Uri.parse(url),
-        body: {'urls': downloadUrl.toString(), 'userId': _user!.id},
+        body: {'urls': downloadUrl.toString(), 'userId': uId},
       );
     } catch (e) {
-      print(e);
+      print("Error in updateuserimages: $e");
     }
   }
 }

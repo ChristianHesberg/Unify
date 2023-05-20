@@ -21,18 +21,16 @@ import 'models/appUser.dart';
 
 
 
- main()  {
+ main()  async {
   WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
 
   //use emulator
   _connectToFirebaseEmulator();
 
   runApp(const MyApp());
-  FirebaseAuth.instance.useAuthEmulator('10.0.2.2', 9099);
-  FirebaseFirestore.instance.useFirestoreEmulator('10.0.2.2', 8080);
-  FirebaseStorage.instance.useStorageEmulator('10.0.2.2', 9199);
+
   runApp(ChangeNotifierProvider(create: (context) => UserService(),child: MyApp(),));
 }
 
@@ -67,7 +65,7 @@ class MyApp extends StatelessWidget {
 
 
  _connectToFirebaseEmulator() async {
-  FirebaseFirestore.instance
-      .useFirestoreEmulator("10.0.2.2", 8080, sslEnabled: false);
-  FirebaseAuth.instance.useAuthEmulator("10.0.2.2", 9099);
+   FirebaseAuth.instance.useAuthEmulator('10.0.2.2', 9099);
+   FirebaseFirestore.instance.useFirestoreEmulator('10.0.2.2', 8080, sslEnabled: false);
+   FirebaseStorage.instance.useStorageEmulator('10.0.2.2', 9199);
 }
