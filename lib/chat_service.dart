@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
+import 'package:unify/models/appUser.dart';
 
 import 'models/chat.dart';
 import 'models/message.dart';
@@ -32,6 +33,21 @@ class ChatService{
     )
         .snapshots()
         .map((querySnapshot) => querySnapshot.docs.map((e) => e.data()));
+  }
+
+  postChat(AppUser user1, AppUser user2) async{
+    final response = await http.post(
+      Uri.parse('${baseUrl}chat'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: json.encode({
+        'uid1': user1.id,
+        'uid2': user2.id,
+        'displayName1': user1.name,
+        'displayName2': user2.name
+      })
+    );
   }
 
   Query<Message> getMessages(Chat chat){

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:unify/Widgets/user_text.dart';
+import 'package:unify/chat_service.dart';
 import 'package:unify/models/appUser.dart';
 import 'package:unify/user_service.dart';
 
@@ -46,6 +47,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   }
 
   Widget buildDiscover(BuildContext context) {
+    var userService = Provider.of<UserService>(context);
     return Scaffold(
       body: PageView.builder(
           controller: controller,
@@ -68,7 +70,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                       text:
                           "${peopleList[position].name}, ${peopleList[position].getBirthdayAsAge()}",
                     ),
-                    const ContractUserBtn(),
+                    ContactUserBtn(user1: userService.user!, user2: peopleList[position]),
                   ],
                 ),
                 Expanded(
