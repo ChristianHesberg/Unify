@@ -36,7 +36,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
   DateTime birthDate = DateTime(2001, 9, 11); //starting value
   String genderValue = "";
   final _description = TextEditingController();
-  final _name = TextEditingController(text: "asdasdasd");
+  final _name = TextEditingController();
   late final Position currentLocation;
 
   List<XFile> images = [];
@@ -139,10 +139,8 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                       const s = SnackBar(content: Text("pick a birthday"));
                       ScaffoldMessenger.of(context).showSnackBar(s);
                     } else if (_userForm.currentState!.validate()) {
-                      // _nextPage();
+                      _nextPage();
                     }
-                    //TODO REMOVE THIS IS FOR TESTING
-                    _nextPage();
                   },
                   child: const Text("Next")),
             ],

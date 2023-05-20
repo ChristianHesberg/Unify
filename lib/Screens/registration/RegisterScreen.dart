@@ -4,13 +4,11 @@ import 'package:email_validator/email_validator.dart';
 
 import 'package:flutter/material.dart';
 
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'package:unify/FireService.dart';
 import 'package:unify/Screens/NavigatorScreen.dart';
 
-import '../../Widgets/AgeSlider.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -21,9 +19,9 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _email =
-      TextEditingController(text: "${Random().nextInt(10000)}@gmail.dk");
-  final _password = TextEditingController(text: "123456");
-  final _passwordAgain = TextEditingController(text: "123456");
+      TextEditingController();
+  final _password = TextEditingController();
+  final _passwordAgain = TextEditingController();
   final _loginForm = GlobalKey<FormState>();
 
   @override
