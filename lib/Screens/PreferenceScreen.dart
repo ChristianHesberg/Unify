@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
-import 'package:unify/Models/appUser.dart';
+import 'package:unify/models/appUser.dart';
 import 'package:unify/Widgets/AgeSlider.dart';
 import 'package:unify/Widgets/DistanceSlider.dart';
 import 'package:unify/Widgets/GenderCheckBoxes.dart';
@@ -48,7 +48,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
 
             AgeSlider(ageRangeValues: SfRangeValues(user.minAgePreference, user.maxAgePreference), onSlide: _handleOnSlide),
 
-            DistanceSlider(onSlide: _handleDistanceSlider,startingValue: user.locationPreference,),
+            DistanceSlider(onSlide: _handleDistanceSlider,startingValue: user.locationPreference.toDouble(),),
 
             ElevatedButton(onPressed: () {}, child: Text("Update"))
           ],

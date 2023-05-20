@@ -119,7 +119,10 @@ app.get('/matches' +
     const lng = Number(req.params.lng);
     const center = [lat, lng];
     const radiusInM = Number(req.params.radius) * 1000;
-    const limit = 10;
+    const limit = 1;
+
+    const maxAge = new Date(req.params.maxAge);
+    const minAge = new Date(req.params.minAge);
 
     const genderPreferences = req.params.genderPrefs.split("-");
 
@@ -131,8 +134,8 @@ app.get('/matches' +
                 .where(req.params.matchGender, "==", true)
                 .where('maxAgePreference', ">=", Number(req.params.userAge))
                 .where('minAgePreference', '<=', Number(req.params.userAge))
-                .where('age', '<=', Number(req.params.maxAge))
-                .where('age', '>=', Number(req.params.minAge))
+                .where('birthday', '>=', maxAge)
+                .where('birthday', '<=', minAge)
                 .where('gender', 'in', genderPreferences)
                 .orderBy('geohash')
                 .startAt(b[0])
@@ -180,6 +183,7 @@ app.get('/matches' +
         if (req.params.lastDoc !== ':lastDoc') {
             filteredDocs = filteredDocs.slice(1);
         }
+        //res.send(genderPreferences);
         res.send(filteredDocs);
     })
 });
@@ -195,7 +199,27 @@ app.post('/message', async (req, res) => {
             timestamp: new Date()
         });
     return res.json(postResult);
-})
+});
+
+app.post('/chat', async (req, res) =>  {
+    const body = req.body;
+    const postResult = await admin.firestore()
+        .collection('chats')
+        .add({
+           'userIds': [body.uid1, body.uid2],
+            'users': {
+               'user1': {
+                   'displayName': body.displayName1,
+                   'uid': body.uid1
+               },
+                'user2': {
+                   'displayName': body.displayName2,
+                    'uid': body.uid2
+                }
+            }
+        });
+    return res.json(postResult);
+});
 
 app.get('/whatever', (reg, res) => {
     return res.json({mykey: "hello world"});
