@@ -15,6 +15,7 @@ class AppUser {
   String profilePicture;
   String description;
   List<dynamic> imageList;
+  List<dynamic> blacklist;
 
   AppUser(
       this.id,
@@ -29,7 +30,8 @@ class AppUser {
       this.locationPreference,
       this.description,
       this.profilePicture,
-      this.imageList);
+      this.imageList,
+      this.blacklist);
 
 
   AppUser.fromMapJson(this.id, Map<String, dynamic> data)
@@ -44,7 +46,8 @@ class AppUser {
       locationPreference = data['distancePreference'],
       description = data['description'],
       profilePicture = data['profilePicture'],
-      imageList = data['imageList'];
+      imageList = data['imageList'],
+      blacklist = data['blacklist'];
 
   AppUser.fromMap(this.id, Map<String, dynamic> data)
       : name = data['name'],
@@ -58,7 +61,8 @@ class AppUser {
         locationPreference = data['distancePreference'],
         description = data['description'],
         profilePicture = data['profilePicture'],
-        imageList = data['imageList'];
+        imageList = data['imageList'],
+        blacklist = data['blacklist'];
 
 
   getBirthdayAsAge(){

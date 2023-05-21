@@ -12,7 +12,6 @@ import 'dart:convert';
 
 import 'package:geolocator/geolocator.dart';
 import 'package:unify/models/appUser.dart';
-import 'package:http/http.dart' as http;
 import 'geolocator_server.dart';
 
 class UserService with ChangeNotifier {
@@ -74,7 +73,9 @@ class UserService with ChangeNotifier {
     List<AppUser> result = [];
     var body = json.decode(response.body);
     for (var map in body) {
-      result.add(AppUser.fromMapJson(map['id'], map['data']));
+      if(!_user!.blacklist.contains(map['id'])){
+        result.add(AppUser.fromMapJson(map['id'], map['data']));
+      }
     }
     if (result.isNotEmpty) {
       lastDoc = result[result.length - 1].id;

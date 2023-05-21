@@ -122,7 +122,7 @@ app.get('/matches' +
     const lng = Number(req.params.lng);
     const center = [lat, lng];
     const radiusInM = Number(req.params.radius) * 1000;
-    const limit = 1;
+    const limit = 2;
 
     const maxAge = new Date(req.params.maxAge);
     const minAge = new Date(req.params.minAge);
@@ -205,23 +205,32 @@ app.post('/message', async (req, res) => {
 });
 
 app.post('/chat', async (req, res) => {
+    var batch = admin.firestore().batch();
     const body = req.body;
-    const postResult = await admin.firestore()
+    const chatRef = admin.firestore()
         .collection('chats')
-        .add({
-            'userIds': [body.uid1, body.uid2],
-            'users': {
-                'user1': {
-                    'displayName': body.displayName1,
-                    'uid': body.uid1
-                },
-                'user2': {
-                    'displayName': body.displayName2,
-                    'uid': body.uid2
-                }
+        .doc();
+    batch.create(chatRef, {
+        'userIds': [body.uid1, body.uid2],
+        'users': {
+            'user1': {
+                'displayName': body.displayName1,
+                'uid': body.uid1
+            },
+            'user2': {
+                'displayName': body.displayName2,
+                'uid': body.uid2
             }
-        });
-    return res.json(postResult);
+        }
+    })
+
+    const userRef = admin.firestore()
+        .collection('users')
+        .doc(body.uid1);
+    batch.update(userRef, {
+        blacklist: admin.firestore.FieldValue.arrayUnion(body.uid2)
+    })
+    await batch.commit();
 });
 
 app.get('/whatever', (reg, res) => {
