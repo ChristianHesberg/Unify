@@ -84,7 +84,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         Navigator.of(context).pop();
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
-                            builder: (context) => const NavigatorScreen(),
+                            builder: (context) => NavigatorScreen(),
                           ),
                         );
                       });

@@ -191,7 +191,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) => const NavigatorScreen(),
+                builder: (context) => NavigatorScreen(),
               ),
             );
           });

@@ -57,7 +57,7 @@ class MyApp extends StatelessWidget {
               theme: ThemeData(
                 primarySwatch: Colors.blue,
               ),
-              home: user == null ? const LoginScreen() : const NavigatorScreen()
+              home: user == null ? const LoginScreen() : NavigatorScreen()
           );
         });
   }
