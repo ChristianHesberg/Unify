@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
-class AppUser{
+class AppUser {
   String id;
   String name;
   DateTime birthday;
@@ -30,6 +30,7 @@ class AppUser{
       this.description,
       this.profilePicture,
       this.imageList);
+
 
   AppUser.fromMapJson(this.id, Map<String, dynamic> data)
     : name = data['name'],
@@ -111,3 +112,4 @@ class AppUser{
     return 'AppUser{id: $id, name: $name, birthday: $birthday, lat: $lat, lng: $lng, gender: $gender, maxAgePreference: $maxAgePreference, minAgePreference: $minAgePreference, genderPreferences: $genderPreferences, locationPreference: $locationPreference, profilePicture: $profilePicture, description: $description, imageList: $imageList}';
   }
 }
+

@@ -30,13 +30,14 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
           }else{
             print("test2");
             this.user = value.user!;
-            return _buildView();
+            return Placeholder();//TODO FIX _buildView();
           }
         },
       ),
     );
   }
-
+  //TODO FIX
+/*
   SingleChildScrollView _buildView() {
     return SingleChildScrollView(
       child: Padding(
@@ -55,7 +56,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
       ),
     );
   }
-
+*/
   double distance = -1;
   _handleDistanceSlider(double val) {
     distance = val;
