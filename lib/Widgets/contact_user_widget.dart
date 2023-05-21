@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:unify/Screens/ContactScreen.dart';
+import 'package:unify/Screens/NavigatorScreen.dart';
 import 'package:unify/chat_service.dart';
 import 'package:unify/models/appUser.dart';
 
@@ -22,8 +24,9 @@ class ContactUserBtn extends StatelessWidget {
           borderRadius: BorderRadius.circular(24.0),
         ),
       ),
-      onPressed: () => {
-        chatService.postChat(user1, user2)
+      onPressed: () {
+        chatService.postChat(user1, user2);
+        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => NavigatorScreen(startingPosition: 1),));
       },
       icon: const Icon(Icons.send_sharp,),
       label: const Text('Chat',),

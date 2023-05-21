@@ -32,7 +32,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         if (peopleList.isNotEmpty) {
           return buildDiscover(context);
         } else {
-          return const CircularProgressIndicator();
+          return const Center(child: CircularProgressIndicator());
         }
       },
     );

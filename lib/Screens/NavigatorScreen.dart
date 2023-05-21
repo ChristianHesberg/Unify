@@ -7,7 +7,8 @@ import 'package:unify/user_service.dart';
 import 'SettingsScreen.dart';
 
 class NavigatorScreen extends StatefulWidget {
-  const NavigatorScreen({Key? key}) : super(key: key);
+  final int? startingPosition;
+  NavigatorScreen({Key? key, this.startingPosition}) : super(key: key);
 
   @override
   State<NavigatorScreen> createState() => _NavigatorScreenState();
@@ -15,6 +16,13 @@ class NavigatorScreen extends StatefulWidget {
 
 class _NavigatorScreenState extends State<NavigatorScreen> {
   int _selectedIndex = 0;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.startingPosition ?? 0;
+  }
 
   _showWidget(int pos) {
     switch (pos) {
