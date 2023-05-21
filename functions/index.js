@@ -104,10 +104,6 @@ app.post('/message', async (req, res) => {
     return res.json(postResult);
 })
 
-app.get('/whatever', (reg, res) => {
-    return res.json({mykey: "hello world"});
-})
-
 app.post('/deleteImage', async (req, res) => {
     // Get the user ID and filename from the request body
     const {userId, downloadUrl} = req.body;

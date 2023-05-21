@@ -103,22 +103,6 @@ class UserService with ChangeNotifier {
     return downloadUrlList;
   }
 
-  Future<List<images>> getImagesInFolder(String uid) async {
-    Reference storageReference =
-        FirebaseStorage.instance.ref("users/$uid/images");
-
-    ListResult result = await storageReference.listAll();
-
-    List<images> urlList = [];
-    for (Reference ref in result.items) {
-      // Get the download URL for each image
-      String downloadUrl = await ref.getDownloadURL();
-      String imageName = ref.name;
-      urlList.add(images(downloadUrl, imageName));
-    }
-    return urlList;
-  }
-
   Future<void> deleteImage(String userId, String downloadUrl) async {
     final url = 'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/deleteImage';
 
