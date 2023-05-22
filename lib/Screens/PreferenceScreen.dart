@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
-import 'package:unify/Models/appUser.dart';
+import 'package:unify/models/appUser.dart';
 import 'package:unify/Widgets/AgeSlider.dart';
 import 'package:unify/Widgets/DistanceSlider.dart';
 import 'package:unify/Widgets/GenderCheckBoxes.dart';
@@ -28,13 +28,14 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
             return Center(child: CircularProgressIndicator());
           }else{
             this.user = value.user!;
-            return _buildView();
+            return Placeholder();//TODO FIX _buildView();
           }
         },
       ),
     );
   }
-
+  //TODO FIX
+/*
   SingleChildScrollView _buildView() {
     return SingleChildScrollView(
       child: Padding(
@@ -45,7 +46,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
 
             AgeSlider(ageRangeValues: SfRangeValues(user.minAgePreference, user.maxAgePreference), onSlide: _handleOnSlide),
 
-            DistanceSlider(onSlide: _handleDistanceSlider,startingValue: user.locationPreference,),
+            DistanceSlider(onSlide: _handleDistanceSlider,startingValue: user.locationPreference.toDouble(),),
 
             ElevatedButton(onPressed: () async {
               final userService = Provider.of<UserService>(context, listen:false);
@@ -59,7 +60,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
       ),
     );
   }
-
+*/
   double distance = -1;
   _handleDistanceSlider(double val) {
     distance = val;

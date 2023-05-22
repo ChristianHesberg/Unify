@@ -1,6 +1,5 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-
 admin.initializeApp({projectId: 'unify-ef8e0'});
 const geofire = require('geofire-common');
 const {v4: uuidv4} = require('uuid')
@@ -9,6 +8,104 @@ const cors = require('cors');
 const {user} = require("firebase-functions/v1/auth");
 app.use(cors());
 
+
+exports.lmao2 = functions.https.onCall((req, res) => {
+    const myMap = {"fuck": "ass"};
+
+    res.send(myMap);
+})
+
+exports.authOnAccountCreate = functions.auth
+    .user()
+    .onCreate((user, context) => {
+        admin.firestore().collection("users").doc(user.uid)
+            .set({
+                isSetup: false
+            })
+
+    })
+
+app.post("/uploadProfilePic", async (req, res) => {
+        try {
+            // Extract the image file from the request payload
+            const file = req.files.image;
+
+            // Generate a unique filename using UUID
+            const filename = `${uuidv4()}_${file.name}`;
+
+            // Create a temporary local file path
+            const tempFilePath = path.join(os.tmpdir(), filename);
+
+            // Save the file locally
+            file.mv(tempFilePath, async (err) => {
+                if (err) {
+                    console.error('Error while saving file locally:', err);
+                    return res.status(500).send('Error occurred while saving file.');
+                }
+
+                try {
+                    // Upload the file to Firestore
+                    const bucket = admin.storage().bucket();
+                    await bucket.upload(tempFilePath, {
+                        destination: `images/${filename}`,
+                        metadata: {
+                            contentType: file.mimetype,
+                        },
+                    });
+
+                    // Get the public URL of the uploaded image
+                    const imageUrl = `https://storage.googleapis.com/${bucket.name}/images/${filename}`;
+
+                    // Save the image URL to Firestore
+                    const firestore = admin.firestore();
+                    await firestore.collection('images').add({
+                        imageUrl: imageUrl,
+                    });
+
+                    // Return a success response
+                    return res.status(200).send('Image uploaded successfully!');
+                } catch (error) {
+                    console.error('Error while uploading file to Firestore:', error);
+                    return res.status(500).send('Error occurred while uploading file.');
+                } finally {
+                    // Delete the temporary local file
+                    fs.unlinkSync(tempFilePath);
+                }
+            });
+        } catch (error) {
+            console.error('Error occurred:', error);
+            return res.status(500).send('Error occurred while processing request.');
+        }
+    }
+);
+
+app.post("/accountSetup", async (req, res) => {
+    const uId = req.body.uId;
+    const data = req.body;
+
+    const result = await admin.firestore().collection('users').doc(uId).set({
+        "isSetup": true,
+        "name": data.name,
+        "birthday": new Date(data.birthDay),
+        "gender": data.gender,
+        "geohash": data.geohash,
+        "lat": data.latitude,
+        "lng": data.longitude,
+        "maxAgePreference": data.maxAgePreference,
+        "minAgePreference": data.minAgePreference,
+        "femalePreference": data.femalePreference,
+        "malePreference": data.malePreference,
+        "otherGenderPreference": data.otherPreference,
+        "distancePreference": data.locationPreference,
+        "description": data.description,
+        "profilePicture": "",
+        "imageList": []
+
+        //TODO PROFILE PIC
+        //TODO MANY PIC
+    })
+    return res.json(result)
+})
 app.get('/matches' +
     '/userAge/:userAge' +
     '/maxAge/:maxAge' +
@@ -25,7 +122,10 @@ app.get('/matches' +
     const lng = Number(req.params.lng);
     const center = [lat, lng];
     const radiusInM = Number(req.params.radius) * 1000;
-    const limit = 10;
+    const limit = 2;
+
+    const maxAge = new Date(req.params.maxAge);
+    const minAge = new Date(req.params.minAge);
 
     const genderPreferences = req.params.genderPrefs.split("-");
 
@@ -37,8 +137,8 @@ app.get('/matches' +
                 .where(req.params.matchGender, "==", true)
                 .where('maxAgePreference', ">=", Number(req.params.userAge))
                 .where('minAgePreference', '<=', Number(req.params.userAge))
-                .where('age', '<=', Number(req.params.maxAge))
-                .where('age', '>=', Number(req.params.minAge))
+                .where('birthday', '>=', maxAge)
+                .where('birthday', '<=', minAge)
                 .where('gender', 'in', genderPreferences)
                 .orderBy('geohash')
                 .startAt(b[0])
@@ -86,10 +186,10 @@ app.get('/matches' +
         if (req.params.lastDoc !== ':lastDoc') {
             filteredDocs = filteredDocs.slice(1);
         }
+        //res.send(genderPreferences);
         res.send(filteredDocs);
     })
 });
-
 app.post('/message', async (req, res) => {
     const body = req.body;
     const postResult = await admin.firestore()
@@ -102,7 +202,42 @@ app.post('/message', async (req, res) => {
             timestamp: new Date()
         });
     return res.json(postResult);
-})
+});
+
+app.post('/chat', async (req, res) => {
+    var batch = admin.firestore().batch();
+    const body = req.body;
+    const chatRef = admin.firestore()
+        .collection('chats')
+        .doc();
+    batch.create(chatRef, {
+        'userIds': [body.uid1, body.uid2],
+        'users': {
+            'user1': {
+                'displayName': body.displayName1,
+                'uid': body.uid1
+            },
+            'user2': {
+                'displayName': body.displayName2,
+                'uid': body.uid2
+            }
+        }
+    })
+
+    const userRef = admin.firestore()
+        .collection('users')
+        .doc(body.uid1);
+    batch.update(userRef, {
+        blacklist: admin.firestore.FieldValue.arrayUnion(body.uid2)
+    })
+    const userRef2 = admin.firestore()
+        .collection('users')
+        .doc(body.uid2);
+    batch.update(userRef2, {
+        blacklist: admin.firestore.FieldValue.arrayUnion(body.uid1)
+    })
+    await batch.commit();
+});
 
 app.post('/deleteImage', async (req, res) => {
     // Get the user ID and filename from the request body
@@ -198,6 +333,11 @@ app.post('/uploadImages', async (req, res) => {
     }
 });
 
+function test() {
+    print("lmao");
+}
+
+
 app.put('/updateUserImages', async (req, res) => {
     try {
         const urlList = req.body.urls.replace("[", "").replace("]", "").replace(" ", "");
@@ -266,4 +406,5 @@ app.put('/updateUserPreference', async (req, res) => {
 });
 
 exports.api = functions.https.onRequest(app);
+
 

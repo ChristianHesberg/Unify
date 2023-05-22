@@ -1,102 +1,131 @@
 import 'dart:convert';
-import 'dart:convert';
-import 'dart:convert';
-import 'dart:convert';
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
-
 import 'package:geoflutterfire2/geoflutterfire2.dart';
+
 import 'package:image_picker/image_picker.dart';
-import 'package:unify/Models/appUser.dart';
-import 'package:unify/Models/images.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:geolocator/geolocator.dart';
+import 'package:unify/models/appUser.dart';
+import 'geolocator_server.dart';
+
 class UserService with ChangeNotifier {
   AppUser? _user;
+  final geo = GeoFlutterFire();
+  final _firestore = FirebaseFirestore.instance;
+  static const baseUrl = 'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/';
+  String lastDoc = ':lastDoc';
 
   AppUser? get user => _user;
 
-  void getUser() async {
+  Future<AppUser?> initializeUser() async {
+    if (user == null) {
+      await getUser();
+    }
+    return _user;
+  }
+
+  Future<AppUser?> getUser() async {
     try {
       //logged in user id
       String uid = FirebaseAuth.instance.currentUser!.uid;
 
+      //set user location
+      _writeLocation();
+
       //query
-      final DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+      final DocumentSnapshot<Map<String, dynamic>> userData =
+          await _firestore.collection('users').doc(uid).get();
 
       //data handle
-      final userData = documentSnapshot.data();
-      if (userData != null) {
-        final String? name = userData['name'] as String?;
-        final Timestamp birthday = userData['birthday'] as Timestamp;
-        final String? gender = userData['gender'] as String?;
-        final int? maxAge = userData['maxAgePreference'] as int?;
-        final int? minAge = userData['minAgePreference'] as int?;
-        final bool? femalePreference = userData['femalePreference'] as bool?;
-        final bool? malePreference = userData['malePreference'] as bool?;
-        final bool? otherPreference = userData['otherPreference'] as bool?;
+      _user = AppUser.fromMap(userData.id, userData.data()!);
 
-        // setup gender preference list
-        List<String> genderPreferenceList = [
-          if (malePreference == true) 'male',
-          if (femalePreference == true) 'female',
-          if (otherPreference == true) 'other',
-        ];
-
-        final int? distancePreference = userData['distancePreference'] as int?;
-        final GeoPoint? location = userData['location'] as GeoPoint?;
-        final String? description = userData['description'] as String?;
-        final String? profilePicture = userData['profilePicture'] as String?;
-        final List<dynamic>? images = userData['imageList'] as List<dynamic>?;
-
-        _user = AppUser(
-            uid,
-            name!,
-            birthday.toDate(),
-            gender!,
-            maxAge!,
-            minAge!,
-            genderPreferenceList,
-            distancePreference!.toDouble(),
-            profilePicture!,
-            description!,
-            images!);
-
-        //set user location
-        _user!.location = GeoFirePoint(location!.latitude, location.longitude);
-
-        notifyListeners(); // Notify listeners of state change
-      } else {
-        _user = null;
-        notifyListeners();
-      }
+      notifyListeners(); // Notify listeners of state change
+      return _user;
     } catch (e) {
-      print(e);
+      print("Error in get user: $e");
     }
+  }
+
+  _writeLocation() async {
+    Position position = await Server.determinePosition();
+    var point =
+        geo.point(latitude: position.latitude, longitude: position.longitude);
+
+    _firestore
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update({
+      'geohash': point.hash,
+      'lat': position.latitude,
+      'lng': position.longitude
+    });
+  }
+
+  getUsersWithinRadius() async {
+    final response = await http.get(Uri.parse(urlBuilder()));
+    List<AppUser> result = [];
+    var body = json.decode(response.body);
+    for (var map in body) {
+      if(!_user!.blacklist.contains(map['id'])){
+        result.add(AppUser.fromMapJson(map['id'], map['data']));
+      }
+    }
+    if (result.isNotEmpty) {
+      lastDoc = result[result.length - 1].id;
+    }
+    return result;
+  }
+
+  urlBuilder() {
+    return baseUrl +
+        'matches' +
+        '/userAge/' +
+        _user!.getBirthdayAsAge().toString() +
+        '/maxAge/' +
+        _user!.getMaxAgePrefAsBirthday() +
+        '/minAge/' +
+        _user!.getMinAgePrefAsBirthday() +
+        '/matchGender/' +
+        _user!.getGenderAsPreference() +
+        '/genderPrefs/' +
+        _user!.getGenderPreferencesAsString() +
+        '/uid/' +
+        _user!.id +
+        '/lat/' +
+        _user!.lat.toString() +
+        '/lng/' +
+        _user!.lng.toString() +
+        '/radius/' +
+        _user!.locationPreference.toString() +
+        '/lastDoc/' +
+        lastDoc;
   }
 
   Future<String> downloadImage(String userId, String imageName) async {
     // Create a reference to the Firebase Storage location of the image
 
     String path = 'users/$userId/$imageName';
+
     Reference storageReference = FirebaseStorage.instance.ref().child(path);
 
     return await storageReference.getDownloadURL();
   }
 
-  Future<List<String>> downloadMultipleImages(String userId, List<String> filenameList) async {
+  Future<List<String>> downloadMultipleImages(
+      String userId, List<String> filenameList) async {
     // Create a reference to the Firebase Storage location of the image
 
     Reference test = FirebaseStorage.instance.ref();
     List<String> downloadUrlList = [];
 
-    for(String filename in filenameList){
+    for (String filename in filenameList) {
       String path = 'users/$userId/images/$filename';
       downloadUrlList.add(await test.child(path).getDownloadURL());
     }
@@ -134,48 +163,42 @@ class UserService with ChangeNotifier {
         Uri.parse(url),
         body: {
           'image': base64Image,
-          'userId': _user!.id
+          'userId': FirebaseAuth.instance.currentUser!.uid
         },
       ).then((value) => {
-        updateUserProfilePicture(value.body.replaceAll('"', "")).then((value) => getUser()),
-      });
-
-
+            updateUserProfilePicture(value.body.replaceAll('"', ""))
+                .then((value) => getUser()),
+          });
     } catch (e) {
-      print(e);
+      print("error in uploadProfilePicture: $e");
     }
   }
 
   Future<void> updateUserProfilePicture(String fileName) async {
-
+    final uId = FirebaseAuth.instance.currentUser!.uid;
     const url =
         'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/updateUserProfilePicture';
     try {
-      String downloadUrl = await downloadImage(_user!.id, fileName);
+      String downloadUrl = await downloadImage(uId, fileName);
 
       await http.put(
         Uri.parse(url),
-        body: {
-          'url': downloadUrl,
-          'userId': _user!.id
-        },
+        body: {'url': downloadUrl, 'userId': uId},
       );
-
     } catch (e) {
-      print(e);
+      print("Error in updateUserProfilePicture: $e");
     }
   }
 
   Future<void> uploadImages(List<XFile> images) async {
-    const url =
-        'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/uploadImages';
+    const url = 'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/uploadImages';
     try {
       List<String> base64Images = [];
-      for(XFile img in images){
+      for (XFile img in images) {
         base64Images.add(base64Encode(await img.readAsBytes()));
       }
 
-      Map<String, dynamic> map;
+      Map<String, dynamic> map;//TODO WHAT IS MAP??
       await http.post(
         Uri.parse(url),
         body: {
@@ -183,28 +206,27 @@ class UserService with ChangeNotifier {
           'userId': FirebaseAuth.instance.currentUser!.uid
         },
       ).then((value) => {
-        updateUserImages(json.decode(value.body).cast<String>().toList()).then((value) => getUser())
-      });
+            updateUserImages(json.decode(value.body).cast<String>().toList())
+                .then((value) => getUser())
+          });
     } catch (e) {
       print('Error uploading image: $e');
     }
   }
 
   Future<void> updateUserImages(List<String> fileNames) async {
+    final uId = FirebaseAuth.instance.currentUser!.uid;
     const url =
         'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/updateUserImages';
     try {
-      List<String> downloadUrl = await downloadMultipleImages(_user!.id, fileNames);
+      List<String> downloadUrl =
+          await downloadMultipleImages(uId, fileNames);
       await http.put(
         Uri.parse(url),
-        body: {
-          'urls': downloadUrl.toString(),
-          'userId': _user!.id
-        },
+        body: {'urls': downloadUrl.toString(), 'userId': uId},
       );
-
     } catch (e) {
-      print(e);
+      print("Error in updateuserimages: $e");
     }
   }
 
@@ -213,10 +235,6 @@ class UserService with ChangeNotifier {
         'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/updateUserInfo';
 
     try {
-      print(description);
-      print(gender);
-      print(birthday.toString());
-
 
       await http.put(
         Uri.parse(url),
@@ -260,5 +278,4 @@ class UserService with ChangeNotifier {
       print(e);
     }
   }
-
 }

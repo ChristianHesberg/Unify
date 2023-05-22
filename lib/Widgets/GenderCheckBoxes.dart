@@ -33,8 +33,9 @@ class _GenderCheckBoxesState extends State<GenderCheckBoxes> {
           value: checkboxValues[key],
           onChanged: (value) {
             setState(() {
-              widget.onClick(checkboxValues);
               checkboxValues[key] = value!;
+              widget.onClick(checkboxValues);
+
             });
           },
         );

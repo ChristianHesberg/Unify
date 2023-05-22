@@ -1,13 +1,17 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'package:unify/FireService.dart';
 import 'package:unify/Screens/ContactScreen.dart';
 import 'package:unify/Screens/DiscoverScreen.dart';
-import 'package:unify/user_service.dart';
+import 'package:unify/Screens/registration/AccountSetupScreen.dart';
 
 import 'SettingsScreen.dart';
 
 class NavigatorScreen extends StatefulWidget {
-  const NavigatorScreen({Key? key}) : super(key: key);
+  final int? startingPosition;
+  NavigatorScreen({Key? key, this.startingPosition}) : super(key: key);
 
   @override
   State<NavigatorScreen> createState() => _NavigatorScreenState();
@@ -15,6 +19,13 @@ class NavigatorScreen extends StatefulWidget {
 
 class _NavigatorScreenState extends State<NavigatorScreen> {
   int _selectedIndex = 0;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.startingPosition ?? 0;
+  }
 
   _showWidget(int pos) {
     switch (pos) {
@@ -24,13 +35,28 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
         return new ContactScreen();
       case 2:
         return new SettingsScreen();
-
       default:
         return new Text("Error");
     }
   }
+
   @override
   Widget build(BuildContext context) {
+    var fireService = Provider.of<FireService>(context);
+    //future builder check status
+    return FutureBuilder(
+      future: fireService.checkStatus(),
+      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        if (snapshot.hasData) {
+          if (snapshot.data == false) return const AccountSetupScreen();
+          return _buildNavigatorScreen();
+        }
+        return _buildLoadingIndicator();
+      },
+    );
+  }
+
+  _buildNavigatorScreen() {
     return Scaffold(
       appBar: AppBar(title: const Text("Unify"), backgroundColor: Colors.black),
       body: _showWidget(_selectedIndex),
@@ -39,21 +65,17 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
           selectedItemColor: Colors.blue,
           onTap: _onItemTapped,
           items: const <BottomNavigationBarItem>[
-        BottomNavigationBarItem(
-            label: "Discover",
-            icon: Icon(Icons.people
-        )),
-
-        BottomNavigationBarItem(
-            label: "Chat",
-            icon: Icon(Icons.chat)),
-
-        BottomNavigationBarItem(
-            label: "Settings",
-            icon: Icon(Icons.settings)),
-
-      ]),
+            BottomNavigationBarItem(
+                label: "Discover", icon: Icon(Icons.people)),
+            BottomNavigationBarItem(label: "Chat", icon: Icon(Icons.chat)),
+            BottomNavigationBarItem(
+                label: "Settings", icon: Icon(Icons.settings)),
+          ]),
     );
+  }
+
+  _buildLoadingIndicator() {
+    return Center(child: CircularProgressIndicator());
   }
 
   void _onItemTapped(int index) {

@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:unify/Models/appUser.dart';
+import 'package:unify/models/appUser.dart';
 import 'package:unify/Widgets/DatePicker.dart';
 import 'package:unify/Widgets/genderDropDown.dart';
 import 'package:unify/Widgets/user_text.dart';
@@ -134,7 +134,6 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Widget _userInfoForm(BuildContext context) {
-
     return Form(
         key: _formKey,
         child: Padding(
@@ -158,7 +157,7 @@ class _AccountScreenState extends State<AccountScreen> {
       ignoring: !canEdit,
         child: DatePicker(
       onClick: _handleDateOutput,
-      birthDate: user.age,
+      //birthDate: user.age,
     )); //GenderDropDown(startIndex: 1,canChange: !canEdit,);
   }
 

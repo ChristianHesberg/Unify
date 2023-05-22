@@ -18,18 +18,20 @@ class MessageScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final chatService = Provider.of<ChatService>(context);
     return Scaffold(
-      appBar: AppBar(title: const Text("Unify"), backgroundColor: Colors.black),
+      appBar: AppBar(title: const Text("Chats"), backgroundColor: Colors.black),
       body: Stack(
         children: [
           FirestoreListView<Message>(
             query: chatService.getMessages(chat),
             itemBuilder: (context, doc) {
               final message = doc.data();
-              return Column(children: [
-                sender(message),
-                textBubble(message),
-                SizedBox(height: padding * 2),
-              ]);
+              return SingleChildScrollView(
+                child: Column(children: [
+                  sender(message),
+                  textBubble(message),
+                  SizedBox(height: padding * 2),
+                ]),
+              );
             },
           ),
           Align(alignment: Alignment.bottomCenter, child: messageInput(context))

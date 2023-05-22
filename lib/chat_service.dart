@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:unify/models/messageDTO.dart';
 import 'package:http/http.dart' as http;
+import 'package:unify/models/appUser.dart';
 
 import 'models/chat.dart';
 import 'models/message.dart';
@@ -13,8 +13,7 @@ class ChatService{
   static const chats = 'chats';
   static const messages = 'messages';
   static const timestamp = 'timestamp';
-  static const baseUrl = 'http://10.0.2.2:5001';
-  static const basePath = '/unify-ef8e0/us-central1/api/';
+  static const baseUrl = 'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/';
   final _firestore = FirebaseFirestore.instance;
 
 
@@ -23,11 +22,9 @@ class ChatService{
   }
 
   Stream<Iterable<Chat>> getChats(User user) {
-    print('userId is:' + user.uid);
     return _firestore
         .collection(chats)
-        .where(ChatKeys.users, arrayContains: user.uid)
-        //.orderBy(timestamp)
+        .where(ChatKeys.userIds, arrayContains: user.uid)
         .withConverter(
       fromFirestore: (snapshot, options) =>
           Chat.fromMap(snapshot.id, snapshot.data()!),
@@ -35,6 +32,21 @@ class ChatService{
     )
         .snapshots()
         .map((querySnapshot) => querySnapshot.docs.map((e) => e.data()));
+  }
+
+  postChat(AppUser user1, AppUser user2) async{
+    final response = await http.post(
+      Uri.parse('${baseUrl}chat'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: json.encode({
+        'uid1': user1.id,
+        'uid2': user2.id,
+        'displayName1': user1.name,
+        'displayName2': user2.name
+      })
+    );
   }
 
   Query<Message> getMessages(Chat chat){
@@ -51,17 +63,8 @@ class ChatService{
   }
 
   sendMessage(User user, Chat chat, String message) async {
-    print(ChatKeys.chatId + chat.id);
-    print(MessageKeys.content + message);
-    print(MessageKeys.sender);
-    print(SenderKeys.displayName + user.displayName!);
-    print(SenderKeys.uid + user.uid);
-    //final sender = Sender(
-    //  uid: user.uid,
-    //  displayName: user.displayName ?? '');
-    //MessageDto dto = MessageDto(chatId: chat.id, content: message, sender: sender);
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:5001/unify-ef8e0/us-central1/api/message'),
+      Uri.parse('${baseUrl}message'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

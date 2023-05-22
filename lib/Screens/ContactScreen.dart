@@ -33,11 +33,12 @@ class ChatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<User?>(context);
     return ListTile(
       shape: const RoundedRectangleBorder(
         side: BorderSide(color: Colors.black12, width: 1),
       ),
-      title: UserText(text: chat.name, size: 15),
+      title: UserText(text: chat.users.firstWhere((e) => e.uid!=user?.uid).displayName, size: 15),
       trailing: const Icon(Icons.arrow_forward_ios),
       onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => MessageScreen(chat: chat))),
     );
