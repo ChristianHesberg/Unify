@@ -12,7 +12,7 @@ class GenderDropDown extends StatefulWidget {
 }
 
 class _GenderDropDownState extends State<GenderDropDown> {
-  final optionMap = {"other": "Other", "man": "Man", "woman": "Woman"};
+  final optionMap = {"other": "Other", "male": "Man", "female": "Woman"};
 
 
   late String dropdownValue = optionMap.keys.toList()[widget.startIndex ?? 0];
