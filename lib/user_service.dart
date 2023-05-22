@@ -132,22 +132,6 @@ class UserService with ChangeNotifier {
     return downloadUrlList;
   }
 
-  Future<List<String>> getImagesInFolder(String uid) async {
-    Reference storageReference =
-        FirebaseStorage.instance.ref("users/$uid/images");
-
-    ListResult result = await storageReference.listAll();
-
-    List<String> urlList = [];
-    for (Reference ref in result.items) {
-      // Get the download URL for each image
-      String downloadUrl = await ref.getDownloadURL();
-      String imageName = ref.name;
-      urlList.add(downloadUrl);
-    }
-    return urlList;
-  }
-
   Future<void> deleteImage(String userId, String downloadUrl) async {
     final url = 'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/deleteImage';
 
@@ -243,6 +227,55 @@ class UserService with ChangeNotifier {
       );
     } catch (e) {
       print("Error in updateuserimages: $e");
+    }
+  }
+
+  Future<void> updateUserInfo(String description, String gender, DateTime birthday) async {
+    const url =
+        'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/updateUserInfo';
+
+    try {
+
+      await http.put(
+        Uri.parse(url),
+        body: {
+          'description': description,
+          'gender': gender,
+          'birthday': birthday.toString(),
+          'userId': _user!.id
+        },
+      );
+      getUser();
+    } catch (e) {
+      print(e);
+    }
+  }
+
+
+  Future<void> updateUserPreference(int minAgePreference, int maxAgePreference, bool femalePreference,bool malePreference, bool otherPreference, int distancePreference ) async {
+    const url =
+        'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/updateUserPreference';
+
+    try {
+      await http.put(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8'
+        },
+        body: json.encode({
+          'minAgePreference': minAgePreference,
+          'maxAgePreference': maxAgePreference,
+          'femalePreference': femalePreference,
+          'malePreference': malePreference,
+          'otherPreference': otherPreference,
+          'distancePreference': distancePreference,
+
+          'userId': _user!.id
+        }),
+      );
+      getUser();
+    } catch (e) {
+      print(e);
     }
   }
 }

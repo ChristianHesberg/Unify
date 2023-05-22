@@ -224,12 +224,14 @@ app.post('/chat', async (req, res) => {
     batch.update(userRef, {
         blacklist: admin.firestore.FieldValue.arrayUnion(body.uid2)
     })
+    const userRef2 = admin.firestore()
+        .collection('users')
+        .doc(body.uid2);
+    batch.update(userRef2, {
+        blacklist: admin.firestore.FieldValue.arrayUnion(body.uid1)
+    })
     await batch.commit();
 });
-
-app.get('/whatever', (reg, res) => {
-    return res.json({mykey: "hello world"});
-})
 
 app.post('/deleteImage', async (req, res) => {
     // Get the user ID and filename from the request body
@@ -350,6 +352,52 @@ app.put('/updateUserImages', async (req, res) => {
     }
 });
 
+
+app.put('/updateUserInfo', async (req, res) => {
+    try {
+        const description = req.body.description;
+        const gender = req.body.gender;
+        const birthday = req.body.birthday;
+        const userId = req.body.userId;
+
+        const userRef = admin.firestore().collection("users").doc(userId);
+        await userRef.update({
+            "description": description,
+            "gender": gender,
+            "birthday": new Date(birthday),
+        });
+
+        res.status(200).send("updated user");
+    } catch (error) {
+        res.status(500).send("Error updating user");
+    }
+});
+
+app.put('/updateUserPreference', async (req, res) => {
+    try {
+        const minAgePreference = req.body.minAgePreference;
+        const maxAgePreference = req.body.maxAgePreference;
+        const femalePreference = req.body.femalePreference;
+        const malePreference = req.body.malePreference;
+        const otherPreference = req.body.otherPreference;
+        const distancePreference = req.body.distancePreference;
+        const userId = req.body.userId;
+
+        const userRef = admin.firestore().collection("users").doc(userId);
+        await userRef.update({
+            "minAgePreference": minAgePreference,
+            "maxAgePreference": maxAgePreference,
+            "femalePreference": femalePreference,
+            "malePreference": malePreference,
+            "otherPreference": otherPreference,
+            "distancePreference": distancePreference,
+        });
+
+        res.status(200).send("updated user");
+    } catch (error) {
+        res.status(500).send("Error updating user");
+    }
+});
 
 exports.api = functions.https.onRequest(app);
 

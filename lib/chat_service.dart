@@ -25,7 +25,6 @@ class ChatService{
     return _firestore
         .collection(chats)
         .where(ChatKeys.userIds, arrayContains: user.uid)
-        //.orderBy(timestamp)
         .withConverter(
       fromFirestore: (snapshot, options) =>
           Chat.fromMap(snapshot.id, snapshot.data()!),

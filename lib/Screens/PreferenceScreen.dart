@@ -25,19 +25,16 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
         builder: (context, value, child) {
           if(value.user == null){
             value.getUser();
-            print("test1");
             return Center(child: CircularProgressIndicator());
           }else{
-            print("test2");
             this.user = value.user!;
-            return Placeholder();//TODO FIX _buildView();
+            return _buildView();
           }
         },
       ),
     );
   }
-  //TODO FIX
-/*
+
   SingleChildScrollView _buildView() {
     return SingleChildScrollView(
       child: Padding(
@@ -50,13 +47,19 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
 
             DistanceSlider(onSlide: _handleDistanceSlider,startingValue: user.locationPreference.toDouble(),),
 
-            ElevatedButton(onPressed: () {}, child: Text("Update"))
+            ElevatedButton(onPressed: () async {
+              final userService = Provider.of<UserService>(context, listen:false);
+              await userService.updateUserPreference(rangeValues.start, rangeValues.end, genderMap["Woman"] ?? user.genderPreferences.contains("female"), genderMap["Man"] ?? user.genderPreferences.contains("male"), genderMap["Other"] ?? user.genderPreferences.contains("other"), distance.round());
+              setState(() {
+
+              });
+            }, child: Text("Update"))
           ],
         ),
       ),
     );
   }
-*/
+
   double distance = -1;
   _handleDistanceSlider(double val) {
     distance = val;
