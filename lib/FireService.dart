@@ -68,10 +68,21 @@ class FireService {
 
   Future<bool> checkStatus() async {
     var isSetup = false;
-    String uId = FirebaseAuth.instance.currentUser!.uid;
-    var userDoc = await _fireStore.collection("users").doc(uId).get();
-    var doc = userDoc.data();
-    isSetup = doc!["isSetup"];
+    try{
+      String uId = FirebaseAuth.instance.currentUser!.uid;
+      var snapshot = await _fireStore.collection("users").doc(uId).get();
+      if (snapshot.exists){
+        var doc = snapshot.data();
+        isSetup = doc!["isSetup"];
+      }
+
+
+    }catch(e){
+    //await Future.delayed(const Duration(seconds: 1));
+      print("TRY AGAIN TRIGGER");
+     // checkStatus();
+    }
+
     return isSetup;
   }
 }

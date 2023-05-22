@@ -1,13 +1,12 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-admin.initializeApp({projectId: 'unify-ef8e0'});
 const geofire = require('geofire-common');
 const {v4: uuidv4} = require('uuid')
 const app = require('express')();
 const cors = require('cors');
 const {user} = require("firebase-functions/v1/auth");
 app.use(cors());
-
+admin.initializeApp({projectId: 'unify-ef8e0'});
 
 
 
@@ -128,12 +127,13 @@ app.get('/matches' +
     for (const b of bounds) {
         const getResult =
             admin.firestore().collection('users')
-                .where(req.params.matchGender, "==", true)
-                .where('maxAgePreference', ">=", Number(req.params.userAge))
-                .where('minAgePreference', '<=', Number(req.params.userAge))
-                .where('birthday', '>=', maxAge)
-                .where('birthday', '<=', minAge)
-                .where('gender', 'in', genderPreferences)
+             //   .where(req.params.matchGender, "==", true)
+               // .where('maxAgePreference', ">=", Number(req.params.userAge))
+                //.where('minAgePreference', '<=', Number(req.params.userAge))
+                //.orderBy('minAgePreference')
+                //.where('birthday', '>=', maxAge).orderBy('birthday')
+                //.where('birthday', '<=', minAge)
+                //.where('gender', 'in', genderPreferences).orderBy('gender')
                 .orderBy('geohash')
                 .startAt(b[0])
                 .endAt(b[1]);
