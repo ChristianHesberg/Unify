@@ -215,7 +215,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
       gender: genderValue,
       maxAgePreference: maxAge,
       minAgePreference: minAge,
-      locationPreference: distance,
+      locationPreference: distance.round(),
       profilePicture: profilePicture!,
       imageList: images,
       description: _description.text,

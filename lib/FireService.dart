@@ -41,8 +41,6 @@ class FireService {
   }
 
   updateAccount(SettingsDTO dto) async {
-    //TODO YOINK IMAGE UPLOAD FRA MAGNUS Transaciton pic - account update
-
     Response result = await http.post(Uri.parse("$baseUrl/accountSetup"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8'
@@ -62,8 +60,6 @@ class FireService {
           "otherPreference": dto.otherPreference,
           "locationPreference": dto.locationPreference,
           "description": dto.description
-          //TODO PROFILE PIC
-          //TODO MANY PIC
         }));
     await userService.uploadImages(dto.imageList);
      await userService.uploadProfilePicture(dto.profilePicture);

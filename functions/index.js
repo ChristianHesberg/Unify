@@ -9,11 +9,7 @@ const {user} = require("firebase-functions/v1/auth");
 app.use(cors());
 
 
-exports.lmao2 = functions.https.onCall((req, res) => {
-    const myMap = {"fuck": "ass"};
 
-    res.send(myMap);
-})
 
 exports.authOnAccountCreate = functions.auth
     .user()
@@ -99,10 +95,8 @@ app.post("/accountSetup", async (req, res) => {
         "distancePreference": data.locationPreference,
         "description": data.description,
         "profilePicture": "",
-        "imageList": []
-
-        //TODO PROFILE PIC
-        //TODO MANY PIC
+        "imageList": [],
+         "blacklist":[]
     })
     return res.json(result)
 })

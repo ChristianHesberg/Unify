@@ -13,7 +13,7 @@ class SettingsDTO {
   bool femalePreference;
   bool malePreference;
   bool otherPreference;
-  double locationPreference;
+  int locationPreference;
   XFile profilePicture;
   List<XFile> imageList;
   String description;
