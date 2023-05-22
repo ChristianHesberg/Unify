@@ -230,6 +230,12 @@ app.post('/chat', async (req, res) => {
     batch.update(userRef, {
         blacklist: admin.firestore.FieldValue.arrayUnion(body.uid2)
     })
+    const userRef2 = admin.firestore()
+        .collection('users')
+        .doc(body.uid2);
+    batch.update(userRef2, {
+        blacklist: admin.firestore.FieldValue.arrayUnion(body.uid1)
+    })
     await batch.commit();
 });
 
