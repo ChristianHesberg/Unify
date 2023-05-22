@@ -206,8 +206,59 @@ class UserService with ChangeNotifier {
     } catch (e) {
       print(e);
     }
-
   }
 
+  Future<void> updateUserInfo(String description, String gender, DateTime birthday) async {
+    const url =
+        'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/updateUserInfo';
+
+    try {
+      print(description);
+      print(gender);
+      print(birthday.toString());
+
+
+      await http.put(
+        Uri.parse(url),
+        body: {
+          'description': description,
+          'gender': gender,
+          'birthday': birthday.toString(),
+          'userId': _user!.id
+        },
+      );
+      getUser();
+    } catch (e) {
+      print(e);
+    }
+  }
+
+
+  Future<void> updateUserPreference(int minAgePreference, int maxAgePreference, bool femalePreference,bool malePreference, bool otherPreference, int distancePreference ) async {
+    const url =
+        'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/updateUserPreference';
+
+    try {
+      await http.put(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8'
+        },
+        body: json.encode({
+          'minAgePreference': minAgePreference,
+          'maxAgePreference': maxAgePreference,
+          'femalePreference': femalePreference,
+          'malePreference': malePreference,
+          'otherPreference': otherPreference,
+          'distancePreference': distancePreference,
+
+          'userId': _user!.id
+        }),
+      );
+      getUser();
+    } catch (e) {
+      print(e);
+    }
+  }
 
 }

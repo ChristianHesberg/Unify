@@ -111,7 +111,7 @@ app.post('/deleteImage', async (req, res) => {
     //depending on using emulators or not. download url´s are different. therefor the name have been giving an identifier _name-of-image_
     const firstIdentifier = downloadUrl.indexOf("_");
     const secondIdentifier = downloadUrl.indexOf("_", firstIdentifier + 1);
-    const filename = downloadUrl.substring(firstIdentifier,secondIdentifier + 1);
+    const filename = downloadUrl.substring(firstIdentifier, secondIdentifier + 1);
 
     // Construct the path to the image
     const path = `users/${userId}/images/${filename}`;
@@ -124,7 +124,7 @@ app.post('/deleteImage', async (req, res) => {
             imageList: admin.firestore.FieldValue.arrayRemove(downloadUrl)
         });
 
-            return res.status(200).send("image deleted successfully");
+        return res.status(200).send("image deleted successfully");
     } catch (error) {
         res.status(500).json({error: 'An error occurred while deleting the image.'});
         throw new functions.https.HttpsError('internal', 'An error occurred while deleting the image.', error);
@@ -206,7 +206,7 @@ app.put('/updateUserImages', async (req, res) => {
 
         const userRef = admin.firestore().collection("users").doc(userId);
 
-        for (let url of downloadUrlList){
+        for (let url of downloadUrlList) {
             await userRef.update({
                 imageList: admin.firestore.FieldValue.arrayUnion(url)
             });
@@ -218,6 +218,52 @@ app.put('/updateUserImages', async (req, res) => {
     }
 });
 
+
+app.put('/updateUserInfo', async (req, res) => {
+    try {
+        const description = req.body.description;
+        const gender = req.body.gender;
+        const birthday = req.body.birthday;
+        const userId = req.body.userId;
+
+        const userRef = admin.firestore().collection("users").doc(userId);
+        await userRef.update({
+            "description": description,
+            "gender": gender,
+            "birthday": new Date(birthday),
+        });
+
+        res.status(200).send("updated user");
+    } catch (error) {
+        res.status(500).send("Error updating user");
+    }
+});
+
+app.put('/updateUserPreference', async (req, res) => {
+    try {
+        const minAgePreference = req.body.minAgePreference;
+        const maxAgePreference = req.body.maxAgePreference;
+        const femalePreference = req.body.femalePreference;
+        const malePreference = req.body.malePreference;
+        const otherPreference = req.body.otherPreference;
+        const distancePreference = req.body.distancePreference;
+        const userId = req.body.userId;
+
+        const userRef = admin.firestore().collection("users").doc(userId);
+        await userRef.update({
+            "minAgePreference": minAgePreference,
+            "maxAgePreference": maxAgePreference,
+            "femalePreference": femalePreference,
+            "malePreference": malePreference,
+            "otherPreference": otherPreference,
+            "distancePreference": distancePreference,
+        });
+
+        res.status(200).send("updated user");
+    } catch (error) {
+        res.status(500).send("Error updating user");
+    }
+});
 
 exports.api = functions.https.onRequest(app);
 

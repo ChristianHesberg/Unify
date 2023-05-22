@@ -21,6 +21,11 @@ class AccountScreen extends StatefulWidget {
 }
 
 class _AccountScreenState extends State<AccountScreen> {
+  late AppUser user;
+  bool canEdit = false;
+  final _formKey = GlobalKey<FormState>();
+  TextEditingController descController = TextEditingController();
+  Map<String, int> gender = {"other":0, "male":1, "female":2};
 
 
   @override
@@ -45,12 +50,6 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
 
-  late AppUser user;
-  bool canEdit = false;
-  String name = "";
-  final _formKey = GlobalKey<FormState>();
-  TextEditingController nameController = TextEditingController();
-  TextEditingController descController = TextEditingController();
 
   Widget _accountScreen() {
     return SingleChildScrollView(
@@ -63,6 +62,7 @@ class _AccountScreenState extends State<AccountScreen> {
               children: [
                 _profilePicture(), // profile picture
                 _editBtn(),
+                Align(alignment: Alignment.bottomCenter,child: UserText(text: user.name))
               ],
             ),
           ),
@@ -142,14 +142,8 @@ class _AccountScreenState extends State<AccountScreen> {
           child: Column(
               children: [
             UserTextField(
-              controller: nameController..text = this.user.name,
-              label: "name",
-              enabled: canEdit,
-            ),
-            UserTextField(
               controller: descController
-                ..text =
-                    "It takes a great deal of bravery to stand up to our enemies, but just as much to stand up to our friends.",
+                ..text = this.user.description,
               label: "desc",
               enabled: canEdit,
             ),
@@ -177,9 +171,10 @@ class _AccountScreenState extends State<AccountScreen> {
     return GenderDropDown(
       onSelect: _handleGenderSelect,
       canChange: !canEdit,
-      startIndex: 2,
+      startIndex: gender[user.gender],
     ); //GenderDropDown(startIndex: 1,canChange: !canEdit,);
   }
+
 
   String genderValue = "";
 
@@ -188,15 +183,20 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Widget _submitBtn() {
+    final userService = Provider.of<UserService>(context, listen:false);
     if (canEdit) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          ElevatedButton(onPressed: () {}, child: const Text("Submit")),
+          ElevatedButton(onPressed: () async {
+            await userService.updateUserInfo(descController.text, genderValue, birthDate ?? user.age);
+            canEdit = false;
+            setState(() {});
+          }, child: const Text("Submit")),
           ElevatedButton(
               style:
                   ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-              onPressed: () {
+              onPressed: ()  {
                 canEdit = false;
                 setState(() {});
               },
