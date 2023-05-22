@@ -157,8 +157,8 @@ class _AccountScreenState extends State<AccountScreen> {
       ignoring: !canEdit,
         child: DatePicker(
       onClick: _handleDateOutput,
-      //birthDate: user.age,
-    )); //GenderDropDown(startIndex: 1,canChange: !canEdit,);
+      birthDate: user.birthday,
+    ));
   }
 
   DateTime? birthDate;
@@ -188,7 +188,7 @@ class _AccountScreenState extends State<AccountScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           ElevatedButton(onPressed: () async {
-            await userService.updateUserInfo(descController.text, genderValue, birthDate ?? user.age);
+            await userService.updateUserInfo(descController.text, genderValue, birthDate ?? user.birthday);
             canEdit = false;
             setState(() {});
           }, child: const Text("Submit")),
