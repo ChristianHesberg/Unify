@@ -16,6 +16,19 @@ class PreferenceScreen extends StatefulWidget {
 
 class _PreferenceScreenState extends State<PreferenceScreen> {
   late AppUser user;
+  double? distance;
+  Map<String, bool> genderMap = {};
+  SfRangeValues? rangeValues;
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    rangeValues = SfRangeValues(user.minAgePreference, user.maxAgePreference);
+    distance =  user.locationPreference.toDouble();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -34,12 +47,12 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
       ),
     );
   }
-
+bool loading = false;
   SingleChildScrollView _buildView() {
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.all(8.0),
-        child: Column(
+        child: loading == false ? Column(
           children: [
             GenderCheckBoxes(men: user.genderPreferences.contains("male"), women: user.genderPreferences.contains("female"), other: user.genderPreferences.contains("other"), onClick: _handleGenderCheckBoxes),
 
@@ -48,39 +61,26 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
             DistanceSlider(onSlide: _handleDistanceSlider,startingValue: user.locationPreference.toDouble(),),
 
             ElevatedButton(onPressed: () async {
+              loading = true;
               final userService = Provider.of<UserService>(context, listen:false);
-              await userService.updateUserPreference(rangeValues.start, rangeValues.end, genderMap["Woman"] ?? user.genderPreferences.contains("female"), genderMap["Man"] ?? user.genderPreferences.contains("male"), genderMap["Other"] ?? user.genderPreferences.contains("other"), distance.round());
-              setState(() {
-
-              });
+              await userService.updateUserPreference(rangeValues!.start, rangeValues!.end, genderMap["Woman"] ?? user.genderPreferences.contains("female"), genderMap["Man"] ?? user.genderPreferences.contains("male"), genderMap["Other"] ?? user.genderPreferences.contains("other"), distance!.round());
+              loading = false;
+              setState(() {});
             }, child: Text("Update"))
           ],
-        ),
+        ) : CircularProgressIndicator(),
       ),
     );
   }
 
-  double? distance;
   _handleDistanceSlider(double val) {
     distance = val;
   }
 
-  Map<String, bool> genderMap = {};
+
   _handleGenderCheckBoxes(Map<String, bool> values) {
     genderMap = values;
   }
-
-
-  SfRangeValues? rangeValues;
-
-  @override
-  void initState() {
-   rangeValues = SfRangeValues(user.minAgePreference, user.maxAgePreference);
-   distance =  user.locationPreference.toDouble();
-   
-  }
-
-
 
   _handleOnSlide(SfRangeValues values) {
     rangeValues = values;
