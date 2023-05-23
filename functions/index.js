@@ -23,8 +23,6 @@ exports.authOnAccountCreate = functions.auth
 const validateFirebaseIdToken = async (req, res, next) => {
     try {
         const token = req.headers?.authorization;
-        logger.log(token);
-        console.log(token);
         await admin.auth().verifyIdToken(token);
         return next();
     } catch (error) {
@@ -141,6 +139,21 @@ app.get('/matches' +
         res.send(filteredDocs);
     })
 });
+
+app.put('/writeLocation', validateFirebaseIdToken, async (req, res) =>{
+    const body = req.body;
+    var uid = '';
+    admin.auth().verifyIdToken(req.headers.authorization).then(value => uid = value.uid)
+    await admin.firestore()
+        .collection('users')
+        .doc(uid)
+        .update({
+        'geohash': body.hash,
+        'lat': body.lat,
+        'lng': body.lng
+    });
+});
+
 app.post('/message', validateFirebaseIdToken, async (req, res) => {
     const body = req.body;
     const postResult = await admin.firestore()

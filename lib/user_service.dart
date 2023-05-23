@@ -61,14 +61,19 @@ class UserService with ChangeNotifier {
     var point =
         geo.point(latitude: position.latitude, longitude: position.longitude);
 
-    _firestore
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .update({
-      'geohash': point.hash,
-      'lat': position.latitude,
-      'lng': position.longitude
-    });
+    var token = await _auth.currentUser!.getIdToken();
+    await http.put(
+        Uri.parse('${BaseUrl.baseUrl}writeLocation'),
+        headers: {
+          HttpHeaders.authorizationHeader: token,
+          'Content-Type': 'application/json'
+        },
+        body: json.encode({
+          'hash': point.hash,
+          'lat': point.latitude.toString(),
+          'lng': point.longitude.toString()
+      })
+    );
   }
 
   getUsersWithinRadius() async {
