@@ -6,9 +6,8 @@ const {v4: uuidv4} = require('uuid')
 const app = require('express')();
 const cors = require('cors');
 const {user} = require("firebase-functions/v1/auth");
+const {logger} = require("firebase-functions");
 app.use(cors());
-
-
 
 
 exports.authOnAccountCreate = functions.auth
@@ -21,61 +20,19 @@ exports.authOnAccountCreate = functions.auth
 
     })
 
-app.post("/uploadProfilePic", async (req, res) => {
-        try {
-            // Extract the image file from the request payload
-            const file = req.files.image;
-
-            // Generate a unique filename using UUID
-            const filename = `${uuidv4()}_${file.name}`;
-
-            // Create a temporary local file path
-            const tempFilePath = path.join(os.tmpdir(), filename);
-
-            // Save the file locally
-            file.mv(tempFilePath, async (err) => {
-                if (err) {
-                    console.error('Error while saving file locally:', err);
-                    return res.status(500).send('Error occurred while saving file.');
-                }
-
-                try {
-                    // Upload the file to Firestore
-                    const bucket = admin.storage().bucket();
-                    await bucket.upload(tempFilePath, {
-                        destination: `images/${filename}`,
-                        metadata: {
-                            contentType: file.mimetype,
-                        },
-                    });
-
-                    // Get the public URL of the uploaded image
-                    const imageUrl = `https://storage.googleapis.com/${bucket.name}/images/${filename}`;
-
-                    // Save the image URL to Firestore
-                    const firestore = admin.firestore();
-                    await firestore.collection('images').add({
-                        imageUrl: imageUrl,
-                    });
-
-                    // Return a success response
-                    return res.status(200).send('Image uploaded successfully!');
-                } catch (error) {
-                    console.error('Error while uploading file to Firestore:', error);
-                    return res.status(500).send('Error occurred while uploading file.');
-                } finally {
-                    // Delete the temporary local file
-                    fs.unlinkSync(tempFilePath);
-                }
-            });
-        } catch (error) {
-            console.error('Error occurred:', error);
-            return res.status(500).send('Error occurred while processing request.');
-        }
+const validateFirebaseIdToken = async (req, res, next) => {
+    try {
+        const token = req.headers?.authorization;
+        logger.log(token);
+        console.log(token);
+        await admin.auth().verifyIdToken(token);
+        return next();
+    } catch (error) {
+        return res.status(403).json(error);
     }
-);
+}
 
-app.post("/accountSetup", async (req, res) => {
+app.post("/accountSetup", validateFirebaseIdToken, async (req, res) => {
     const uId = req.body.uId;
     const data = req.body;
 
@@ -110,13 +67,13 @@ app.get('/matches' +
     '/lat/:lat' +
     '/lng/:lng' +
     '/radius/:radius' +
-    '/lastDoc/:lastDoc', async (req, res) => {
+    '/lastDoc/:lastDoc', validateFirebaseIdToken, async (req, res) => {
 
     const lat = Number(req.params.lat);
     const lng = Number(req.params.lng);
     const center = [lat, lng];
     const radiusInM = Number(req.params.radius) * 1000;
-    const limit = 2;
+    const limit = 3;
 
     const maxAge = new Date(req.params.maxAge);
     const minAge = new Date(req.params.minAge);
@@ -184,7 +141,7 @@ app.get('/matches' +
         res.send(filteredDocs);
     })
 });
-app.post('/message', async (req, res) => {
+app.post('/message', validateFirebaseIdToken, async (req, res) => {
     const body = req.body;
     const postResult = await admin.firestore()
         .collection('chats')
@@ -198,7 +155,7 @@ app.post('/message', async (req, res) => {
     return res.json(postResult);
 });
 
-app.post('/chat', async (req, res) => {
+app.post('/chat', validateFirebaseIdToken, async (req, res) => {
     var batch = admin.firestore().batch();
     const body = req.body;
     const chatRef = admin.firestore()
@@ -233,7 +190,7 @@ app.post('/chat', async (req, res) => {
     await batch.commit();
 });
 
-app.post('/deleteImage', async (req, res) => {
+app.post('/deleteImage', validateFirebaseIdToken,async (req, res) => {
     // Get the user ID and filename from the request body
     const {userId, downloadUrl} = req.body;
 
@@ -261,7 +218,7 @@ app.post('/deleteImage', async (req, res) => {
 });
 
 
-app.post('/uploadProfilePicture', async (req, res) => {
+app.post('/uploadProfilePicture', validateFirebaseIdToken, async (req, res) => {
     try {
         const base64Image = req.body.image;
         const userId = req.body.userId;
@@ -285,7 +242,7 @@ app.post('/uploadProfilePicture', async (req, res) => {
     }
 });
 
-app.put('/updateUserProfilePicture', async (req, res) => {
+app.put('/updateUserProfilePicture', validateFirebaseIdToken,async (req, res) => {
     try {
         const downloadURL = req.body.url;
         const userId = req.body.userId;
@@ -298,7 +255,7 @@ app.put('/updateUserProfilePicture', async (req, res) => {
         res.status(500).send("Error updating user");
     }
 });
-app.post('/uploadImages', async (req, res) => {
+app.post('/uploadImages', validateFirebaseIdToken, async (req, res) => {
     try {
         const images = req.body.images.replace("[", "").replace("]", "").replace(" ", "");
         const list = images.split(",");
@@ -326,13 +283,7 @@ app.post('/uploadImages', async (req, res) => {
         throw new functions.https.HttpsError('internal', 'An error occurred while deleting the image.', error);
     }
 });
-
-function test() {
-    print("lmao");
-}
-
-
-app.put('/updateUserImages', async (req, res) => {
+app.put('/updateUserImages', validateFirebaseIdToken, async (req, res) => {
     try {
         const urlList = req.body.urls.replace("[", "").replace("]", "").replace(" ", "");
         const downloadUrlList = urlList.split(",");
@@ -353,7 +304,7 @@ app.put('/updateUserImages', async (req, res) => {
 });
 
 
-app.put('/updateUserInfo', async (req, res) => {
+app.put('/updateUserInfo', validateFirebaseIdToken, async (req, res) => {
     try {
         const description = req.body.description;
         const gender = req.body.gender;
@@ -373,7 +324,7 @@ app.put('/updateUserInfo', async (req, res) => {
     }
 });
 
-app.put('/updateUserPreference', async (req, res) => {
+app.put('/updateUserPreference', validateFirebaseIdToken, async (req, res) => {
     try {
         const minAgePreference = req.body.minAgePreference;
         const maxAgePreference = req.body.maxAgePreference;

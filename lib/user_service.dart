@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,16 +13,18 @@ import 'dart:convert';
 
 import 'package:geolocator/geolocator.dart';
 import 'package:unify/models/appUser.dart';
+import 'package:unify/models/baseUrl.dart';
 import 'geolocator_server.dart';
 
 class UserService with ChangeNotifier {
   AppUser? _user;
   final geo = GeoFlutterFire();
   final _firestore = FirebaseFirestore.instance;
-  static const baseUrl = 'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/';
+  final _auth = FirebaseAuth.instance;
   String lastDoc = ':lastDoc';
 
   AppUser? get user => _user;
+
 
   Future<AppUser?> initializeUser() async {
     if (user == null) {
@@ -33,7 +36,7 @@ class UserService with ChangeNotifier {
   Future<AppUser?> getUser() async {
     try {
       //logged in user id
-      String uid = FirebaseAuth.instance.currentUser!.uid;
+      String uid = _auth.currentUser!.uid;
 
       //set user location
       _writeLocation();
@@ -69,7 +72,12 @@ class UserService with ChangeNotifier {
   }
 
   getUsersWithinRadius() async {
-    final response = await http.get(Uri.parse(urlBuilder()));
+    final response = await http.get(
+      Uri.parse(urlBuilder()),
+      headers: {
+        HttpHeaders.authorizationHeader: await _auth.currentUser!.getIdToken()
+      }
+    );
     List<AppUser> result = [];
     var body = json.decode(response.body);
     for (var map in body) {
@@ -84,7 +92,7 @@ class UserService with ChangeNotifier {
   }
 
   urlBuilder() {
-    return baseUrl +
+    return BaseUrl.baseUrl +
         'matches' +
         '/userAge/' +
         _user!.getBirthdayAsAge().toString() +
@@ -133,7 +141,7 @@ class UserService with ChangeNotifier {
   }
 
   Future<void> deleteImage(String userId, String downloadUrl) async {
-    final url = 'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/deleteImage';
+    const url = '${BaseUrl.baseUrl}deleteImage';
 
     try {
       final response = await http.post(
@@ -155,7 +163,7 @@ class UserService with ChangeNotifier {
 
   Future<void> uploadProfilePicture(XFile image) async {
     const url =
-        'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/uploadProfilePicture';
+        '${BaseUrl.baseUrl}uploadProfilePicture';
     try {
       String base64Image = base64Encode(await image.readAsBytes());
 
@@ -177,7 +185,7 @@ class UserService with ChangeNotifier {
   Future<void> updateUserProfilePicture(String fileName) async {
     final uId = FirebaseAuth.instance.currentUser!.uid;
     const url =
-        'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/updateUserProfilePicture';
+        '${BaseUrl.baseUrl}updateUserProfilePicture';
     try {
       String downloadUrl = await downloadImage(uId, fileName);
 
@@ -191,7 +199,7 @@ class UserService with ChangeNotifier {
   }
 
   Future<void> uploadImages(List<XFile> images) async {
-    const url = 'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/uploadImages';
+    const url = '${BaseUrl.baseUrl}uploadImages';
     try {
       List<String> base64Images = [];
       for (XFile img in images) {
@@ -217,7 +225,7 @@ class UserService with ChangeNotifier {
   Future<void> updateUserImages(List<String> fileNames) async {
     final uId = FirebaseAuth.instance.currentUser!.uid;
     const url =
-        'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/updateUserImages';
+        '${BaseUrl.baseUrl}updateUserImages';
     try {
       List<String> downloadUrl =
           await downloadMultipleImages(uId, fileNames);
@@ -232,7 +240,7 @@ class UserService with ChangeNotifier {
 
   Future<void> updateUserInfo(String description, String gender, DateTime birthday) async {
     const url =
-        'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/updateUserInfo';
+        '${BaseUrl.baseUrl}updateUserInfo';
 
     try {
 
@@ -254,7 +262,7 @@ class UserService with ChangeNotifier {
 
   Future<void> updateUserPreference(int minAgePreference, int maxAgePreference, bool femalePreference,bool malePreference, bool otherPreference, int distancePreference ) async {
     const url =
-        'http://10.0.2.2:5001/unify-ef8e0/us-central1/api/updateUserPreference';
+        '${BaseUrl.baseUrl}updateUserPreference';
 
     try {
       await http.put(

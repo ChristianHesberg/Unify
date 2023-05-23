@@ -11,18 +11,21 @@ import 'package:http/http.dart' as http;
 import 'package:unify/models/SettingDTO.dart';
 import 'package:unify/user_service.dart';
 
+import 'models/baseUrl.dart';
+
 class FireService {
   final _auth = FirebaseAuth.instance;
   final _fireStore = FirebaseFirestore.instance;
-  final baseUrl = "http://10.0.2.2:5001/unify-ef8e0/us-central1/api";
 
   final UserService userService = UserService();
 
   createAccount(String email, String password) async {
     await _auth
         .createUserWithEmailAndPassword(email: email, password: password)
-        .then((_) =>
-            _auth.signInWithEmailAndPassword(email: email, password: password));
+        .then((_) {
+      _auth.signInWithEmailAndPassword(email: email, password: password);
+      return true;
+    });
   }
 
   signIn(String email, String password) async {
@@ -41,7 +44,7 @@ class FireService {
   }
 
   updateAccount(SettingsDTO dto) async {
-    Response result = await http.post(Uri.parse("$baseUrl/accountSetup"),
+    Response result = await http.post(Uri.parse("${BaseUrl.baseUrl}accountSetup"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8'
         },
@@ -62,16 +65,21 @@ class FireService {
           "description": dto.description
         }));
     await userService.uploadImages(dto.imageList);
-     await userService.uploadProfilePicture(dto.profilePicture);
+    await userService.uploadProfilePicture(dto.profilePicture);
     return result.body;
   }
 
   Future<bool> checkStatus() async {
     var isSetup = false;
-    String uId = FirebaseAuth.instance.currentUser!.uid;
-    var userDoc = await _fireStore.collection("users").doc(uId).get();
-    var doc = userDoc.data();
-    isSetup = doc!["isSetup"];
+    try{
+      String uId = FirebaseAuth.instance.currentUser!.uid;
+      var userDoc = await _fireStore.collection("users").doc(uId).get();
+      var doc = userDoc.data();
+      isSetup = doc!["isSetup"];
+    }
+    catch(e){
+      return false;
+    }
     return isSetup;
   }
 }
