@@ -7,6 +7,8 @@ import 'package:unify/Screens/NavigatorScreen.dart';
 import 'package:unify/Screens/registration/RegisterScreen.dart';
 
 import '../FireService.dart';
+import '../Widgets/UnifyButton.dart';
+import '../Widgets/UnifyTextField.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -25,42 +27,38 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final fireService = Provider.of<FireService>(context);
     return Scaffold(
-      appBar: AppBar(title: const Text("Unify")),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: Padding(
         padding: EdgeInsets.all(20),
         child: Column(
           children: [
-            Text("Login",style: Theme.of(context).textTheme.headlineLarge,),
+            Text(
+              "Enter The FriendZone",
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(
+              height: 75,
+            ),
+
             Form(
               key: _formKey,
               child: Column(
                 children: [
-                  TextFormField(
-                    controller: _email,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(labelText: "Email"),
-                    validator: (value) {
-                      if (value!.isEmpty || !value.contains("@")) {
-                        return "Enter a valid email";
-                      }
-                      return null;
-                    },
+                  _buildEmailInput(),
+                  const SizedBox(
+                    height: 15,
                   ),
-                  TextFormField(
-                    controller: _password,
-                    decoration: const InputDecoration(labelText: "Password"),
-                    obscureText: true,
-                    validator: (value) {
-                      if (value!.length < 6) {
-                        return "Wrong password";
-                      }
-                      return null;
-                    },
-                  ),
+                  _buildPasswordInput(),
                 ],
               ),
             ),
             _buildLoginBtn(fireService),
+            const SizedBox(
+              height: 15,
+            ),
             _buildRegisterBtn(),
           ],
         ),
@@ -68,17 +66,47 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  UnifyTextField _buildPasswordInput() {
+    return UnifyTextField(
+      iconData: Icons.key,
+      controller: _password,
+      hintText: "Password",
+      obscureText: true,
+      validator: (value) {
+        if (value!.length < 6) {
+          return "Wrong password";
+        }
+        return null;
+      },
+    );
+  }
+
+  UnifyTextField _buildEmailInput() {
+    return UnifyTextField(
+      iconData: Icons.email,
+      hintText: "Example@email.com",
+      keyboardType: TextInputType.emailAddress,
+      controller: _email,
+      validator: (value) {
+        if (value!.isEmpty || !value.contains("@")) {
+          return "Enter a valid email";
+        }
+        return null;
+      },
+    );
+  }
+
   Widget _buildRegisterBtn() {
-    return ElevatedButton(
+    return UnifyButton(
         onPressed: () {
           Navigator.of(context).push(
               MaterialPageRoute(builder: (context) => const RegisterScreen()));
         },
-        child: const Text("Register"));
+        text: "Register");
   }
 
   Widget _buildLoginBtn(FireService fireService) {
-    return ElevatedButton(
+    return UnifyButton(
       onPressed: () async {
         if (!_formKey.currentState!.validate()) {
           setState(() {});
@@ -88,7 +116,6 @@ class _LoginScreenState extends State<LoginScreen> {
         final password = _password.value.text;
         try {
           await fireService.signIn(email, password);
-
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => NavigatorScreen(),
@@ -98,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
           _showSnackBar(context);
         }
       },
-      child: Text("Login"),
+      text: "Login",
     );
   }
 

@@ -8,7 +8,8 @@ import 'package:provider/provider.dart';
 
 import 'package:unify/FireService.dart';
 import 'package:unify/Screens/NavigatorScreen.dart';
-
+import 'package:unify/Widgets/UnifyButton.dart';
+import 'package:unify/Widgets/UnifyTextField.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -18,8 +19,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  final _email =
-      TextEditingController();
+  final _email = TextEditingController();
   final _password = TextEditingController();
   final _passwordAgain = TextEditingController();
   final _loginForm = GlobalKey<FormState>();
@@ -39,8 +39,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
             key: _loginForm,
             child: Column(
               children: [
-                const Text("Create your login!"),
-                TextFormField(
+                Text(
+                  "Create your login!",
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const Padding(padding: EdgeInsets.only(top: 30)),
+                UnifyTextField(
                   keyboardType: TextInputType.emailAddress,
                   controller: _email,
                   validator: (value) {
@@ -49,20 +53,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     }
                     return null;
                   },
-                  decoration: const InputDecoration(
-                      labelText: "Email", hintText: "Example@Email.com"),
+                  hintText: "Example@Email.com",
+                  iconData: Icons.email,
                 ),
                 const Padding(padding: EdgeInsets.only(top: 30)),
-                TextFormField(
+                UnifyTextField(
                   controller: _password,
                   obscureText: true,
-                  decoration: const InputDecoration(labelText: "Password"),
+                  hintText: "Password",
+                  iconData: Icons.password,
                 ),
-                TextFormField(
+                const Padding(padding: EdgeInsets.only(top: 10)),
+                UnifyTextField(
                   controller: _passwordAgain,
                   obscureText: true,
-                  decoration:
-                      const InputDecoration(labelText: "Repeat password"),
+                  hintText: "Repeat Password",
+                  iconData: Icons.password,
                   validator: (value) {
                     if (value == null ||
                         _password.text != _passwordAgain.text ||
@@ -72,7 +78,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return null;
                   },
                 ),
-                ElevatedButton(
+                UnifyButton(
                   onPressed: () async {
                     if (_loginForm.currentState!.validate()) {
                       await fireService.createAccount(
@@ -90,7 +96,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       });
                     } else {}
                   },
-                  child: const Text("Create account!"),
+                  text: "Create account!",
                 )
               ],
             ),

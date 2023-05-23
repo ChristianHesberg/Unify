@@ -17,21 +17,17 @@ import 'Screens/NavigatorScreen.dart';
 import 'chat_service.dart';
 import 'models/appUser.dart';
 
-
-
-
-
- main()  async {
+main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-
   //use emulator
   _connectToFirebaseEmulator();
 
   runApp(const MyApp());
-
-  runApp(ChangeNotifierProvider(create: (context) => UserService(),child: MyApp(),));
+  runApp(ChangeNotifierProvider(
+    create: (context) => UserService(),
+    child: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -56,16 +52,16 @@ class MyApp extends StatelessWidget {
               title: 'Just friends',
               theme: ThemeData(
                 primarySwatch: Colors.blue,
+
               ),
-              home: user == null ? const LoginScreen() : NavigatorScreen()
-          );
+              home: user == null ? const LoginScreen() : NavigatorScreen());
         });
   }
 }
 
-
- _connectToFirebaseEmulator() async {
-   FirebaseAuth.instance.useAuthEmulator('10.0.2.2', 9099);
-   FirebaseFirestore.instance.useFirestoreEmulator('10.0.2.2', 8080, sslEnabled: false);
-   FirebaseStorage.instance.useStorageEmulator('10.0.2.2', 9199);
+_connectToFirebaseEmulator() async {
+  FirebaseAuth.instance.useAuthEmulator('10.0.2.2', 9099);
+  FirebaseFirestore.instance
+      .useFirestoreEmulator('10.0.2.2', 8080, sslEnabled: false);
+  FirebaseStorage.instance.useStorageEmulator('10.0.2.2', 9199);
 }
