@@ -34,7 +34,7 @@ class FireService {
   }
 
   Future<void> signOut(context) async {
-    await FirebaseAuth.instance.signOut();
+    await _auth.signOut();
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
@@ -44,7 +44,8 @@ class FireService {
   }
 
   updateAccount(SettingsDTO dto) async {
-    Response result = await http.post(Uri.parse("${BaseUrl.baseUrl}accountSetup"),
+    Response result = await http.post(
+        Uri.parse("${BaseUrl.baseUrl}accountSetup"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8'
         },
@@ -71,13 +72,12 @@ class FireService {
 
   Future<bool> checkStatus() async {
     var isSetup = false;
-    try{
+    try {
       String uId = FirebaseAuth.instance.currentUser!.uid;
       var userDoc = await _fireStore.collection("users").doc(uId).get();
       var doc = userDoc.data();
       isSetup = doc!["isSetup"];
-    }
-    catch(e){
+    } catch (e) {
       return false;
     }
     return isSetup;
