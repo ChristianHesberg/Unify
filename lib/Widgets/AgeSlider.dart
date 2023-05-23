@@ -4,7 +4,9 @@ import 'package:syncfusion_flutter_sliders/sliders.dart';
 class AgeSlider extends StatefulWidget {
   SfRangeValues ageRangeValues;
   final Function(SfRangeValues) onSlide;
-  AgeSlider({Key? key, required this.ageRangeValues, required this.onSlide}) : super(key: key);
+
+  AgeSlider({Key? key, required this.ageRangeValues, required this.onSlide})
+      : super(key: key);
 
   @override
   State<AgeSlider> createState() => _AgeSliderState();
@@ -30,8 +32,14 @@ class _AgeSliderState extends State<AgeSlider> {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Text("Min: ${widget.ageRangeValues.start.round()}"),
-          Text("Min: ${widget.ageRangeValues.end.round()}")
+          Text(
+            "Min: ${widget.ageRangeValues.start.round()}",
+            style: const TextStyle(fontSize: 18),
+          ),
+          Text(
+            "Min: ${widget.ageRangeValues.end.round()}",
+            style: const TextStyle(fontSize: 18),
+          )
         ],
       ),
     ]);

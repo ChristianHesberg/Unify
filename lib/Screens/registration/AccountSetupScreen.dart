@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:unify/FireService.dart';
 import 'package:unify/Screens/NavigatorScreen.dart';
+import 'package:unify/Widgets/UnifyButton.dart';
+import 'package:unify/Widgets/UnifyTextField.dart';
 import 'package:unify/geolocator_server.dart';
 import 'package:unify/models/SettingDTO.dart';
 
@@ -28,7 +30,7 @@ class AccountSetupScreen extends StatefulWidget {
 class _AccountSetupScreenState extends State<AccountSetupScreen> {
   late final _pageController;
   int currentPage = 0;
-  double distance = 1;
+  double distance = 50;
   var ageRangeValues = const SfRangeValues(18, 75);
   final _image_picker = ImagePicker();
   XFile? profilePicture;
@@ -60,14 +62,23 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
             icon: const Icon(Icons.exit_to_app),
           )
         ]),
-        body: PageView(
-          physics: const NeverScrollableScrollPhysics(),
-          controller: _pageController,
-          children: [
-            _buildUserInfo(),
-            _buildUserPreferences(fireService, context)
-          ],
-        ));
+        body: loading == false
+            ? PageView(
+                physics: const NeverScrollableScrollPhysics(),
+                controller: _pageController,
+                children: [
+                  _buildUserInfo(),
+                  _buildUserPreferences(fireService, context)
+                ],
+              )
+            : const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                    CircularProgressIndicator(),
+                    Text("Creating your account :)"),
+                    Text("Please wait")
+                  ]));
   }
 
   void _handleGenderSelect(String value) {
@@ -87,9 +98,8 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
           child: Column(
             children: [
               _profilePicture(),
-              TextFormField(
-                decoration: const InputDecoration(
-                    label: Text("Name"), hintText: "Your name"),
+              UnifyTextField(
+                hintText: "Name!",
                 controller: _name,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -97,6 +107,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                   }
                   return null;
                 },
+                iconData: Icons.person_outline,
               ),
               DatePicker(onClick: _handleDateOutput, birthDate: birthDate),
               Row(
@@ -106,21 +117,20 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                   GenderDropDown(onSelect: _handleGenderSelect),
                 ],
               ),
-              const Text("More pictures"),
-              ElevatedButton(
+              const Padding(padding: EdgeInsets.symmetric(vertical: 5)),
+              const Text("Upload some photos!"),
+              UnifyButton(
                 onPressed: () {
                   getManyPhotos();
                 },
-                child: Text('Upload Photo'),
+                text: 'Upload Photos',
               ),
               ImageScroll(imageList: images),
-              TextFormField(
+              UnifyTextField(
                 controller: _description,
                 maxLines: null,
                 keyboardType: TextInputType.multiline,
-                decoration: const InputDecoration(
-                    label: Text("About you"),
-                    hintText: "Tell others a little about you"),
+                hintText: "About you",
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "Tell people who you are >:^)";
@@ -128,21 +138,22 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                   return null;
                 },
               ),
-              ElevatedButton(
-                  onPressed: () {
-                    if (profilePicture == null || images.isEmpty) {
-                      const snackBar = SnackBar(
-                          content: Text(
-                              "Pick a profile picture and some cool pictures of yourself"));
-                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    } else if (birthDate == null) {
-                      const s = SnackBar(content: Text("pick a birthday"));
-                      ScaffoldMessenger.of(context).showSnackBar(s);
-                    } else if (_userForm.currentState!.validate()) {
-                      _nextPage();
-                    }
-                  },
-                  child: const Text("Next")),
+              UnifyButton(
+                onPressed: () {
+                  if (profilePicture == null || images.isEmpty) {
+                    const snackBar = SnackBar(
+                        content: Text(
+                            "Pick a profile picture and some cool pictures of yourself"));
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  } else if (birthDate == null) {
+                    const s = SnackBar(content: Text("pick a birthday"));
+                    ScaffoldMessenger.of(context).showSnackBar(s);
+                  } else if (_userForm.currentState!.validate()) {
+                    _nextPage();
+                  }
+                },
+                text: 'Next',
+              ),
             ],
           ),
         ),
@@ -153,7 +164,10 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
   _buildUserPreferences(FireService fireService, context) {
     return Column(
       children: [
-        const Text("Who are you looking to meet?"),
+        Text(
+          "Who are you looking for?",
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
         GenderCheckBoxes(
           men: genderMap["Men"]!,
           women: genderMap["Women"]!,
@@ -164,40 +178,48 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Column(
             children: [
+              Text(
+                "Choose an age range",
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
               _buildAgeSlider(),
+              const Padding(padding: EdgeInsets.symmetric(vertical: 20)),
               DistanceSlider(onSlide: _handleDistanceSlider),
             ],
           ),
         ),
-        ElevatedButton(
+        UnifyButton(
             onPressed: () {
               _previousPage();
             },
-            child: Text("back")),
+            text: "back"),
         _buildDoneBtn(fireService, context),
         //Text("data")
       ],
     );
   }
 
-  _buildDoneBtn(FireService fireService, context) {
-    return ElevatedButton(
-        onPressed: () async {
-          setState(() {});
-          var dto = await _createSettingsDto();
-          await fireService.updateAccount(dto);
+  bool loading = false;
 
-          setState(() {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => NavigatorScreen(),
-              ),
-            );
-          });
-          //if email taken => tilbage til page 1 ommer
-        },
-        child: Text("Done!"));
+  _buildDoneBtn(FireService fireService, context) {
+    return UnifyButton(
+      onPressed: () async {
+        loading = true;
+        setState(() {});
+        var dto = await _createSettingsDto();
+        await fireService.updateAccount(dto);
+        setState(() {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => NavigatorScreen(),
+            ),
+          );
+        });
+        //if email taken => tilbage til page 1 ommer
+      },
+      text: 'Done!',
+    );
   }
 
   _createSettingsDto() async {

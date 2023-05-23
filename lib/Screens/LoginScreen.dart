@@ -48,17 +48,12 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 children: [
                   _buildEmailInput(),
-                  const SizedBox(
-                    height: 15,
-                  ),
+
                   _buildPasswordInput(),
                 ],
               ),
             ),
             _buildLoginBtn(fireService),
-            const SizedBox(
-              height: 15,
-            ),
             _buildRegisterBtn(),
           ],
         ),

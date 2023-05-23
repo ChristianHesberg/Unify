@@ -56,14 +56,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   hintText: "Example@Email.com",
                   iconData: Icons.email,
                 ),
-                const Padding(padding: EdgeInsets.only(top: 30)),
+                const Padding(padding: EdgeInsets.only(top: 20)),
                 UnifyTextField(
                   controller: _password,
                   obscureText: true,
                   hintText: "Password",
                   iconData: Icons.password,
                 ),
-                const Padding(padding: EdgeInsets.only(top: 10)),
+
                 UnifyTextField(
                   controller: _passwordAgain,
                   obscureText: true,

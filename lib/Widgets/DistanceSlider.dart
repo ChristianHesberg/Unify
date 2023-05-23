@@ -5,7 +5,7 @@ class DistanceSlider extends StatefulWidget {
   final Function(double value) onSlide;
   double startingValue;
 
-  DistanceSlider({Key? key, required this.onSlide, this.startingValue = 1})
+  DistanceSlider({Key? key, required this.onSlide, this.startingValue = 50})
       : super(key: key);
 
   @override
@@ -19,6 +19,7 @@ class _DistanceSliderState extends State<DistanceSlider> {
 
   @override
   void initState() {
+    super.initState();
     _value = widget.startingValue;
   }
 
@@ -28,6 +29,7 @@ class _DistanceSliderState extends State<DistanceSlider> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        Text("Find people within ${_value.round()} Km", style: Theme.of(context).textTheme.headlineSmall,),
         SfSlider(
             value: _value,
             min: min,
@@ -39,7 +41,6 @@ class _DistanceSliderState extends State<DistanceSlider> {
                 _value = val;
               });
             }),
-        Text("Find people within ${_value.round()} Km")
       ],
     );
   }
