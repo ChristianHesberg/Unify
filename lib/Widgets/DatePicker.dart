@@ -13,8 +13,6 @@ class DatePicker extends StatefulWidget {
 }
 
 class _DatePickerState extends State<DatePicker> {
-
-
   @override
   Widget build(BuildContext context) {
     return _createDateBtn();
@@ -36,10 +34,13 @@ class _DatePickerState extends State<DatePicker> {
                       initialDate: minusEightTeen,
                       firstDate: DateTime(1900),
                       lastDate: minusEightTeen)
-                  .then((value) => setState(() {
-                        widget.birthDate = value!;
-                        widget.onClick(value);
-                      }));
+                  .then((value) {
+                if (value == null) return;
+                setState(() {
+                  widget.birthDate = value;
+                  widget.onClick(value);
+                });
+              });
             },
             child: const Text("Select birthday")),
         widget.birthDate == null
