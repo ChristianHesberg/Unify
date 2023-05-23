@@ -23,7 +23,7 @@ exports.authOnAccountCreate = functions.auth
 const validateFirebaseIdToken = async (req, res, next) => {
     try {
         const token = req.headers?.authorization;
-        await admin.auth().verifyIdToken(token);
+        await admin.auth().verifyIdToken(token).then(value => req.userId = value.uid);
         return next();
     } catch (error) {
         return res.status(403).json(error);
@@ -31,7 +31,8 @@ const validateFirebaseIdToken = async (req, res, next) => {
 }
 
 app.post("/accountSetup", validateFirebaseIdToken, async (req, res) => {
-    const uId = req.body.uId;
+
+    const uId = req.userId;
     const data = req.body;
 
     const result = await admin.firestore().collection('users').doc(uId).set({
@@ -142,15 +143,13 @@ app.get('/matches' +
 
 app.put('/writeLocation', validateFirebaseIdToken, async (req, res) =>{
     const body = req.body;
-    var uid = '';
-    admin.auth().verifyIdToken(req.headers.authorization).then(value => uid = value.uid)
     await admin.firestore()
         .collection('users')
-        .doc(uid)
+        .doc(req.userId)
         .update({
         'geohash': body.hash,
-        'lat': body.lat,
-        'lng': body.lng
+        'lat': Number(body.lat),
+        'lng': Number(body.lng)
     });
 });
 
@@ -162,7 +161,7 @@ app.post('/message', validateFirebaseIdToken, async (req, res) => {
         .collection('messages')
         .add({
             content: body.content,
-            sender: body.sender,
+            sender: {'displayName': body.sender, 'uid': req.userId},
             timestamp: new Date()
         });
     return res.json(postResult);
@@ -175,11 +174,11 @@ app.post('/chat', validateFirebaseIdToken, async (req, res) => {
         .collection('chats')
         .doc();
     batch.create(chatRef, {
-        'userIds': [body.uid1, body.uid2],
+        'userIds': [req.userId, body.uid2],
         'users': {
             'user1': {
                 'displayName': body.displayName1,
-                'uid': body.uid1
+                'uid': req.userId
             },
             'user2': {
                 'displayName': body.displayName2,
@@ -190,7 +189,7 @@ app.post('/chat', validateFirebaseIdToken, async (req, res) => {
 
     const userRef = admin.firestore()
         .collection('users')
-        .doc(body.uid1);
+        .doc(req.userId);
     batch.update(userRef, {
         blacklist: admin.firestore.FieldValue.arrayUnion(body.uid2)
     })
@@ -198,14 +197,15 @@ app.post('/chat', validateFirebaseIdToken, async (req, res) => {
         .collection('users')
         .doc(body.uid2);
     batch.update(userRef2, {
-        blacklist: admin.firestore.FieldValue.arrayUnion(body.uid1)
+        blacklist: admin.firestore.FieldValue.arrayUnion(req.userId)
     })
     await batch.commit();
 });
 
 app.post('/deleteImage', validateFirebaseIdToken,async (req, res) => {
     // Get the user ID and filename from the request body
-    const {userId, downloadUrl} = req.body;
+    const downloadUrl = req.body.downloadUrl;
+    const userId = req.userId;
 
     //depending on using emulators or not. download url´s are different. therefor the name have been giving an identifier _name-of-image_
     const firstIdentifier = downloadUrl.indexOf("_");
@@ -234,7 +234,7 @@ app.post('/deleteImage', validateFirebaseIdToken,async (req, res) => {
 app.post('/uploadProfilePicture', validateFirebaseIdToken, async (req, res) => {
     try {
         const base64Image = req.body.image;
-        const userId = req.body.userId;
+        const userId = req.userId;
         const bucket = admin.storage().bucket("gs://unify-ef8e0.appspot.com/");
         const fileBuffer = Buffer.from(base64Image, 'base64');
         const fileName = "profilepicture.jpg";
@@ -258,7 +258,7 @@ app.post('/uploadProfilePicture', validateFirebaseIdToken, async (req, res) => {
 app.put('/updateUserProfilePicture', validateFirebaseIdToken,async (req, res) => {
     try {
         const downloadURL = req.body.url;
-        const userId = req.body.userId;
+        const userId = req.userId;
 
         const userRef = admin.firestore().collection("users").doc(userId);
         await userRef.update({profilePicture: downloadURL});
@@ -272,7 +272,7 @@ app.post('/uploadImages', validateFirebaseIdToken, async (req, res) => {
     try {
         const images = req.body.images.replace("[", "").replace("]", "").replace(" ", "");
         const list = images.split(",");
-        const userId = req.body.userId;
+        const userId = req.userId;
         const bucket = admin.storage().bucket("gs://unify-ef8e0.appspot.com/");
 
         let outputList = [];
@@ -300,7 +300,7 @@ app.put('/updateUserImages', validateFirebaseIdToken, async (req, res) => {
     try {
         const urlList = req.body.urls.replace("[", "").replace("]", "").replace(" ", "");
         const downloadUrlList = urlList.split(",");
-        const userId = req.body.userId;
+        const userId = req.userId;
 
         const userRef = admin.firestore().collection("users").doc(userId);
 
@@ -322,7 +322,7 @@ app.put('/updateUserInfo', validateFirebaseIdToken, async (req, res) => {
         const description = req.body.description;
         const gender = req.body.gender;
         const birthday = req.body.birthday;
-        const userId = req.body.userId;
+        const userId = req.userId;
 
         const userRef = admin.firestore().collection("users").doc(userId);
         await userRef.update({
@@ -345,7 +345,7 @@ app.put('/updateUserPreference', validateFirebaseIdToken, async (req, res) => {
         const malePreference = req.body.malePreference;
         const otherPreference = req.body.otherPreference;
         const distancePreference = req.body.distancePreference;
-        const userId = req.body.userId;
+        const userId = req.userId;
 
         const userRef = admin.firestore().collection("users").doc(userId);
         await userRef.update({

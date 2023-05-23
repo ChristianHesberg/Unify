@@ -149,10 +149,14 @@ class UserService with ChangeNotifier {
     const url = '${BaseUrl.baseUrl}deleteImage';
 
     try {
+      var token = await _auth.currentUser!.getIdToken();
       final response = await http.post(
         Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'userId': userId, 'downloadUrl': downloadUrl}),
+        headers: {
+          HttpHeaders.authorizationHeader: token,
+          'Content-Type': 'application/json'
+        },
+        body: json.encode({'downloadUrl': downloadUrl}),
       );
 
       if (response.statusCode == 200) {
@@ -172,12 +176,16 @@ class UserService with ChangeNotifier {
     try {
       String base64Image = base64Encode(await image.readAsBytes());
 
+      var token = await _auth.currentUser!.getIdToken();
       await http.post(
         Uri.parse(url),
-        body: {
-          'image': base64Image,
-          'userId': FirebaseAuth.instance.currentUser!.uid
+        headers: {
+          HttpHeaders.authorizationHeader: token,
+          'Content-Type': 'application/json'
         },
+        body: json.encode({
+          'image': base64Image,
+        }),
       ).then((value) => {
             updateUserProfilePicture(value.body.replaceAll('"', ""))
                 .then((value) => getUser()),
@@ -193,10 +201,14 @@ class UserService with ChangeNotifier {
         '${BaseUrl.baseUrl}updateUserProfilePicture';
     try {
       String downloadUrl = await downloadImage(uId, fileName);
-
+      var token = await _auth.currentUser!.getIdToken();
       await http.put(
         Uri.parse(url),
-        body: {'url': downloadUrl, 'userId': uId},
+        headers: {
+          HttpHeaders.authorizationHeader: token,
+          'Content-Type': 'application/json'
+        },
+        body: json.encode({'url': downloadUrl}),
       );
     } catch (e) {
       print("Error in updateUserProfilePicture: $e");
@@ -211,13 +223,16 @@ class UserService with ChangeNotifier {
         base64Images.add(base64Encode(await img.readAsBytes()));
       }
 
-      Map<String, dynamic> map;//TODO WHAT IS MAP??
+      var token = await _auth.currentUser!.getIdToken();
       await http.post(
         Uri.parse(url),
-        body: {
-          'images': base64Images.toString(),
-          'userId': FirebaseAuth.instance.currentUser!.uid
+        headers: {
+          HttpHeaders.authorizationHeader: token,
+          'Content-Type': 'application/json'
         },
+        body: json.encode({
+          'images': base64Images.toString(),
+        }),
       ).then((value) => {
             updateUserImages(json.decode(value.body).cast<String>().toList())
                 .then((value) => getUser())
@@ -234,9 +249,14 @@ class UserService with ChangeNotifier {
     try {
       List<String> downloadUrl =
           await downloadMultipleImages(uId, fileNames);
+      var token = await _auth.currentUser!.getIdToken();
       await http.put(
         Uri.parse(url),
-        body: {'urls': downloadUrl.toString(), 'userId': uId},
+        headers: {
+          HttpHeaders.authorizationHeader: token,
+          'Content-Type': 'application/json'
+        },
+        body: json.encode({'urls': downloadUrl.toString()}),
       );
     } catch (e) {
       print("Error in updateuserimages: $e");
@@ -248,15 +268,18 @@ class UserService with ChangeNotifier {
         '${BaseUrl.baseUrl}updateUserInfo';
 
     try {
-
+      var token = await _auth.currentUser!.getIdToken();
       await http.put(
         Uri.parse(url),
-        body: {
+        headers: {
+          HttpHeaders.authorizationHeader: token,
+          'Content-Type': 'application/json'
+        },
+        body: json.encode({
           'description': description,
           'gender': gender,
           'birthday': birthday.toString(),
-          'userId': _user!.id
-        },
+        }),
       );
       getUser();
     } catch (e) {
@@ -270,10 +293,12 @@ class UserService with ChangeNotifier {
         '${BaseUrl.baseUrl}updateUserPreference';
 
     try {
+      var token = await _auth.currentUser!.getIdToken();
       await http.put(
         Uri.parse(url),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8'
+        headers: {
+          HttpHeaders.authorizationHeader: token,
+          'Content-Type': 'application/json'
         },
         body: json.encode({
           'minAgePreference': minAgePreference,
@@ -282,8 +307,6 @@ class UserService with ChangeNotifier {
           'malePreference': malePreference,
           'otherPreference': otherPreference,
           'distancePreference': distancePreference,
-
-          'userId': _user!.id
         }),
       );
       getUser();

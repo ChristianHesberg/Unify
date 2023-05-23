@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -35,13 +36,14 @@ class ChatService{
   }
 
   postChat(AppUser user1, AppUser user2) async{
+    var token = await FirebaseAuth.instance.currentUser!.getIdToken();
     await http.post(
       Uri.parse('${BaseUrl.baseUrl}chat'),
       headers: <String, String>{
+        HttpHeaders.authorizationHeader: token,
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: json.encode({
-        'uid1': user1.id,
         'uid2': user2.id,
         'displayName1': user1.name,
         'displayName2': user2.name
@@ -62,19 +64,18 @@ class ChatService{
     );
   }
 
-  sendMessage(User user, Chat chat, String message) async {
+  sendMessage(AppUser user, Chat chat, String message) async {
+    var token = await FirebaseAuth.instance.currentUser!.getIdToken();
     await http.post(
       Uri.parse('${BaseUrl.baseUrl}message'),
         headers: <String, String>{
+          HttpHeaders.authorizationHeader: token,
           'Content-Type': 'application/json; charset=UTF-8',
         },
       body: json.encode({
         ChatKeys.chatId: chat.id,
         MessageKeys.content: message,
-        MessageKeys.sender: {
-          SenderKeys.displayName: user.displayName ?? '',
-          SenderKeys.uid: user.uid
-        }
+        MessageKeys.sender: user.name ?? 'test',
       })
     );
   }

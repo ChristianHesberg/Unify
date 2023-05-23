@@ -7,6 +7,7 @@ import '../chat_service.dart';
 import '../models/chat.dart';
 import '../models/message.dart';
 import '../models/sender.dart';
+import '../user_service.dart';
 
 class MessageScreen extends StatelessWidget {
   final padding = 8.0;
@@ -67,7 +68,7 @@ class MessageScreen extends StatelessWidget {
   }
 
   Widget messageInput(BuildContext context) {
-    final user = Provider.of<User?>(context);
+    final userService = Provider.of<UserService>(context);
     final chatService = Provider.of<ChatService>(context);
     return Padding(
       padding: EdgeInsets.all(padding),
@@ -75,7 +76,7 @@ class MessageScreen extends StatelessWidget {
         keyboardType: TextInputType.text,
         onSubmitted: (value) {
           if (value.isEmpty) return;
-          chatService.sendMessage(user!, chat, value);
+          chatService.sendMessage(userService.user!, chat, value);
         },
         decoration: const InputDecoration(
           border: OutlineInputBorder(),

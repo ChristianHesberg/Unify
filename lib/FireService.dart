@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -34,7 +35,7 @@ class FireService {
   }
 
   Future<void> signOut(context) async {
-    await FirebaseAuth.instance.signOut();
+    await _auth.signOut();
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
@@ -44,12 +45,13 @@ class FireService {
   }
 
   updateAccount(SettingsDTO dto) async {
+    var token = await _auth.currentUser!.getIdToken();
     Response result = await http.post(Uri.parse("${BaseUrl.baseUrl}accountSetup"),
         headers: <String, String>{
+          HttpHeaders.authorizationHeader: token,
           'Content-Type': 'application/json; charset=UTF-8'
         },
         body: json.encode({
-          "uId": dto.id,
           "name": dto.name,
           "birthDay": dto.age.toString(),
           "geohash": dto.position.hash,
@@ -71,13 +73,12 @@ class FireService {
 
   Future<bool> checkStatus() async {
     var isSetup = false;
-    try{
+    try {
       String uId = FirebaseAuth.instance.currentUser!.uid;
       var userDoc = await _fireStore.collection("users").doc(uId).get();
       var doc = userDoc.data();
       isSetup = doc!["isSetup"];
-    }
-    catch(e){
+    } catch (e) {
       return false;
     }
     return isSetup;
