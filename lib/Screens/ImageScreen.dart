@@ -78,19 +78,13 @@ class _ImageScreenState extends State<ImageScreen> {
     );
   }
 
-  List<XFile> xFileList = [];
 
   Future getManyPhotos() async {
     final userService = Provider.of<UserService>(context, listen: false);
-    var images = await _image_picker.pickImage(source: ImageSource.camera);
-    xFileList.add(images!);
-    if (xFileList.length > 1) {
-        await userService
-            .uploadImages(xFileList);
-        xFileList = [];
+    await userService.uploadImages(await _image_picker.pickMultiImage());
         setState(() {
       });
-    }
+
   }
 
   _deleteBtn(int index) {

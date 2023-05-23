@@ -353,7 +353,7 @@ app.put('/updateUserPreference', validateFirebaseIdToken, async (req, res) => {
             "maxAgePreference": maxAgePreference,
             "femalePreference": femalePreference,
             "malePreference": malePreference,
-            "otherPreference": otherPreference,
+            "otherGenderPreference": otherPreference,
             "distancePreference": distancePreference,
         });
 
