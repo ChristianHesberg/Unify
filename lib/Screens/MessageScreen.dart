@@ -19,7 +19,6 @@ class MessageScreen extends StatelessWidget {
 
   MessageScreen({required this.chat, super.key});
 
-//TODO SCROLL CONTROLLER SCROLL TO BOTTOM ON SEND MES
   @override
   Widget build(BuildContext context) {
     final chatService = Provider.of<ChatService>(context);
@@ -74,12 +73,10 @@ class MessageScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: padding),
       child: Row(
         mainAxisAlignment:
-            uId == senderId ? MainAxisAlignment.end : MainAxisAlignment.start,
+        uId == senderId ? MainAxisAlignment.end : MainAxisAlignment.start,
         children: [
           Text(message.sender.displayName),
-          const SizedBox(
-            width: 10,
-          ), //spacing
+          const SizedBox(width: 10,), //spacing
           if (message.timestamp != null) Text(since(message.timestamp!))
         ],
       ),
@@ -91,6 +88,7 @@ class MessageScreen extends StatelessWidget {
       onSend: (value) async {
         if (value.isEmpty) return;
         await chatService.sendMessage(userService.user!, chat, value);
+        controller.jumpTo(controller.position.maxScrollExtent);
       },
     );
   }
@@ -107,4 +105,6 @@ class MessageScreen extends StatelessWidget {
       return 'Now';
     }
   }
+
+
 }
