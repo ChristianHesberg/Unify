@@ -60,7 +60,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
     );
   }
 
-  double distance = -1;
+  double? distance;
   _handleDistanceSlider(double val) {
     distance = val;
   }
@@ -71,7 +71,17 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
   }
 
 
-  var rangeValues = const SfRangeValues(-1, -1);
+  SfRangeValues? rangeValues;
+
+  @override
+  void initState() {
+   rangeValues = SfRangeValues(user.minAgePreference, user.maxAgePreference);
+   distance =  user.locationPreference.toDouble();
+   
+  }
+
+
+
   _handleOnSlide(SfRangeValues values) {
     rangeValues = values;
     //husk at round
