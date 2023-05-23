@@ -126,7 +126,7 @@ class _AccountScreenState extends State<AccountScreen> {
     final userService = Provider.of<UserService>(context, listen:false);
 
     final _image_picker = ImagePicker();
-    var img = await _image_picker.pickImage(source: ImageSource.camera);
+    var img = await _image_picker.pickImage(source: ImageSource.gallery);
 
     setState(() {
       userService.uploadProfilePicture(img!);

@@ -45,8 +45,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.all(8.0),
-        child: loading == false
-            ? Column(
+        child: Column(
                 children: [
                   GenderCheckBoxes(
                       men: user.genderPreferences.contains("male"),
@@ -63,26 +62,25 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
                   ),
                   ElevatedButton(
                       onPressed: () async {
-                        loading = true;
                         final userService =
                             Provider.of<UserService>(context, listen: false);
                         await userService.updateUserPreference(
-                            rangeValues?.start ?? user.minAgePreference,
-                            rangeValues?.end ?? user.maxAgePreference,
-                            genderMap["Woman"] ??
+                            rangeValues?.start.toInt() ?? user.minAgePreference,
+                            rangeValues?.end.toInt() ?? user.maxAgePreference,
+                            genderMap["Women"] ??
                                 user.genderPreferences.contains("female"),
-                            genderMap["Man"] ??
+                            genderMap["Men"] ??
                                 user.genderPreferences.contains("male"),
                             genderMap["Other"] ??
                                 user.genderPreferences.contains("other"),
-                            distance?.round() ?? user.locationPreference);
-                        loading = false;
-                        setState(() {});
+                            distance?.round() ?? user.locationPreference).then((value) {
+                              setState(() {
+                              });
+                            },);
                       },
                       child: Text("Update"))
                 ],
               )
-            : CircularProgressIndicator(),
       ),
     );
   }
