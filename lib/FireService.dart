@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -44,12 +45,13 @@ class FireService {
   }
 
   updateAccount(SettingsDTO dto) async {
+    var token = await _auth.currentUser!.getIdToken();
     Response result = await http.post(Uri.parse("${BaseUrl.baseUrl}accountSetup"),
         headers: <String, String>{
+          HttpHeaders.authorizationHeader: token,
           'Content-Type': 'application/json; charset=UTF-8'
         },
         body: json.encode({
-          "uId": dto.id,
           "name": dto.name,
           "birthDay": dto.age.toString(),
           "geohash": dto.position.hash,
