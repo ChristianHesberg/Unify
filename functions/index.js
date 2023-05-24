@@ -147,7 +147,6 @@ app.get('/matches' +
         if (req.params.lastDoc !== ':lastDoc') {
             filteredDocs = filteredDocs.slice(1);
         }
-        //res.send(genderPreferences);
         res.send(filteredDocs);
     })
 });
