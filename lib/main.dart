@@ -17,10 +17,7 @@ main() async {
   _connectToFirebaseEmulator();
 
   runApp(const MyApp());
-  runApp(ChangeNotifierProvider(
-    create: (context) => UserService(),
-    child: MyApp(),
-  ));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -31,6 +28,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
+          ChangeNotifierProvider(create: (context) => UserService()),
           Provider(create: (context) => ChatService()),
           StreamProvider(
             create: (context) => FirebaseAuth.instance.authStateChanges(),
