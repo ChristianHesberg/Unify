@@ -1,5 +1,6 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const firestore = require('firebase-admin/firestore');
 admin.initializeApp({projectId: 'unify-ef8e0'});
 const geofire = require('geofire-common');
 const {v4: uuidv4} = require('uuid')
@@ -9,8 +10,6 @@ const rateLimit = require('express-rate-limit');
 const requestIp = require('request-ip');
 app.use(cors());
 //app.use(requestIp.mw());
-
-
 
 
 exports.authOnAccountCreate = functions.auth
@@ -63,7 +62,7 @@ app.post("/accountSetup", validateFirebaseIdToken, async (req, res) => {
         "description": data.description,
         "profilePicture": "",
         "imageList": [],
-         "blacklist":[]
+        "blacklist": []
     })
     return res.json(result)
 })
@@ -79,14 +78,11 @@ app.get('/matches' +
     '/radius/:radius' +
     '/lastDoc/:lastDoc', validateFirebaseIdToken, async (req, res) => {
 
-    const lat = Number(req.params.lat);
-    const lng = Number(req.params.lng);
-    const center = [lat, lng];
+    const latitude = Number(req.params.lat);
+    const longitude = Number(req.params.lng);
+    const center = [latitude, longitude];
     const radiusInM = Number(req.params.radius) * 1000;
     const limit = 3;
-
-    const maxAge = new Date(req.params.maxAge);
-    const minAge = new Date(req.params.minAge);
 
     const genderPreferences = req.params.genderPrefs.split("-");
 
@@ -96,10 +92,6 @@ app.get('/matches' +
         const getResult =
             admin.firestore().collection('users')
                 .where(req.params.matchGender, "==", true)
-                .where('maxAgePreference', ">=", Number(req.params.userAge))
-                .where('minAgePreference', '<=', Number(req.params.userAge))
-                .where('birthday', '>=', maxAge)
-                .where('birthday', '<=', minAge)
                 .where('gender', 'in', genderPreferences)
                 .orderBy('geohash')
                 .startAt(b[0])
@@ -116,16 +108,24 @@ app.get('/matches' +
             for (const doc of snap.docs) {
                 const lat = doc.get('lat');
                 const lng = doc.get('lng');
+                const maxAgePref = doc.get('maxAgePreference');
+                const minAgePref = doc.get('minAgePreference');
+                const birthday = doc.get('birthday');
+                const maxAge = firestore.Timestamp.fromDate(new Date(req.params.maxAge));
+                const minAge = firestore.Timestamp.fromDate(new Date(req.params.minAge));
 
                 const distanceInKm = geofire.distanceBetween([Number(lat), Number(lng)], center);
                 const distanceInM = distanceInKm * 1000;
-                if (doc.id !== req.params.uid) {
-                    if (distanceInM <= radiusInM) {
+                if (doc.id !== req.params.uid
+                    && maxAgePref >= Number(req.params.userAge)
+                    && minAgePref <= Number(req.params.userAge)
+                    && birthday >= maxAge
+                    && birthday <= minAge
+                    && distanceInM <= radiusInM) {
                         matchingDocs.push({
                             id: doc.id,
                             data: doc.data()
-                        });
-                    }
+                    });
                 }
             }
         }
@@ -151,16 +151,16 @@ app.get('/matches' +
     })
 });
 
-app.put('/writeLocation', validateFirebaseIdToken, async (req, res) =>{
+app.put('/writeLocation', validateFirebaseIdToken, async (req, res) => {
     const body = req.body;
     await admin.firestore()
         .collection('users')
         .doc(req.userId)
         .update({
-        'geohash': body.hash,
-        'lat': Number(body.lat),
-        'lng': Number(body.lng)
-    });
+            'geohash': body.hash,
+            'lat': Number(body.lat),
+            'lng': Number(body.lng)
+        });
 });
 
 app.post('/message', validateFirebaseIdToken, async (req, res) => {
@@ -212,7 +212,7 @@ app.post('/chat', validateFirebaseIdToken, async (req, res) => {
     await batch.commit();
 });
 
-app.post('/deleteImage', validateFirebaseIdToken,async (req, res) => {
+app.post('/deleteImage', validateFirebaseIdToken, async (req, res) => {
     // Get the user ID and filename from the request body
     const downloadUrl = req.body.downloadUrl;
     const userId = req.userId;
@@ -265,7 +265,7 @@ app.post('/uploadProfilePicture', validateFirebaseIdToken, async (req, res) => {
     }
 });
 
-app.put('/updateUserProfilePicture', validateFirebaseIdToken,async (req, res) => {
+app.put('/updateUserProfilePicture', validateFirebaseIdToken, async (req, res) => {
     try {
         const downloadURL = req.body.url;
         const userId = req.userId;
