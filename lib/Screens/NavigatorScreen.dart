@@ -1,11 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import 'package:unify/FireService.dart';
 import 'package:unify/Screens/ContactScreen.dart';
 import 'package:unify/Screens/DiscoverScreen.dart';
 import 'package:unify/Screens/registration/AccountSetupScreen.dart';
+import 'package:unify/user_service.dart';
 
 import 'SettingsScreen.dart';
 
@@ -42,10 +41,10 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var fireService = Provider.of<FireService>(context);
+    var userService = Provider.of<UserService>(context);
     //future builder check status
     return FutureBuilder(
-      future: fireService.checkStatus(),
+      future: userService.checkStatus(),
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
         if (snapshot.hasData) {
           if (snapshot.data == false) return const AccountSetupScreen();

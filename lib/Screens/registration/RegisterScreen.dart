@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import 'package:unify/FireService.dart';
 import 'package:unify/Screens/NavigatorScreen.dart';
 import 'package:unify/Widgets/UnifyButton.dart';
 import 'package:unify/Widgets/UnifyTextField.dart';
+import 'package:unify/user_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -26,7 +26,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var fireService = Provider.of<FireService>(context);
+    var userService = Provider.of<UserService>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -81,10 +81,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 UnifyButton(
                   onPressed: () async {
                     if (_loginForm.currentState!.validate()) {
-                      await fireService.createAccount(
+                      await userService.createAccount(
                           _email.text, _password.text);
 
-                      await fireService.signIn(_email.text, _password.text);
+                      await userService.signIn(_email.text, _password.text);
 
                       setState(() {
                         Navigator.of(context).pop();

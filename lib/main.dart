@@ -1,21 +1,14 @@
-import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:unify/FireService.dart';
 import 'package:unify/user_service.dart';
-import 'models/appImage.dart';
 import 'Screens/NavigatorScreen.dart';
 import 'package:provider/provider.dart';
-import 'package:unify/user_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:unify/firebase_options.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'Screens/LoginScreen.dart';
-import 'Screens/NavigatorScreen.dart';
 import 'chat_service.dart';
-import 'models/appUser.dart';
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,7 +36,6 @@ class MyApp extends StatelessWidget {
             create: (context) => FirebaseAuth.instance.authStateChanges(),
             initialData: null,
           ),
-          Provider<FireService>(create: (context) => FireService()),
         ],
         builder: (context, child) {
           final user = Provider.of<User?>(context);
