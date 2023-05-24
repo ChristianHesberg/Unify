@@ -5,9 +5,12 @@ const geofire = require('geofire-common');
 const {v4: uuidv4} = require('uuid')
 const app = require('express')();
 const cors = require('cors');
-const {user} = require("firebase-functions/v1/auth");
-const {logger} = require("firebase-functions");
+const rateLimit = require('express-rate-limit');
+const requestIp = require('request-ip');
 app.use(cors());
+//app.use(requestIp.mw());
+
+
 
 
 exports.authOnAccountCreate = functions.auth
@@ -29,6 +32,14 @@ const validateFirebaseIdToken = async (req, res, next) => {
         return res.status(403).json(error);
     }
 }
+
+const limiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 20,
+    message: 'Too many requests. Please try again later.',
+});
+
+app.use(limiter);
 
 app.post("/accountSetup", validateFirebaseIdToken, async (req, res) => {
 
