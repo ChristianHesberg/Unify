@@ -6,12 +6,12 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
-import 'package:unify/FireService.dart';
 import 'package:unify/Screens/NavigatorScreen.dart';
 import 'package:unify/Widgets/UnifyButton.dart';
 import 'package:unify/Widgets/UnifyTextField.dart';
 import 'package:unify/geolocator_server.dart';
 import 'package:unify/models/SettingDTO.dart';
+import 'package:unify/user_service.dart';
 
 import '../../Widgets/AgeSlider.dart';
 import '../../Widgets/DatePicker.dart';
@@ -51,13 +51,13 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var fireService = Provider.of<FireService>(context);
+    var userService = Provider.of<UserService>(context);
     return Scaffold(
         appBar:
             AppBar(title: const Text("Set up your account details!"), actions: [
           IconButton(
             onPressed: () {
-              fireService.signOut(context);
+              userService.signOut(context);
             },
             icon: const Icon(Icons.exit_to_app),
           )
@@ -68,7 +68,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
                 controller: _pageController,
                 children: [
                   _buildUserInfo(),
-                  _buildUserPreferences(fireService, context)
+                  _buildUserPreferences(userService, context)
                 ],
               )
             : const Column(
@@ -161,7 +161,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
     );
   }
 
-  _buildUserPreferences(FireService fireService, context) {
+  _buildUserPreferences(UserService userService, context) {
     return Column(
       children: [
         Text(
@@ -193,7 +193,7 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
               _previousPage();
             },
             text: "back"),
-        _buildDoneBtn(fireService, context),
+        _buildDoneBtn(userService, context),
         //Text("data")
       ],
     );
@@ -201,13 +201,13 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
 
   bool loading = false;
 
-  _buildDoneBtn(FireService fireService, context) {
+  _buildDoneBtn(UserService userService, context) {
     return UnifyButton(
       onPressed: () async {
         loading = true;
         setState(() {});
         var dto = await _createSettingsDto();
-        await fireService.updateAccount(dto);
+        await userService.setupAccount(dto);
         setState(() {
           Navigator.pushReplacement(
             context,

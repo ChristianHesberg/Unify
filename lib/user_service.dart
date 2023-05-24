@@ -5,7 +5,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:geoflutterfire2/geoflutterfire2.dart';
+import 'package:http/http.dart';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
@@ -14,7 +16,9 @@ import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 import 'package:unify/models/appUser.dart';
 import 'package:unify/models/baseUrl.dart';
+import 'Screens/LoginScreen.dart';
 import 'geolocator_server.dart';
+import 'models/SettingDTO.dart';
 
 class UserService with ChangeNotifier {
   AppUser? _user;
@@ -22,7 +26,7 @@ class UserService with ChangeNotifier {
   final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
   String lastDoc = ':lastDoc';
-
+  bool userInit = false;
   AppUser? get user => _user;
 
 
@@ -313,5 +317,70 @@ class UserService with ChangeNotifier {
     } catch (e) {
       print(e);
     }
+  }
+
+  createAccount(String email, String password) async {
+    await _auth
+        .createUserWithEmailAndPassword(email: email, password: password)
+        .then((_) {
+      _auth.signInWithEmailAndPassword(email: email, password: password);
+      return true;
+    });
+  }
+
+  signIn(String email, String password) async {
+    return await _auth.signInWithEmailAndPassword(
+        email: email, password: password);
+  }
+
+  Future<void> signOut(context) async {
+    await _auth.signOut();
+    _user = null;
+    userInit = false;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => const LoginScreen(),
+      ),
+    );
+  }
+
+  setupAccount(SettingsDTO dto) async {
+    var token = await _auth.currentUser!.getIdToken();
+    Response result = await http.post(Uri.parse("${BaseUrl.baseUrl}accountSetup"),
+        headers: <String, String>{
+          HttpHeaders.authorizationHeader: token,
+          'Content-Type': 'application/json; charset=UTF-8'
+        },
+        body: json.encode({
+          "name": dto.name,
+          "birthDay": dto.age.toString(),
+          "geohash": dto.position.hash,
+          "latitude": dto.position.latitude,
+          "longitude": dto.position.longitude,
+          "gender": dto.gender,
+          "maxAgePreference": dto.maxAgePreference,
+          "minAgePreference": dto.minAgePreference,
+          "femalePreference": dto.femalePreference,
+          "malePreference": dto.malePreference,
+          "otherPreference": dto.otherPreference,
+          "locationPreference": dto.locationPreference,
+          "description": dto.description
+        }));
+    await uploadImages(dto.imageList);
+    await uploadProfilePicture(dto.profilePicture);
+    return result.body;
+  }
+
+  Future<bool> checkStatus() async {
+    var isSetup = false;
+    try {
+      String uId = FirebaseAuth.instance.currentUser!.uid;
+      var userDoc = await _firestore.collection("users").doc(uId).get();
+      var doc = userDoc.data();
+      isSetup = doc!["isSetup"];
+    } catch (e) {
+      return false;
+    }
+    return isSetup;
   }
 }

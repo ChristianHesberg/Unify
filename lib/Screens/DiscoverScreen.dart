@@ -21,7 +21,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
   List<AppUser> peopleList = [];
 
-  bool userInit = false;
+
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   }
 
   Future buildUserList(UserService service) async {
-    if(!userInit){
+    if(!service.userInit){
       await service.initializeUser();
     }
     peopleList += await service.getUsersWithinRadius();

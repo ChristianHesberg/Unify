@@ -5,8 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:unify/Screens/NavigatorScreen.dart';
 import 'package:unify/Screens/registration/RegisterScreen.dart';
+import 'package:unify/user_service.dart';
 
-import '../FireService.dart';
 import '../Widgets/UnifyButton.dart';
 import '../Widgets/UnifyTextField.dart';
 
@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final fireService = Provider.of<FireService>(context);
+    final fireService = Provider.of<UserService>(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -100,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
         text: "Register");
   }
 
-  Widget _buildLoginBtn(FireService fireService) {
+  Widget _buildLoginBtn(UserService userService) {
     return UnifyButton(
       onPressed: () async {
         if (!_formKey.currentState!.validate()) {
@@ -110,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
         final email = _email.value.text;
         final password = _password.value.text;
         try {
-          await fireService.signIn(email, password);
+          await userService.signIn(email, password);
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => NavigatorScreen(),
