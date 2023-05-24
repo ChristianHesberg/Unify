@@ -84,7 +84,7 @@ class AppUser {
     switch(gender){
       case 'female':{return 'femalePreference';}
       case 'male':{return 'malePreference';}
-      case 'other':{return 'otherPreference';}
+      case 'other':{return 'otherGenderPreference';}
     }
   }
 

@@ -33,6 +33,7 @@ class UserService with ChangeNotifier {
   Future<AppUser?> initializeUser() async {
     if (user == null) {
       await getUser();
+      userInit = true;
     }
     return _user;
   }
