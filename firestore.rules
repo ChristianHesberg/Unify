@@ -6,10 +6,18 @@ service cloud.firestore {
       allow write: if false;
     }
     match /users/{userId} {
-      allow read: if request.auth != null;
+      allow read: if request.auth.uid == userId;
     }
     match /chats/{chatId} {
       allow read: if request.auth.uid in resource.data.userIds;
+
+    function chatData() {
+       return get(/databases/$(database)/documents/chats/$(chatId)).data;
     }
+
+    match /messages/{messageId} {
+        allow read: if request.auth.uid in chatData().userIds;
+    }
+  }
   }
 }

@@ -88,9 +88,8 @@ app.get('/matches' +
                 .where('maxAgePreference', ">=", Number(req.params.userAge))
                 .where('minAgePreference', '<=', Number(req.params.userAge))
                 .where('birthday', '>=', maxAge)
-                //.where('birthday', '<=', minAge)
+                .where('birthday', '<=', minAge)
                 .where('gender', 'in', genderPreferences)
-                .orderBy('minAgePreference')
                 .orderBy('geohash')
                 .startAt(b[0])
                 .endAt(b[1]);
