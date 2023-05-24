@@ -8,11 +8,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geoflutterfire2/geoflutterfire2.dart';
 import 'package:http/http.dart';
-
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
-
 import 'package:geolocator/geolocator.dart';
 import 'package:unify/models/appUser.dart';
 import 'package:unify/models/baseUrl.dart';

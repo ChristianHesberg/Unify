@@ -13,9 +13,6 @@ import 'chat_service.dart';
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  //use emulator
-  _connectToFirebaseEmulator();
-
   runApp(const MyApp());
   runApp(MyApp());
 }

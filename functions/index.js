@@ -35,7 +35,7 @@ const validateFirebaseIdToken = async (req, res, next) => {
 
 const limiter = rateLimit({
     windowMs: 60 * 1000,
-    max: 20,
+    max: 30,
     message: 'Too many requests. Please try again later.',
 });
 

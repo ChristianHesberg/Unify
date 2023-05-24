@@ -17,9 +17,6 @@ class ChatService {
   static const timestamp = 'timestamp';
   final _firestore = FirebaseFirestore.instance;
 
-  ChatService() {
-    _firestore.useFirestoreEmulator('localhost', 8080);
-  }
 
   Stream<Iterable<Chat>> getChats(User user) {
     return _firestore
