@@ -280,7 +280,7 @@ app.put('/updateUserProfilePicture', validateFirebaseIdToken,async (req, res) =>
 });
 app.post('/uploadImages', validateFirebaseIdToken, async (req, res) => {
     try {
-        const images = req.body.images.replace("[", "").replace("]", "").replace(" ", "");
+        const images = req.body.images.replace("[", "").replace("]", "").replaceAll(" ", "");
         const list = images.split(",");
         const userId = req.userId;
         const bucket = admin.storage().bucket("gs://unify-ef8e0.appspot.com/");
@@ -308,7 +308,7 @@ app.post('/uploadImages', validateFirebaseIdToken, async (req, res) => {
 });
 app.put('/updateUserImages', validateFirebaseIdToken, async (req, res) => {
     try {
-        const urlList = req.body.urls.replace("[", "").replace("]", "").replace(" ", "");
+        const urlList = req.body.urls.replace("[", "").replace("]", "").replaceAll(" ", "");
         const downloadUrlList = urlList.split(",");
         const userId = req.userId;
 
