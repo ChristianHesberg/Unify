@@ -1,8 +1,10 @@
 
-# Unify
+# FriendZone
 
 
-FriendZoned also called just friends or FriendZoned is a social app for finding friends in your area, based on your preferences.
+FriendZone also called just friends or unify is a social app for finding friends in your area, based on your preferences.
+
+Visit us here [FriendZone](https://unify-ef8e0.firebaseapp.com/#/)
 
 developed for 4 semester exam at [EASV](https://www.easv.dk/en/).
 
