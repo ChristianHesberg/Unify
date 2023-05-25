@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:unify/Widgets/user_text.dart';
@@ -21,8 +22,6 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
   List<AppUser> peopleList = [];
 
-
-
   @override
   Widget build(BuildContext context) {
     var userService = Provider.of<UserService>(context);
@@ -30,8 +29,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       future: buildUserList(userService),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         if (peopleList.isNotEmpty) {
-          return buildDiscover(context);
-        } else {
+            return buildDiscover(context);
+          }
+        else {
           return const Center(child: CircularProgressIndicator());
         }
       },
@@ -39,7 +39,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   }
 
   Future buildUserList(UserService service) async {
-    if(!service.userInit){
+    if (!service.userInit) {
       await service.initializeUser();
     }
     peopleList += await service.getUsersWithinRadius();
@@ -54,8 +54,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           scrollDirection: Axis.horizontal,
           onPageChanged: (i) async {
             if (i == peopleList.length - 1) {
-              setState(() {
-              });
+              setState(() {});
             }
           },
           itemCount: peopleList.length,
@@ -70,7 +69,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                       text:
                           "${peopleList[position].name}, ${peopleList[position].getBirthdayAsAge()}",
                     ),
-                    ContactUserBtn(user1: userService.user!, user2: peopleList[position]),
+                    ContactUserBtn(
+                        user1: userService.user!, user2: peopleList[position]),
                   ],
                 ),
                 Expanded(

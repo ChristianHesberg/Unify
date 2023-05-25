@@ -18,24 +18,27 @@ class ImageScreen extends StatefulWidget {
 class _ImageScreenState extends State<ImageScreen> {
   final _image_picker = ImagePicker();
   late AppUser user;
+  bool loading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Images"), backgroundColor: Colors.black),
-      body: Consumer<UserService>(
-        builder: (BuildContext context, value, Widget? child) {
-          if (value.user == null) {
-            value.getUser();
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          } else {
-            user = value.user!;
-            return _buildImageScreen();
-          }
-        },
-      ),
+      body: !loading
+          ? Consumer<UserService>(
+              builder: (BuildContext context, value, Widget? child) {
+                if (value.user == null) {
+                  value.getUser();
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else {
+                  user = value.user!;
+                  return _buildImageScreen();
+                }
+              },
+            )
+          : const Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -70,7 +73,14 @@ class _ImageScreenState extends State<ImageScreen> {
             child: Icon(Icons.add),
             backgroundColor: Colors.blue,
             onPressed: () {
-              getManyPhotos();
+              if (user.imageList.length >= 12) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text("You can only have 12 images"),
+                  duration: Duration(seconds: 3),
+                ));
+              } else {
+                getManyPhotos();
+              }
             },
           ),
         ),
@@ -78,13 +88,26 @@ class _ImageScreenState extends State<ImageScreen> {
     );
   }
 
-
   Future getManyPhotos() async {
-    final userService = Provider.of<UserService>(context, listen: false);
-    await userService.uploadImages(await _image_picker.pickMultiImage());
-        setState(() {
+    var images = await _image_picker.pickMultiImage();
+    if (images.length + user.imageList.length >= 12) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+            "You already have ${user.imageList.length} images and can only have 12."),
+        duration: Duration(seconds: 3),
+      ));
+    } else {
+      setState(() {
+        loading = true;
       });
-
+      if (images.isNotEmpty) {
+        final userService = Provider.of<UserService>(context, listen: false);
+        await userService.uploadImages(images);
+      }
+      setState(() {
+        loading = false;
+      });
+    }
   }
 
   _deleteBtn(int index) {
@@ -104,8 +127,9 @@ class _ImageScreenState extends State<ImageScreen> {
                   child: Text("Cancel")),
               TextButton(
                   onPressed: () {
-                    userService.deleteImage(user.id, user.imageList[index]);
-                    user.imageList.removeAt(index);
+                    userService
+                        .deleteImage(user.id, user.imageList[index])
+                        .then((value) => user.imageList.removeAt(index));
                     setState(() {
                       Navigator.of(context).pop();
                     });

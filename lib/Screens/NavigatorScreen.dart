@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:unify/Screens/ContactScreen.dart';
@@ -10,6 +11,7 @@ import 'SettingsScreen.dart';
 
 class NavigatorScreen extends StatefulWidget {
   final int? startingPosition;
+
   NavigatorScreen({Key? key, this.startingPosition}) : super(key: key);
 
   @override
@@ -18,8 +20,6 @@ class NavigatorScreen extends StatefulWidget {
 
 class _NavigatorScreenState extends State<NavigatorScreen> {
   int _selectedIndex = 0;
-
-
   @override
   void initState() {
     super.initState();
@@ -29,7 +29,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   _showWidget(int pos) {
     switch (pos) {
       case 0:
-        return new DiscoverScreen();
+        return Center(child: Container(width: 500,child: new DiscoverScreen()));
       case 1:
         return new ContactScreen();
       case 2:

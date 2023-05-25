@@ -20,26 +20,26 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
   double? distance;
   Map<String, bool> genderMap = {};
   SfRangeValues? rangeValues;
+  bool loading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Preferences"), backgroundColor: Colors.black),
-      body: Consumer<UserService>(
+      appBar: AppBar(title: const Text("Preferences"), backgroundColor: Colors.black),
+      body: !loading ? Consumer<UserService>(
         builder: (context, value, child) {
           if (value.user == null) {
             value.getUser();
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else {
             this.user = value.user!;
             return _buildView();
           }
         },
-      ),
+      ) : const Center(child: CircularProgressIndicator(),),
     );
   }
 
-  bool loading = false;
 
   SingleChildScrollView _buildView() {
     return SingleChildScrollView(
@@ -62,6 +62,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
                   ),
                   ElevatedButton(
                       onPressed: () async {
+                        setState(() {loading = true;});
                         final userService =
                             Provider.of<UserService>(context, listen: false);
                         await userService.updateUserPreference(
@@ -74,8 +75,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
                             genderMap["Other"] ??
                                 user.genderPreferences.contains("other"),
                             distance?.round() ?? user.locationPreference).then((value) {
-                              setState(() {
-                              });
+                              setState(() {loading = false;});
                             },);
                       },
                       child: Text("Update"))

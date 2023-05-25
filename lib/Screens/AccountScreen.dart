@@ -1,7 +1,7 @@
-
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -23,9 +23,14 @@ class AccountScreen extends StatefulWidget {
 class _AccountScreenState extends State<AccountScreen> {
   late AppUser user;
   bool canEdit = false;
+  bool loading = false;
+
+  DateTime? birthDate;
+  String genderValue = "";
+
   final _formKey = GlobalKey<FormState>();
   TextEditingController descController = TextEditingController();
-  Map<String, int> gender = {"other":0, "male":1, "female":2};
+  Map<String, int> gender = {"other": 0, "male": 1, "female": 2};
 
 
   @override
@@ -35,20 +40,25 @@ class _AccountScreenState extends State<AccountScreen> {
         title: Text("Account Info"),
         backgroundColor: Colors.black,
       ),
-      body: Consumer<UserService>(
-          builder:(context, value, child) {
-            if(value.user == null){
-              value.getUser();
-              return Center(child: CircularProgressIndicator());
-            }else{
-              user = value.user!;
-              return _accountScreen();
-            }
-          },
-      ),
+      body: !loading ? Align(
+        alignment: Alignment.topCenter,
+        child: Container(
+          width: 500,
+          child: Consumer<UserService>(
+            builder: (context, value, child) {
+              if (value.user == null) {
+                value.getUser();
+                return const Center(child: CircularProgressIndicator());
+              } else {
+                user = value.user!;
+                return _accountScreen();
+              }
+            },
+          ),
+        ),
+      ) : const Center(child: CircularProgressIndicator()),
     );
   }
-
 
 
   Widget _accountScreen() {
@@ -62,7 +72,8 @@ class _AccountScreenState extends State<AccountScreen> {
               children: [
                 _profilePicture(), // profile picture
                 _editBtn(),
-                Align(alignment: Alignment.bottomCenter,child: UserText(text: user.name))
+                Align(alignment: Alignment.bottomCenter,
+                    child: UserText(text: user.name))
               ],
             ),
           ),
@@ -75,55 +86,55 @@ class _AccountScreenState extends State<AccountScreen> {
 
   _editBtn() {
     return Positioned(
-                  bottom: 25,
-                  right: 10,
-                  child: ElevatedButton(
-                    style: ButtonStyle(
-                      shape:
-                          MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(300.0),
-                        ),
-                      ),
-                    ),
-                    onPressed: () {
-                      canEdit = true;
-                      setState(() {});
-                    },
-                    child: const Icon(Icons.edit),
-                  ));
+        bottom: 25,
+        right: 10,
+        child: ElevatedButton(
+          style: ButtonStyle(
+            shape:
+            MaterialStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(300.0),
+              ),
+            ),
+          ),
+          onPressed: () {
+            canEdit = true;
+            setState(() {});
+          },
+          child: const Icon(Icons.edit),
+        ));
   }
 
   _profilePicture() {
     return Align(
-                alignment: Alignment.center,
-                child: CircleAvatar(
-                  radius: 120,
-                  child: ClipOval(
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        splashColor: Colors.blue.withOpacity(0.3),
-                        highlightColor: Colors.blue.withOpacity(0.5),
-                        onLongPress: () {
-                          if(canEdit){
-                            getImage(ImageSource.gallery);
-                          }
-                        },
-                        child: Ink.image(image: NetworkImage(user.profilePicture),
-                            fit: BoxFit.cover,
-                            width: 240,
-                          height: 240,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
+      alignment: Alignment.center,
+      child: CircleAvatar(
+        radius: 120,
+        child: ClipOval(
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              splashColor: Colors.blue.withOpacity(0.3),
+              highlightColor: Colors.blue.withOpacity(0.5),
+              onLongPress: () {
+                if (canEdit) {
+                  getImage(ImageSource.gallery);
+                }
+              },
+              child: Ink.image(image: NetworkImage(user.profilePicture),
+                fit: BoxFit.cover,
+                width: 240,
+                height: 240,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Future getImage(ImageSource media) async {
-    final userService = Provider.of<UserService>(context, listen:false);
+    final userService = Provider.of<UserService>(context, listen: false);
 
     final _image_picker = ImagePicker();
     var img = await _image_picker.pickImage(source: ImageSource.gallery);
@@ -140,28 +151,28 @@ class _AccountScreenState extends State<AccountScreen> {
           padding: const EdgeInsets.all(30.0),
           child: Column(
               children: [
-            UserTextField(
-              controller: descController
-                ..text = this.user.description,
-              label: "desc",
-              enabled: canEdit,
-            ),
+                UserTextField(
+                  controller: descController
+                    ..text = this.user.description,
+                  label: "desc",
+                  enabled: canEdit,
+                ),
                 _datePicker(),
                 _genderDropDown(),
-          ]),
+              ]),
         ));
   }
 
   Widget _datePicker() {
     return IgnorePointer(
-      ignoring: !canEdit,
+        ignoring: !canEdit,
         child: DatePicker(
-      onClick: _handleDateOutput,
-      birthDate: user.birthday,
-    ));
+          onClick: _handleDateOutput,
+          birthDate: user.birthday,
+        ));
   }
 
-  DateTime? birthDate;
+
   void _handleDateOutput(DateTime date) {
     birthDate = date;
   }
@@ -175,27 +186,31 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
 
-  String genderValue = "";
-
   void _handleGenderSelect(String value) {
     genderValue = value;
   }
 
   Widget _submitBtn() {
-    final userService = Provider.of<UserService>(context, listen:false);
+    final userService = Provider.of<UserService>(context, listen: false);
     if (canEdit) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           ElevatedButton(onPressed: () async {
-            await userService.updateUserInfo(descController.text, genderValue, birthDate ?? user.birthday);
+            setState(() {
+              loading = true;
+            });
+            await userService.updateUserInfo(
+                descController.text, genderValue, birthDate ?? user.birthday);
             canEdit = false;
-            setState(() {});
+            setState(() {
+              loading = false;
+            });
           }, child: const Text("Submit")),
           ElevatedButton(
               style:
-                  ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-              onPressed: ()  {
+              ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+              onPressed: () {
                 canEdit = false;
                 setState(() {});
               },
