@@ -37,7 +37,7 @@ class _AgeSliderState extends State<AgeSlider> {
             style: const TextStyle(fontSize: 18),
           ),
           Text(
-            "Min: ${widget.ageRangeValues.end.round()}",
+            "Max: ${widget.ageRangeValues.end.round()}",
             style: const TextStyle(fontSize: 18),
           )
         ],

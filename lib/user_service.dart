@@ -61,8 +61,7 @@ class UserService with ChangeNotifier {
         geo.point(latitude: position.latitude, longitude: position.longitude);
 
     var token = await _auth.currentUser!.getIdToken();
-    await http.put(
-        Uri.parse('${BaseUrl.baseUrl}writeLocation'),
+    await http.put(Uri.parse('${BaseUrl.baseUrl}writeLocation'),
         headers: {
           HttpHeaders.authorizationHeader: token,
           'Content-Type': 'application/json'
@@ -71,21 +70,17 @@ class UserService with ChangeNotifier {
           'hash': point.hash,
           'lat': point.latitude.toString(),
           'lng': point.longitude.toString()
-      })
-    );
+        }));
   }
 
   getUsersWithinRadius() async {
-    final response = await http.get(
-      Uri.parse(urlBuilder()),
-      headers: {
-        HttpHeaders.authorizationHeader: await _auth.currentUser!.getIdToken()
-      }
-    );
+    final response = await http.get(Uri.parse(urlBuilder()), headers: {
+      HttpHeaders.authorizationHeader: await _auth.currentUser!.getIdToken()
+    });
     List<AppUser> result = [];
     var body = json.decode(response.body);
     for (var map in body) {
-      if(!UserState.user!.blacklist.contains(map['id'])){
+      if (!UserState.user!.blacklist.contains(map['id'])) {
         result.add(AppUser.fromMapJson(map['id'], map['data']));
       }
     }
@@ -170,25 +165,26 @@ class UserService with ChangeNotifier {
   }
 
   Future<void> uploadProfilePicture(XFile image) async {
-    const url =
-        '${BaseUrl.baseUrl}uploadProfilePicture';
+    const url = '${BaseUrl.baseUrl}uploadProfilePicture';
     try {
       String base64Image = base64Encode(await image.readAsBytes());
 
       var token = await _auth.currentUser!.getIdToken();
-      await http.post(
-        Uri.parse(url),
-        headers: {
-          HttpHeaders.authorizationHeader: token,
-          'Content-Type': 'application/json'
-        },
-        body: json.encode({
-          'image': base64Image,
-        }),
-      ).then((value) => {
-            updateUserProfilePicture(value.body.replaceAll('"', ""))
-                .then((value) => getUser()),
-          });
+      await http
+          .post(
+            Uri.parse(url),
+            headers: {
+              HttpHeaders.authorizationHeader: token,
+              'Content-Type': 'application/json'
+            },
+            body: json.encode({
+              'image': base64Image,
+            }),
+          )
+          .then((value) => {
+                updateUserProfilePicture(value.body.replaceAll('"', ""))
+                    .then((value) => getUser()),
+              });
     } catch (e) {
       print("error in uploadProfilePicture: $e");
     }
@@ -196,8 +192,7 @@ class UserService with ChangeNotifier {
 
   Future<void> updateUserProfilePicture(String fileName) async {
     final uId = FirebaseAuth.instance.currentUser!.uid;
-    const url =
-        '${BaseUrl.baseUrl}updateUserProfilePicture';
+    const url = '${BaseUrl.baseUrl}updateUserProfilePicture';
     try {
       String downloadUrl = await downloadImage(uId, fileName);
       var token = await _auth.currentUser!.getIdToken();
@@ -223,19 +218,22 @@ class UserService with ChangeNotifier {
       }
 
       var token = await _auth.currentUser!.getIdToken();
-      await http.post(
-        Uri.parse(url),
-        headers: {
-          HttpHeaders.authorizationHeader: token,
-          'Content-Type': 'application/json'
-        },
-        body: json.encode({
-          'images': base64Images.toString(),
-        }),
-      ).then((value) => {
-            updateUserImages(json.decode(value.body).cast<String>().toList())
-                .then((value) => getUser())
-          });
+      await http
+          .post(
+            Uri.parse(url),
+            headers: {
+              HttpHeaders.authorizationHeader: token,
+              'Content-Type': 'application/json'
+            },
+            body: json.encode({
+              'images': base64Images.toString(),
+            }),
+          )
+          .then((value) => {
+                updateUserImages(
+                        json.decode(value.body).cast<String>().toList())
+                    .then((value) => getUser())
+              });
     } catch (e) {
       print('Error uploading image: $e');
     }
@@ -243,11 +241,9 @@ class UserService with ChangeNotifier {
 
   Future<void> updateUserImages(List<String> fileNames) async {
     final uId = FirebaseAuth.instance.currentUser!.uid;
-    const url =
-        '${BaseUrl.baseUrl}updateUserImages';
+    const url = '${BaseUrl.baseUrl}updateUserImages';
     try {
-      List<String> downloadUrl =
-          await downloadMultipleImages(uId, fileNames);
+      List<String> downloadUrl = await downloadMultipleImages(uId, fileNames);
       var token = await _auth.currentUser!.getIdToken();
       await http.put(
         Uri.parse(url),
@@ -262,9 +258,9 @@ class UserService with ChangeNotifier {
     }
   }
 
-  Future<void> updateUserInfo(String description, String gender, DateTime birthday) async {
-    const url =
-        '${BaseUrl.baseUrl}updateUserInfo';
+  Future<void> updateUserInfo(
+      String description, String gender, DateTime birthday) async {
+    const url = '${BaseUrl.baseUrl}updateUserInfo';
 
     try {
       var token = await _auth.currentUser!.getIdToken();
@@ -286,10 +282,14 @@ class UserService with ChangeNotifier {
     }
   }
 
-
-  Future<void> updateUserPreference(int minAgePreference, int maxAgePreference, bool femalePreference,bool malePreference, bool otherPreference, int distancePreference ) async {
-    const url =
-        '${BaseUrl.baseUrl}updateUserPreference';
+  Future<void> updateUserPreference(
+      int minAgePreference,
+      int maxAgePreference,
+      bool femalePreference,
+      bool malePreference,
+      bool otherPreference,
+      int distancePreference) async {
+    const url = '${BaseUrl.baseUrl}updateUserPreference';
 
     try {
       var token = await _auth.currentUser!.getIdToken();
@@ -328,10 +328,11 @@ class UserService with ChangeNotifier {
         email: email, password: password);
   }
 
-  Future<void> signOut(context) async {
+  signOut(context) async {
     await _auth.signOut();
-    UserState.user = null;
-    UserState.userInit = false;
+    UserState.clearState();
+    MatchState.clearState();
+
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) => const LoginScreen(),
@@ -341,26 +342,27 @@ class UserService with ChangeNotifier {
 
   setupAccount(SettingsDTO dto) async {
     var token = await _auth.currentUser!.getIdToken();
-    Response result = await http.post(Uri.parse("${BaseUrl.baseUrl}accountSetup"),
-        headers: <String, String>{
-          HttpHeaders.authorizationHeader: token,
-          'Content-Type': 'application/json; charset=UTF-8'
-        },
-        body: json.encode({
-          "name": dto.name,
-          "birthDay": dto.age.toString(),
-          "geohash": dto.position.hash,
-          "latitude": dto.position.latitude,
-          "longitude": dto.position.longitude,
-          "gender": dto.gender,
-          "maxAgePreference": dto.maxAgePreference,
-          "minAgePreference": dto.minAgePreference,
-          "femalePreference": dto.femalePreference,
-          "malePreference": dto.malePreference,
-          "otherPreference": dto.otherPreference,
-          "locationPreference": dto.locationPreference,
-          "description": dto.description
-        }));
+    Response result =
+        await http.post(Uri.parse("${BaseUrl.baseUrl}accountSetup"),
+            headers: <String, String>{
+              HttpHeaders.authorizationHeader: token,
+              'Content-Type': 'application/json; charset=UTF-8'
+            },
+            body: json.encode({
+              "name": dto.name,
+              "birthDay": dto.age.toString(),
+              "geohash": dto.position.hash,
+              "latitude": dto.position.latitude,
+              "longitude": dto.position.longitude,
+              "gender": dto.gender,
+              "maxAgePreference": dto.maxAgePreference,
+              "minAgePreference": dto.minAgePreference,
+              "femalePreference": dto.femalePreference,
+              "malePreference": dto.malePreference,
+              "otherPreference": dto.otherPreference,
+              "locationPreference": dto.locationPreference,
+              "description": dto.description
+            }));
     await uploadImages(dto.imageList);
     await uploadProfilePicture(dto.profilePicture);
     return result.body;

@@ -200,7 +200,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 descController.text, genderValue, birthDate ?? user.birthday);
             canEdit = false;
             setState(() {
-              loading = false;
+              Navigator.of(context).pop();
             });
           }, child: const Text("Submit")),
           ElevatedButton(

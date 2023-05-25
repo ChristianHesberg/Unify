@@ -106,7 +106,7 @@ class _ImageScreenState extends State<ImageScreen> {
         await userService.uploadImages(images);
       }
       setState(() {
-        loading = false;
+        Navigator.of(context).pop();
       });
     }
   }

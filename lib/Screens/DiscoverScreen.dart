@@ -30,7 +30,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         if (MatchState.peopleList.isNotEmpty) {
           return buildDiscover(context);
         } else {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: Column(children:[ CircularProgressIndicator(), UserText(text: "Searching for people in who fit your preferences")]));
         }
       },
     );
