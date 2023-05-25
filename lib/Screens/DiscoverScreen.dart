@@ -76,6 +76,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                     text:
                         "${MatchState.peopleList[position].name}, ${MatchState.peopleList[position].getBirthdayAsAge()}",
                   ),
+                  buildGenderIcon(MatchState.peopleList[position].gender),
                   ContactUserBtn(user1: UserState.user!, user2: MatchState.peopleList[position]),
                 ],
               ),
@@ -148,5 +149,14 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         ),
       ),
     );
+  }
+
+  Widget buildGenderIcon(String gender){
+    switch(gender){
+      case 'female': return const Icon(Icons.female,size: 40,);
+      case 'male': return const Icon(Icons.male, size: 40,);
+      case 'other': return const UserText(text: 'X');
+    }
+    return const UserText(text: 'X');
   }
 }

@@ -33,7 +33,7 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
             value.getUser();
             return const Center(child: CircularProgressIndicator());
           } else {
-            this.user = UserState.user!;
+            user = UserState.user!;
             return _buildView();
           }
         },
