@@ -1,7 +1,3 @@
-import 'dart:io';
-
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -9,7 +5,7 @@ import 'package:unify/models/appUser.dart';
 import 'package:unify/Widgets/DatePicker.dart';
 import 'package:unify/Widgets/genderDropDown.dart';
 import 'package:unify/Widgets/user_text.dart';
-
+import 'package:unify/user_state.dart';
 import '../Widgets/user_text_field.dart';
 import '../user_service.dart';
 
@@ -46,11 +42,11 @@ class _AccountScreenState extends State<AccountScreen> {
           width: 500,
           child: Consumer<UserService>(
             builder: (context, value, child) {
-              if (value.user == null) {
+              if (UserState.user == null) {
                 value.getUser();
                 return const Center(child: CircularProgressIndicator());
               } else {
-                user = value.user!;
+                user = UserState.user!;
                 return _accountScreen();
               }
             },

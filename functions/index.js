@@ -82,7 +82,7 @@ app.get('/matches' +
     const longitude = Number(req.params.lng);
     const center = [latitude, longitude];
     const radiusInM = Number(req.params.radius) * 1000;
-    const limit = 3;
+    const limit = 2;
 
     const genderPreferences = req.params.genderPrefs.split("-");
 

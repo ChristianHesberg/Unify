@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:unify/Widgets/user_text.dart';
 import 'package:unify/chat_service.dart';
+import 'package:unify/match_state.dart';
 import 'package:unify/models/appUser.dart';
 import 'package:unify/user_service.dart';
 
 import '../Widgets/contact_user_widget.dart';
+import '../user_state.dart';
 
 class DiscoverScreen extends StatefulWidget {
   DiscoverScreen({super.key});
@@ -16,11 +18,8 @@ class DiscoverScreen extends StatefulWidget {
 }
 
 class _DiscoverScreenState extends State<DiscoverScreen> {
-  PageController controller = PageController();
-
+  PageController controller = PageController(initialPage: MatchState.index);
   PageController imgController = PageController();
-
-  List<AppUser> peopleList = [];
 
   @override
   Widget build(BuildContext context) {
@@ -28,10 +27,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     return FutureBuilder(
       future: buildUserList(userService),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        if (peopleList.isNotEmpty) {
-            return buildDiscover(context);
-          }
-        else {
+        if (MatchState.peopleList.isNotEmpty) {
+          return buildDiscover(context);
+        } else {
           return const Center(child: CircularProgressIndicator());
         }
       },
@@ -39,54 +37,61 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   }
 
   Future buildUserList(UserService service) async {
-    if (!service.userInit) {
+    if(!UserState.userInit){
       await service.initializeUser();
     }
-    peopleList += await service.getUsersWithinRadius();
+    MatchState.peopleList += await service.getUsersWithinRadius();
     return null;
   }
 
   Widget buildDiscover(BuildContext context) {
-    var userService = Provider.of<UserService>(context);
+    var pageView = buildPageView();
     return Scaffold(
-      body: PageView.builder(
-          controller: controller,
-          scrollDirection: Axis.horizontal,
-          onPageChanged: (i) async {
-            if (i == peopleList.length - 1) {
-              setState(() {});
-            }
-          },
-          itemCount: peopleList.length,
-          itemBuilder: (context, position) {
-            return Column(
-              children: [
-                pictures(position, context),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    UserText(
-                      text:
-                          "${peopleList[position].name}, ${peopleList[position].getBirthdayAsAge()}",
-                    ),
-                    ContactUserBtn(
-                        user1: userService.user!, user2: peopleList[position]),
-                  ],
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: UserText(
-                        text: peopleList[position].description,
-                        size: 20,
-                        color: Colors.black45),
-                  ),
-                )
-              ],
-            );
-          }),
+      body: pageView
     );
+  }
+
+  PageView buildPageView() {
+    return PageView.builder(
+        controller: controller,
+        scrollDirection: Axis.horizontal,
+        onPageChanged: (int pageNumber) async {
+          MatchState.index = pageNumber;
+          if (pageNumber == MatchState.peopleList.length - 1) {
+            setState(() {
+            });
+          }
+          print('pageNumber: $pageNumber');
+          print('index: ${MatchState.index}');
+        },
+        itemCount: MatchState.peopleList.length,
+        itemBuilder: (context, position) {
+          return Column(
+            children: [
+              pictures(position, context),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  UserText(
+                    text:
+                        "${MatchState.peopleList[position].name}, ${MatchState.peopleList[position].getBirthdayAsAge()}",
+                  ),
+                  ContactUserBtn(user1: UserState.user!, user2: MatchState.peopleList[position]),
+                ],
+              ),
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: UserText(
+                      text: MatchState.peopleList[position].description,
+                      size: 20,
+                      color: Colors.black45),
+                ),
+              )
+            ],
+          );
+        });
   }
 
   Widget pictures(int position, BuildContext context) {
@@ -96,13 +101,13 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
       child: PageView.builder(
           controller: imgController,
           scrollDirection: Axis.horizontal,
-          itemCount: peopleList[position].imageList.length,
+          itemCount: MatchState.peopleList[position].imageList.length,
           itemBuilder: (context, imgPosition) {
             return Stack(
               fit: StackFit.expand,
               children: [
                 Image.network(
-                  peopleList[position].imageList[imgPosition],
+                  MatchState.peopleList[position].imageList[imgPosition],
                   alignment: Alignment.center,
                   fit: BoxFit.cover,
                 ),
@@ -124,7 +129,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List<Widget>.generate(
-              peopleList[position].imageList.length,
+              MatchState.peopleList[position].imageList.length,
               (index) => Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: InkWell(

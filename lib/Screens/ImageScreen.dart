@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:unify/user_state.dart';
 
 import '../models/appUser.dart';
 import '../user_service.dart';
@@ -27,13 +28,13 @@ class _ImageScreenState extends State<ImageScreen> {
       body: !loading
           ? Consumer<UserService>(
               builder: (BuildContext context, value, Widget? child) {
-                if (value.user == null) {
+                if (UserState.user == null) {
                   value.getUser();
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
                 } else {
-                  user = value.user!;
+                  user = UserState.user!;
                   return _buildImageScreen();
                 }
               },

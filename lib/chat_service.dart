@@ -9,7 +9,6 @@ import 'package:unify/models/appUser.dart';
 import 'models/baseUrl.dart';
 import 'models/chat.dart';
 import 'models/message.dart';
-import 'models/sender.dart';
 
 class ChatService {
   static const chats = 'chats';

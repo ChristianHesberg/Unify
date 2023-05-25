@@ -11,6 +11,8 @@ import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
+import 'package:unify/match_state.dart';
+import 'package:unify/user_state.dart';
 import 'package:unify/models/appUser.dart';
 import 'package:unify/models/baseUrl.dart';
 import 'Screens/LoginScreen.dart';
@@ -18,21 +20,16 @@ import 'geolocator_server.dart';
 import 'models/SettingDTO.dart';
 
 class UserService with ChangeNotifier {
-  AppUser? _user;
   final geo = GeoFlutterFire();
   final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
-  String lastDoc = ':lastDoc';
-  bool userInit = false;
-  AppUser? get user => _user;
-
 
   Future<AppUser?> initializeUser() async {
-    if (user == null) {
+    if (UserState.user == null) {
       await getUser();
-      userInit = true;
+      UserState.userInit = true;
     }
-    return _user;
+    return UserState.user;
   }
 
   Future<AppUser?> getUser() async {
@@ -49,10 +46,10 @@ class UserService with ChangeNotifier {
           await _firestore.collection('users').doc(uid).get();
 
       //data handle
-      _user = AppUser.fromMap(userData.id, userData.data()!);
+      UserState.user = AppUser.fromMap(userData.id, userData.data()!);
 
       notifyListeners(); // Notify listeners of state change
-      return _user;
+      return UserState.user;
     } catch (e) {
       print("Error in get user: $e");
     }
@@ -88,12 +85,12 @@ class UserService with ChangeNotifier {
     List<AppUser> result = [];
     var body = json.decode(response.body);
     for (var map in body) {
-      if(!_user!.blacklist.contains(map['id'])){
+      if(!UserState.user!.blacklist.contains(map['id'])){
         result.add(AppUser.fromMapJson(map['id'], map['data']));
       }
     }
     if (result.isNotEmpty) {
-      lastDoc = result[result.length - 1].id;
+      MatchState.lastDoc = result[result.length - 1].id;
     }
     return result;
   }
@@ -102,25 +99,25 @@ class UserService with ChangeNotifier {
     return BaseUrl.baseUrl +
         'matches' +
         '/userAge/' +
-        _user!.getBirthdayAsAge().toString() +
+        UserState.user!.getBirthdayAsAge().toString() +
         '/maxAge/' +
-        _user!.getMaxAgePrefAsBirthday() +
+        UserState.user!.getMaxAgePrefAsBirthday() +
         '/minAge/' +
-        _user!.getMinAgePrefAsBirthday() +
+        UserState.user!.getMinAgePrefAsBirthday() +
         '/matchGender/' +
-        _user!.getGenderAsPreference() +
+        UserState.user!.getGenderAsPreference() +
         '/genderPrefs/' +
-        _user!.getGenderPreferencesAsString() +
+        UserState.user!.getGenderPreferencesAsString() +
         '/uid/' +
-        _user!.id +
+        UserState.user!.id +
         '/lat/' +
-        _user!.lat.toString() +
+        UserState.user!.lat.toString() +
         '/lng/' +
-        _user!.lng.toString() +
+        UserState.user!.lng.toString() +
         '/radius/' +
-        _user!.locationPreference.toString() +
+        UserState.user!.locationPreference.toString() +
         '/lastDoc/' +
-        lastDoc;
+        MatchState.lastDoc;
   }
 
   Future<String> downloadImage(String userId, String imageName) async {
@@ -333,8 +330,8 @@ class UserService with ChangeNotifier {
 
   Future<void> signOut(context) async {
     await _auth.signOut();
-    _user = null;
-    userInit = false;
+    UserState.user = null;
+    UserState.userInit = false;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) => const LoginScreen(),
