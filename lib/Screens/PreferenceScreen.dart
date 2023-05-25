@@ -6,6 +6,7 @@ import 'package:unify/Widgets/AgeSlider.dart';
 import 'package:unify/Widgets/DistanceSlider.dart';
 import 'package:unify/Widgets/GenderCheckBoxes.dart';
 
+import '../user_state.dart';
 import '../user_service.dart';
 
 class PreferenceScreen extends StatefulWidget {
@@ -27,11 +28,11 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
       appBar: AppBar(title: Text("Preferences"), backgroundColor: Colors.black),
       body: Consumer<UserService>(
         builder: (context, value, child) {
-          if (value.user == null) {
+          if (UserState.user == null) {
             value.getUser();
             return Center(child: CircularProgressIndicator());
           } else {
-            this.user = value.user!;
+            this.user = UserState.user!;
             return _buildView();
           }
         },

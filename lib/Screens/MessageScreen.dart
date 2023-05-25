@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../chat_service.dart';
+import '../user_state.dart';
 import '../models/chat.dart';
 import '../models/message.dart';
 import '../models/sender.dart';
@@ -23,7 +24,7 @@ class MessageScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final chatService = Provider.of<ChatService>(context);
     final userService = Provider.of<UserService>(context);
-    var uId = userService.user!.id;
+    var uId = UserState.user!.id;
     return Scaffold(
       appBar: AppBar(title: const Text("Chats"), backgroundColor: Colors.black),
       body: Column(
@@ -87,7 +88,7 @@ class MessageScreen extends StatelessWidget {
     return MessageBar(
       onSend: (value) async {
         if (value.isEmpty) return;
-        await chatService.sendMessage(userService.user!, chat, value);
+        await chatService.sendMessage(UserState.user!, chat, value);
         controller.jumpTo(controller.position.maxScrollExtent);
       },
     );
