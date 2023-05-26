@@ -23,8 +23,6 @@ class _DistanceSliderState extends State<DistanceSlider> {
     _value = widget.startingValue;
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Column(

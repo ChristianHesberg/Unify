@@ -194,7 +194,6 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
             },
             text: "back"),
         _buildDoneBtn(userService, context),
-        //Text("data")
       ],
     );
   }
@@ -216,7 +215,6 @@ class _AccountSetupScreenState extends State<AccountSetupScreen> {
             ),
           );
         });
-        //if email taken => tilbage til page 1 ommer
       },
       text: 'Done!',
     );

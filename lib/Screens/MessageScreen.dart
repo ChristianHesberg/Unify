@@ -1,16 +1,12 @@
 import 'package:chat_bubbles/bubbles/bubble_normal.dart';
-import 'package:chat_bubbles/bubbles/bubble_special_one.dart';
 import 'package:chat_bubbles/chat_bubbles.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../chat_service.dart';
 import '../user_state.dart';
 import '../models/chat.dart';
 import '../models/message.dart';
-import '../models/sender.dart';
 import '../user_service.dart';
 
 class MessageScreen extends StatelessWidget {
@@ -106,6 +102,4 @@ class MessageScreen extends StatelessWidget {
       return 'Now';
     }
   }
-
-
 }

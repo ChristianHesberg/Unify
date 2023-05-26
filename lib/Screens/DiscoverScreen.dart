@@ -1,12 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:unify/Widgets/user_text.dart';
-import 'package:unify/chat_service.dart';
 import 'package:unify/match_state.dart';
-import 'package:unify/models/appUser.dart';
 import 'package:unify/user_service.dart';
-
 import '../Widgets/contact_user_widget.dart';
 import '../user_state.dart';
 

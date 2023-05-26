@@ -1,14 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:unify/Screens/AccountScreen.dart';
 import 'package:unify/Screens/ImageScreen.dart';
 import 'package:unify/Screens/PreferenceScreen.dart';
-import 'package:unify/Widgets/user_text.dart';
 import 'package:unify/user_service.dart';
-
-import '../Widgets/user_text_field.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);

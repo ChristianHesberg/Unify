@@ -1,11 +1,6 @@
-import 'dart:math';
-
 import 'package:email_validator/email_validator.dart';
-
 import 'package:flutter/material.dart';
-
 import 'package:provider/provider.dart';
-
 import 'package:unify/Screens/NavigatorScreen.dart';
 import 'package:unify/Widgets/UnifyButton.dart';
 import 'package:unify/Widgets/UnifyTextField.dart';

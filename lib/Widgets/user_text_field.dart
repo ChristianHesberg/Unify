@@ -28,7 +28,4 @@ class UserTextField extends StatelessWidget {
       },
     );
   }
-  
-  
-  
 }

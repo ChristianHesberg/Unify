@@ -34,7 +34,6 @@ class MyApp extends StatelessWidget {
         ],
         builder: (context, child) {
           final user = Provider.of<User?>(context);
-          //final userService = Provider.of<UserService>(context);
           return MaterialApp(
               title: 'Just friends',
               theme: ThemeData(

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:unify/Screens/MessageScreen.dart';
 import 'package:unify/Widgets/user_text.dart';
-
 import '../chat_service.dart';
 import '../models/chat.dart';
 

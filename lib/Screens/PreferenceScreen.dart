@@ -5,7 +5,6 @@ import 'package:unify/models/appUser.dart';
 import 'package:unify/Widgets/AgeSlider.dart';
 import 'package:unify/Widgets/DistanceSlider.dart';
 import 'package:unify/Widgets/GenderCheckBoxes.dart';
-
 import '../user_state.dart';
 import '../user_service.dart';
 
@@ -103,6 +102,5 @@ class _PreferenceScreenState extends State<PreferenceScreen> {
 
   _handleOnSlide(SfRangeValues values) {
     rangeValues = values;
-    //husk at round
   }
 }

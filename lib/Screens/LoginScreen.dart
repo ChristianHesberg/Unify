@@ -1,12 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:unify/Screens/NavigatorScreen.dart';
 import 'package:unify/Screens/registration/RegisterScreen.dart';
 import 'package:unify/user_service.dart';
-
 import '../Widgets/UnifyButton.dart';
 import '../Widgets/UnifyTextField.dart';
 
@@ -20,7 +16,6 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
-
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -32,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
         elevation: 0,
       ),
       body: Padding(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             Text(
