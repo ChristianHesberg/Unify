@@ -9,6 +9,9 @@ Visit us here [FriendZone](https://unify-ef8e0.firebaseapp.com/#/)
 developed for 4 semester exam at [EASV](https://www.easv.dk/en/).
 
 
+- Website url 1 : https://unify-ef8e0.firebaseapp.com/#/
+- Website url 2 : https://unify-ef8e0.web.app/
+- Github repo url : https://github.com/ChristianHesberg/Unify
 
 ## Authors
 
