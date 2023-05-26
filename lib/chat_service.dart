@@ -67,7 +67,7 @@ class ChatService {
         body: json.encode({
           ChatKeys.chatId: chat.id,
           MessageKeys.content: message,
-          MessageKeys.sender: user.name ?? 'test',
+          MessageKeys.sender: user.name
         }));
   }
 }

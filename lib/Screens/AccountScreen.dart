@@ -178,7 +178,7 @@ class _AccountScreenState extends State<AccountScreen> {
       onSelect: _handleGenderSelect,
       canChange: !canEdit,
       startIndex: gender[user.gender],
-    ); //GenderDropDown(startIndex: 1,canChange: !canEdit,);
+    );
   }
 
 

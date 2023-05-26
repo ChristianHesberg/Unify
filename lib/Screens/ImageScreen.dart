@@ -1,11 +1,7 @@
-import 'dart:io';
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:unify/user_state.dart';
-
 import '../models/appUser.dart';
 import '../user_service.dart';
 
@@ -75,7 +71,7 @@ class _ImageScreenState extends State<ImageScreen> {
             backgroundColor: Colors.blue,
             onPressed: () {
               if (user.imageList.length >= 12) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                   content: Text("You can only have 12 images"),
                   duration: Duration(seconds: 3),
                 ));
@@ -118,14 +114,14 @@ class _ImageScreenState extends State<ImageScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text("Delete picture?"),
-            content: Text("Are you sure you want to delete this picture"),
+            title: const Text("Delete picture?"),
+            content: const Text("Are you sure you want to delete this picture"),
             actions: [
               TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: Text("Cancel")),
+                  child: const Text("Cancel")),
               TextButton(
                   onPressed: () {
                     userService
@@ -135,7 +131,7 @@ class _ImageScreenState extends State<ImageScreen> {
                       Navigator.of(context).pop();
                     });
                   },
-                  child: Text("Delete"))
+                  child: const Text("Delete"))
             ],
           );
         });

@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,7 +5,6 @@ import 'package:unify/Screens/ContactScreen.dart';
 import 'package:unify/Screens/DiscoverScreen.dart';
 import 'package:unify/Screens/registration/AccountSetupScreen.dart';
 import 'package:unify/user_service.dart';
-
 import 'SettingsScreen.dart';
 
 class NavigatorScreen extends StatefulWidget {

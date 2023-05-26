@@ -1,7 +1,5 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:unify/Screens/ContactScreen.dart';
 import 'package:unify/Screens/NavigatorScreen.dart';
 import 'package:unify/chat_service.dart';
 import 'package:unify/match_state.dart';
