@@ -30,14 +30,21 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         if (MatchState.peopleList.isNotEmpty) {
           return buildDiscover(context);
         } else {
-          return const Center(child: Column(children:[ CircularProgressIndicator(), UserText(text: "Searching for people in who fit your preferences")]));
+          return const Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+            CircularProgressIndicator(),
+            UserText(text: "Searching for people who fit your preferences",size: 15,)
+          ]));
         }
       },
     );
   }
 
   Future buildUserList(UserService service) async {
-    if(!UserState.userInit){
+    if (!UserState.userInit) {
       await service.initializeUser();
     }
     MatchState.peopleList += await service.getUsersWithinRadius();
@@ -46,9 +53,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
 
   Widget buildDiscover(BuildContext context) {
     var pageView = buildPageView();
-    return Scaffold(
-      body: pageView
-    );
+    return Scaffold(body: pageView);
   }
 
   PageView buildPageView() {
@@ -58,8 +63,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         onPageChanged: (int pageNumber) async {
           MatchState.index = pageNumber;
           if (pageNumber == MatchState.peopleList.length - 1) {
-            setState(() {
-            });
+            setState(() {});
           }
           print('pageNumber: $pageNumber');
           print('index: ${MatchState.index}');
@@ -77,7 +81,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                         "${MatchState.peopleList[position].name}, ${MatchState.peopleList[position].getBirthdayAsAge()}",
                   ),
                   buildGenderIcon(MatchState.peopleList[position].gender),
-                  ContactUserBtn(user1: UserState.user!, user2: MatchState.peopleList[position]),
+                  ContactUserBtn(
+                      user1: UserState.user!,
+                      user2: MatchState.peopleList[position]),
                 ],
               ),
               Expanded(
@@ -151,11 +157,20 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     );
   }
 
-  Widget buildGenderIcon(String gender){
-    switch(gender){
-      case 'female': return const Icon(Icons.female,size: 40,);
-      case 'male': return const Icon(Icons.male, size: 40,);
-      case 'other': return const UserText(text: 'X');
+  Widget buildGenderIcon(String gender) {
+    switch (gender) {
+      case 'female':
+        return const Icon(
+          Icons.female,
+          size: 40,
+        );
+      case 'male':
+        return const Icon(
+          Icons.male,
+          size: 40,
+        );
+      case 'other':
+        return const UserText(text: 'X');
     }
     return const UserText(text: 'X');
   }

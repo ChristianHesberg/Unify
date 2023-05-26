@@ -57,7 +57,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
 
   _buildNavigatorScreen() {
     return Scaffold(
-      appBar: AppBar(title: const Text("Unify"), backgroundColor: Colors.black),
+      appBar: AppBar(title: const Text("The FriendZone"), backgroundColor: Colors.black),
       body: _showWidget(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
           currentIndex: _selectedIndex,
